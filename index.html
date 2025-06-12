@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n-key="page.title">Tab Baru</title>
+
+    <link rel="stylesheet" href="css/styles.css">
+
+    <link rel="icon" href="favicon.ico">
+</head>
+<body class="text-gray-900">
+
+    <div id="unsupported-resolution-message">
+        <p data-i18n-key="page.unsupportedRes">Maaf, halaman dashboard belum mendukung resolusi rendah</p>
+    </div>
+
+    <div class="hover-dead-zone-top"></div>
+
+    <div class="info-section fixed">
+        <h1 id="greeting" class="text-4xl font-bold mb-2"></h1>
+        <p id="description" class="description mb-4">
+            
+        </p>
+        <hr class="separator">
+        <div class="time-info text-lg">
+            <p id="date"></p>
+            <p id="time-container">
+                <span id="time-main"></span><span id="time-seconds"></span>
+            </p>
+        </div>
+    </div>
+
+    <div class="container mx-auto p-4">
+        <img src="assets/images/avatar-fullbody.webp" alt="Avatar Assistant" class="avatar-full" loading="lazy">
+    </div>
+
+    <footer class="footer p-4">
+        <div class="footer-content flex items-center justify-end space-x-4">
+
+            <span id="account-message" class="footer-text offline-message" data-i18n-key="footer.account" data-i18n-value="K1234">Anda sebagai K1234</span>
+
+            <span id="offline-message" class="footer-text offline-message" data-i18n-key="footer.offline">Anda sedang offline</span>
+
+            <span id="loading-message" class="footer-text loading-message" data-i18n-key="footer.checking">Memeriksa koneksi</span>
+
+            <span class="footer-text credit-text" data-i18n-key="footer.credit">
+                Ilustrasi karakter dibuat menggunakan Google Imagen 4
+            </span>
+
+            <div id="avatar-menu-container" class="avatar-menu-container" data-tooltip="Pengaturan Dashboard" data-i18n-key="footer.tooltip.settings">
+                <img id="avatar-logo-btn" src="assets/images/avatar-logo.webp" alt="Avatar Logo" class="avatar-logo">
+                <div id="menu-popup" class="menu-popup">
+                    <button id="open-username-modal-btn" class="menu-btn" data-i18n-key="menu.changeUsername">Ubah Username</button>
+                    <button id="open-theme-modal-btn" class="menu-btn" data-i18n-key="menu.adjustTheme">Sesuaikan Tema</button>
+                    <button id="open-other-settings-modal-btn" class="menu-btn" data-i18n-key="menu.otherSettings">Pengaturan Lainnya</button>
+                    <button id="open-about-modal-btn" class="menu-btn" data-i18n-key="menu.about">Tentang Dashboard</button>
+                </div>
+            </div>
+
+        </div>
+    </footer>
+    
+    <div id="username-modal-overlay" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-i18n-key="settings.username.title">Ubah Pengguna</h3>
+                <button id="close-username-modal-btn" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-item-column">
+                    <label for="username-input" class="modal-label" data-i18n-key="settings.username.label">Username (Maks. 6 karakter)</label>
+                    <input type="text" id="username-input" class="modal-input" maxlength="6">
+                    <p id="username-feedback" class="feedback-text"></p>
+                </div>
+                <button id="save-username-btn" class="modal-save-btn" data-i18n-key="settings.username.save">Simpan</button>
+            </div>
+        </div>
+    </div>
+        
+    <div id="theme-modal-overlay" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-i18n-key="settings.theme.title">Pilih Tampilan</h3>
+                <button id="close-theme-modal-btn" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="theme-options">
+                    <button id="theme-light-btn" class="theme-btn" data-i18n-key="settings.theme.light">Terang</button>
+                    <button id="theme-dark-btn" class="theme-btn" data-i18n-key="settings.theme.dark">Gelap</button>
+                    <button id="theme-system-btn" class="theme-btn active" data-i18n-key="settings.theme.system">Default Perangkat</button>
+                </div>
+                
+                <div class="switch-container">
+                    <label for="theme-preview-checkbox" class="switch-label" data-i18n-key="settings.theme.showPreview">Tampilkan Pratinjau Halaman</label>
+                    <label class="switch">
+                        <input type="checkbox" id="theme-preview-checkbox">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <p class="preview-esc-message" data-i18n-key="settings.theme.escInfo">Tekan tombol "Esc" pada keyboard untuk keluar window</p>
+
+            </div>
+        </div>
+    </div>
+
+    <div id="other-settings-modal-overlay" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-i18n-key="menu.otherSettings">Pengaturan Lainnya</h3>
+                <button id="close-other-settings-modal-btn" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h4 class="sub-judul" data-i18n-key="settings.language.title">Pilihan Bahasa</h4>
+                <div class="switch-container">
+                    <label class="switch-label" data-i18n-key="settings.language.allContent">Semua Konten Tampilan</label>
+                    <div class="custom-select-container">
+                        <div id="lang-select-ui" class="custom-select" tabindex="0">
+                            <span>Indonesia</span><span class="select-arrow"></span>
+                        </div>
+                        <div class="custom-select-options">
+                            <div class="custom-option" data-value="id">Indonesia</div>
+                            <div class="custom-option" data-value="en">English</div>
+                            <div class="custom-option" data-value="jp">日本語</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="switch-container">
+                    <label for="apply-to-all-switch" class="switch-label" data-i18n-key="settings.language.applyAll">Terapkan ke Semua Konten</label>
+                    <label class="switch">
+                        <input type="checkbox" id="apply-to-all-switch">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div id="lang-container-greeting" class="switch-container">
+                    <label class="switch-label" data-i18n-key="settings.language.greeting">Ucapan Salam</label>
+                    <div class="custom-select-container">
+                        <div id="lang-select-greeting" class="custom-select" tabindex="0">
+                             <span>Indonesia</span><span class="select-arrow"></span>
+                        </div>
+                        <div class="custom-select-options">
+                            <div class="custom-option" data-value="id">Indonesia</div>
+                            <div class="custom-option" data-value="en">English</div>
+                            <div class="custom-option" data-value="jp">日本語</div>
+                        </div>
+                    </div>
+                </div>
+                <div id="lang-container-description" class="switch-container">
+                    <label class="switch-label" data-i18n-key="settings.language.description">Deskripsi</label>
+                    <div class="custom-select-container">
+                        <div id="lang-select-description" class="custom-select" tabindex="0">
+                            <span>Indonesia</span><span class="select-arrow"></span>
+                        </div>
+                        <div class="custom-select-options">
+                            <div class="custom-option" data-value="id">Indonesia</div>
+                            <div class="custom-option" data-value="en">English</div>
+                            <div class="custom-option" data-value="jp">日本語</div>
+                        </div>
+                    </div>
+                </div>
+                 <div id="lang-container-date" class="switch-container">
+                    <label class="switch-label" data-i18n-key="settings.language.date">Hari dan Tanggal</label>
+                    <div class="custom-select-container">
+                        <div id="lang-select-date" class="custom-select" tabindex="0">
+                            <span>Indonesia</span><span class="select-arrow"></span>
+                        </div>
+                        <div class="custom-select-options">
+                            <div class="custom-option" data-value="id">Indonesia</div>
+                            <div class="custom-option" data-value="en">English</div>
+                            <div class="custom-option" data-value="jp">日本語</div>
+                        </div>
+                    </div>
+                </div>
+
+                <h4 class="sub-judul" data-i18n-key="settings.other.clock">Jam</h4>
+                <div class="switch-container">
+                    <label for="show-seconds-switch" class="switch-label" data-i18n-key="settings.other.showSeconds">Tampilkan Detik</label>
+                    <label class="switch">
+                        <input type="checkbox" id="show-seconds-switch">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <h4 class="sub-judul" data-i18n-key="settings.other.visual">Visual</h4>
+                <div class="switch-container">
+                    <label for="blur-menu-switch" class="switch-label" data-i18n-key="settings.other.blurMenu">Aktifkan Efek Blur Background Menu</label>
+                    <label class="switch">
+                        <input type="checkbox" id="blur-menu-switch">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="switch-container">
+                    <label for="blur-footer-switch" class="switch-label" data-i18n-key="settings.other.blurFooter">Aktifkan Efek Blur Footer</label>
+                    <label class="switch">
+                        <input type="checkbox" id="blur-footer-switch">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                
+                <h4 class="sub-judul" data-i18n-key="settings.other.interactiveChar">Gambar Karakter Interaktif</h4>
+                <div class="switch-container">
+                    <label for="avatar-full-show" class="switch-label" data-i18n-key="settings.other.showChar">Tampilkan Karakter</label>
+                    <label class="switch">
+                        <input type="checkbox" id="avatar-full-show">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="switch-container">
+                    <label for="avatar-animation-switch" class="switch-label" data-i18n-key="settings.other.enableAnim">Aktifkan Animasi Interaktif</label>
+                    <label class="switch">
+                        <input type="checkbox" id="avatar-animation-switch">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="switch-container">
+                    <label for="detect-mouse-stillness-switch" class="switch-label" data-i18n-key="settings.other.detectMouse">Deteksi Mouse Diam</label>
+                    <label class="switch">
+                        <input type="checkbox" id="detect-mouse-stillness-switch">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <p class="setting-help-text" data-i18n-key="settings.other.animHelp">Animasi interaktif akan dimulai setelah kursor diam di atas gambar karakter selama 0,3 detik untuk menghindari interaksi yang tidak disengaja.</p>
+                
+                <p class="setting-item"><span data-i18n-key="settings.other.support">Dukungan gambar karakter interaktif:</span> <span id="avatar-status-text"></span></p>
+                <p id="avatar-help-text" class="setting-help-text" data-i18n-key="settings.other.supportHelp">Atur ke resolusi layar lebih tinggi untuk mendapat dukungan gambar karakter interaktif.
+                    Minimal 480px (lebar) x 510px (tinggi)</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="about-modal-overlay" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-i18n-key="menu.about">Tentang Dashboard</h3>
+                <button id="close-about-modal-btn" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body about-body">
+                <p data-i18n-key="about.p1">Halaman ini bertujuan untuk menggantikan halaman beranda yang ada pada browser. Terima kasih telah menggunakan.</p>
+                <h4 class="sub-judul" data-i18n-key="about.featuresTitle">Apa Saja Fitur-Fiturnya?</h4>
+                <ul>
+                    <li data-i18n-key="about.f1">Informasi waktu real-time</li>
+                    <li data-i18n-key="about.f2">Penyesuaian tema gelap, terang, atau default perangkat</li>
+                    <li data-i18n-key="about.f3">Ilustrasi karakter</li>
+                    <li data-i18n-key="about.f4">Status koneksi internet jika sedang offline</li>
+                </ul>
+                <p data-i18n-key="about.p2">Untuk info selengkapnya, silahkan download dan kunjungi halaman <a href="readme.md" class="readme-link">readme.md</a>.</p>
+                <h4 class="sub-judul" data-i18n-key="about.notesTitle">Catatan</h4>
+                <p data-i18n-key="about.n1">Penerapan fitur tema terang dan gelap hanya berlaku untuk halaman dashboard ini.</p>
+                <p data-i18n-key="about.n2">Pada resolusi layar di atas 930px, arahkan mouse ke karakter untuk melihat lebih dekat.
+                    Cek dukungan gambar karakter interaktif melalui menu "Pengaturan Lainnya".</p>
+                <h4 class="sub-judul" data-i18n-key="about.creditTitle">Kredit</h4>
+                <p data-i18n-key="about.c1">Font:</p>
+                <ul>
+                    <li data-i18n-key="about.d1">Poppins - Indian Type Foundry, Jonny Pinhorn, dan Ninad Kale</li>
+                </ul>
+                <p data-i18n-key="about.c2">Font untuk bahasa Jepang:</p>
+                <ul>
+                    <li data-i18n-key="about.d2">Noto Sans Japanese - Adobe</li>
+                </ul>
+                <p data-i18n-key="about.c3">Gambar karakter:</p>
+                <ul>
+                    <li data-i18n-key="about.d3">Google Imagen 4</li>
+                </ul>
+                <p data-i18n-key="about.c4">Website di buat oleh:</p>
+                <ul>
+                    <li data-i18n-key="about.d4">Danny Bungai</li>
+                </ul>
+                <h4 class="sub-judul" data-i18n-key="about.versionTitle">Versi Website</h4>
+                <p>3.2 (06-2025)</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="hover-dead-zone"></div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
