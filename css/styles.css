@@ -78,6 +78,12 @@
   body:not(.light-theme) .switch input:checked + .slider:before {
     background-color: var(--accent-color);
   }
+  /* PENAMBAHAN ATURAN UNTUK TOMBOL FILE */
+  body:not(.light-theme) .modal-input-file::file-selector-button {
+    background-color: rgba(0,0,0,0.3); 
+    color: white; 
+    border-color: rgba(255,255,255,0.2);
+  }
 }
 
 body.light-theme {
@@ -449,6 +455,7 @@ body.menu-blur-disabled .modal-overlay {
   opacity: 1;
   transform: scale(1) translateY(0);
   transition: opacity 0.2s ease, transform 0.2s ease;
+  font-size: 1rem;
 }
 .modal-overlay.preview-mode .modal-content {
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -764,11 +771,28 @@ body.dark-theme .switch input:checked + .slider:before {
   text-decoration: underline;
 }
 
-/* Penambahan Style untuk Modal Username (BARU) */
-#username-modal-overlay .modal-body {
+.how-it-works-body {
+    text-align: center;
+}
+.how-it-works-body .avatar-logo {
+    margin: 1rem auto;
+    display: block;
+}
+
+#username-modal-overlay .modal-body,
+#pin-enter-modal-overlay .modal-body,
+#add-edit-prompt-modal-overlay .modal-body,
+#create-pin-modal-overlay .modal-body {
   display: flex;
   flex-direction: column;
 }
+
+.modal-description {
+  margin-bottom: 1.5rem;
+  opacity: 0.9;
+  line-height: 1.6;
+}
+
 .setting-item-column {
   display: flex;
   flex-direction: column;
@@ -792,6 +816,7 @@ body.dark-theme .switch input:checked + .slider:before {
   font-size: 1rem;
   box-sizing: border-box;
   transition: border-color 0.2s ease, background-color 0.2s ease;
+  resize: none;
 }
 .modal-input:focus {
   outline: none;
@@ -804,19 +829,13 @@ body.dark-theme .switch input:checked + .slider:before {
   font-weight: 500;
   opacity: 0;
   transition: opacity 0.3s ease;
+  color: var(--text-color);
 }
 .feedback-text.show {
   opacity: 1;
+  opacity: 0.8;
 }
-.feedback-text.success {
-  color: #28a745;
-}
-body.dark-theme .feedback-text.success {
-  color: #32cd32;
-}
-.feedback-text.error {
-  color: var(--accent-color);
-}
+
 .modal-save-btn {
   align-self: flex-end;
   padding: 10px 24px;
@@ -833,6 +852,330 @@ body.dark-theme .feedback-text.success {
 .modal-save-btn:hover {
   opacity: 0.9;
 }
+
+/* ==================== STYLE UNTUK FITUR PIN & PROMPT ==================== */
+.pin-input-field {
+  text-align: center;
+  font-size: 1.5rem;
+  letter-spacing: 0.5em;
+}
+
+#pin-settings-container {
+  transition: opacity 0.3s ease, transform 0.3s ease, max-height 0.3s ease;
+  overflow: hidden;
+  transform: translateY(0);
+  opacity: 1;
+  max-height: 300px; 
+}
+
+#pin-settings-container.hidden {
+  opacity: 0;
+  transform: translateY(-10px);
+  max-height: 0;
+  margin-top: -1.5rem;
+}
+
+.prompt-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 174px));
+  gap: 1rem;
+}
+
+.prompt-item {
+  aspect-ratio: 1 / 1;
+  border-radius: 8px;
+  cursor: grab;
+  border: 2px solid transparent;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+  position: relative;
+  -webkit-user-select: none;
+  user-select: none;
+  overflow: hidden;
+  transform: translateZ(0);
+}
+
+.prompt-item-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; 
+  transition: transform 0.3s ease;
+}
+
+.prompt-item:hover .prompt-item-img {
+  transform: scale(1.1);
+}
+
+/* Status Drag-and-Drop dari SortableJS */
+.prompt-item.sortable-ghost {
+  opacity: 0.4;
+  background-color: var(--select-hover-bg);
+  border: 2px dashed var(--accent-color);
+}
+.prompt-item.sortable-chosen {
+  cursor: grabbing;
+  transform: scale(1.05);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.add-prompt-item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 3rem;
+  color: var(--text-color);
+  opacity: 0.6;
+  border: 2px dashed var(--text-color);
+  background-color: transparent;
+  cursor: pointer;
+}
+.add-prompt-item:hover {
+  opacity: 1;
+  background-color: var(--select-bg);
+}
+
+/* Menu titik tiga */
+.prompt-item-menu-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 28px;
+  height: 28px;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2rem;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 3;
+}
+.prompt-item:hover .prompt-item-menu-btn {
+  opacity: 1;
+}
+
+.prompt-item-menu {
+    position: absolute;
+    top: 36px;
+    right: 4px;
+    background-color: var(--footer-bg-color);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 4;
+    display: none;
+    flex-direction: column;
+    padding: 8px;
+    min-width: 180px;
+    width: max-content;
+    gap: 5px;
+}
+.prompt-item-menu.show {
+  display: flex;
+}
+.prompt-menu-option {
+    background: none;
+    border: none;
+    color: var(--footer-text-color);
+    padding: 8px 16px;
+    text-align: left;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+    font-family: "Poppins", "Noto Sans JP", Arial, sans-serif;
+    white-space: nowrap;
+}
+.prompt-menu-option:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* ==================== STYLE TAMBAHAN UNTUK PERBAIKAN ==================== */
+.modal-button-group {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.modal-secondary-btn {
+  padding: 10px 18px;
+  background-color: transparent;
+  color: var(--text-color);
+  opacity: 0.8;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: "Poppins", "Noto Sans JP", Arial, sans-serif;
+  font-weight: 500;
+  font-size: 1rem;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+
+.modal-secondary-btn:hover {
+  background-color: var(--select-hover-bg);
+  opacity: 1;
+}
+
+.modal-danger-btn {
+  padding: 10px 24px;
+  background-color: #dc3545; /* Merah untuk bahaya */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: "Poppins", "Noto Sans JP", Arial, sans-serif;
+  font-weight: 500;
+  font-size: 1rem;
+  transition: background-color 0.2s ease;
+}
+
+.modal-danger-btn:hover {
+  background-color: #c82333;
+}
+
+.modal-input-file {
+  width: 100%;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(128, 128, 128, 0.5);
+  background-color: var(--select-bg);
+  color: var(--text-color);
+  font-family: "Poppins", "Noto Sans JP", Arial, sans-serif;
+  font-size: 0.9rem;
+  box-sizing: border-box;
+}
+
+/* Penyesuaian warna untuk mode terang/gelap */
+body.light-theme .modal-input-file::file-selector-button {
+  background-color: #e9ecef; color: #495057; border-color: #ced4da;
+}
+body.dark-theme .modal-input-file::file-selector-button {
+  background-color: rgba(0,0,0,0.3); color: white; border-color: rgba(255,255,255,0.2);
+}
+
+.modal-input-file::file-selector-button {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid;
+  font-weight: 500;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+#prompt-viewer-text {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background-color: var(--select-bg);
+  border-radius: 8px;
+  min-height: 150px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.prompt-actions-top {
+  justify-content: flex-end;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+  margin-bottom: 1rem;
+}
+
+#prompt-viewer-modal-overlay .modal-body {
+  padding-top: 0;
+}
+
+.image-preview {
+  max-width: 100px;
+  height: auto;
+  border-radius: 8px;
+  border: 2px solid var(--select-bg);
+  box-sizing: border-box;
+}
+
+.image-previews-container {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+#prompt-image-previews-container.hidden {
+  display: none;
+}
+
+.image-preview.hidden {
+  display: none;
+}
+
+.preview-arrow {
+  font-size: 1.5rem;
+  color: var(--text-color);
+  opacity: 0.8;
+}
+
+#image-viewer-modal-overlay {
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.image-viewer-content {
+  position: relative;
+}
+#full-image-viewer {
+  display: block;
+  max-width: 90vw;
+  max-height: 90vh;
+  border-radius: 8px;
+  object-fit: contain;
+}
+.image-viewer-close-btn {
+  position: absolute;
+  top: -15px;
+  right: -15px;
+  color: white;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ==================== TOAST NOTIFICATION ==================== */
+.toast-notification {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translate(-50%, 20px);
+  background-color: rgba(30, 30, 30, 0.9);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  z-index: 105;
+  font-size: 0.9rem;
+  font-weight: 500;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
+}
+
+.toast-notification.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0);
+}
+
 
 /* ==================== DEFINISI ANIMASI ==================== */
 @keyframes fadeIn {
@@ -851,6 +1194,92 @@ body.dark-theme .feedback-text.success {
   66% { content: ".."; }
   100% { content: "..."; }
 }
+
+/* ==================== PROMPT MANAGE MODE STYLES ==================== */
+.modal-header > div {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.modal-header-btn {
+    background: var(--select-bg);
+    border: none;
+    color: var(--text-color);
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: "Poppins", "Noto Sans JP", Arial, sans-serif;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: background-color 0.2s ease;
+}
+.modal-header-btn:hover {
+    background: var(--select-hover-bg);
+}
+.prompt-manage-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0;
+    border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+    background-color: var(--select-bg);
+    transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out, padding 0.3s ease-in-out;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+}
+.prompt-manage-bar:not(.hidden) {
+    max-height: 100px;
+    opacity: 1;
+    padding: 0.75rem 1.5rem;
+}
+#prompt-select-count {
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+.prompt-manage-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+.prompt-manage-actions .modal-secondary-btn,
+.prompt-manage-actions .modal-danger-btn {
+    padding: 6px 12px;
+    font-size: 0.9rem;
+}
+.modal-danger-btn:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+.modal-content.manage-mode .prompt-item {
+    cursor: pointer;
+    outline: 2px solid transparent;
+    outline-offset: -2px;
+    transition: outline-color 0.2s ease;
+}
+.modal-content.manage-mode .prompt-item-img {
+    filter: brightness(0.5);
+    transition: filter 0.2s ease;
+}
+.modal-content.manage-mode .prompt-item.selected .prompt-item-img {
+    filter: brightness(1);
+}
+.modal-content.manage-mode .prompt-item.selected {
+    outline-color: var(--accent-color);
+}
+.modal-content.manage-mode .prompt-item:hover .prompt-item-img {
+    transform: scale(1); /* Disable zoom on hover in manage mode */
+}
+.modal-content.manage-mode .prompt-item-menu-btn {
+    display: none;
+}
+.modal-content.manage-mode .add-prompt-item {
+    opacity: 0.5;
+    pointer-events: none;
+    cursor: not-allowed;
+    background-color: transparent;
+}
+
 
 /* ==================== RESPONSIVE DESIGN ==================== */
 @media (max-width: 1328px) {
@@ -936,21 +1365,170 @@ body.dark-theme .feedback-text.success {
   }
 }
 
-#unsupported-resolution-message {
-  display: none;
-  position: fixed;
+/* ==================== PERBAIKAN MENU KONTEKS TERPOTONG ==================== */
+.prompt-item-menu.flip-position {
+  right: auto;
+  left: 4px;
+}
+
+/* ==================== MODAL FOOTER & INDIKATOR PENYIMPANAN ==================== */
+.modal-footer {
+  padding: 0.75rem 1.5rem;
+  border-top: 1px solid rgba(128, 128, 128, 0.2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.storage-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.storage-indicator {
+  width: 100%;
+  max-width: 180px;
+  text-align: center;
+}
+
+.storage-bar-container {
+  width: 100%;
+  height: 8px;
+  background-color: var(--select-bg);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.storage-bar {
+  height: 100%;
+  width: 0%; /* Diatur oleh JavaScript */
+  background-color: #28a745; /* Hijau */
+  border-radius: 4px;
+  transition: width 0.5s ease, background-color 0.5s ease;
+}
+
+.storage-bar.warning {
+  background-color: #ffc107; /* Kuning */
+}
+
+.storage-bar.danger {
+  background-color: #dc3545; /* Merah */
+}
+
+.storage-text {
+  font-size: 0.75rem;
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+#prompt-modal-overlay .modal-body {
+    max-height: calc(60vh - 50px);
+}
+
+#add-edit-prompt-modal-overlay .modal-body {
+    max-height: calc(70vh - 50px);
+}
+
+#prompt-modal-overlay .modal-content {
+  max-width: 800px;
+  width: 95%;
+}
+
+#prompt-viewer-modal-overlay .modal-button-group,
+#confirmation-modal-overlay .modal-button-group {
+  margin-top: 1.5rem;
+}
+
+/* 1. Atur wadah pratinjau agar lebarnya penuh */
+#prompt-image-previews-container {
+  width: 100%;
+}
+
+/* 2. Atur pratinjau tunggal (mode Tambah) agar pas dan tidak terdistorsi */
+#prompt-image-preview-single {
+  max-width: 48%; /* Ubah nilai ini dari 100% */
+  max-height: 250px;
+  align-self: center;
+}
+
+/* 3. Atur pratinjau ganda (mode Edit) agar berbagi ruang secara merata */
+#prompt-image-previews-container {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+#prompt-image-previews-container .image-preview {
+  flex: 1;          /* Membuat kedua gambar membesar secara fleksibel */
+  min-width: 0;     /* Mencegah gambar meluap dari wadahnya */
+  max-width: 100%;  /* Menimpa aturan max-width: 100px yang lama */
+}
+
+#info-modal-text {
+  text-align: center;
+  font-size: 1rem;
+}
+
+/* Aturan khusus saat tombol tambah adalah satu-satunya item */
+.add-prompt-item:only-child {
+  width: 174px; /* Disesuaikan dengan minmax grid */
+  height: 174px; /* Disesuaikan dengan minmax grid */
+  justify-self: center;
+}
+
+/* ==================== DRAG & DROP STYLES ==================== */
+.modal-content.drag-over {
+  border: 2px dashed var(--accent-color);
+  box-shadow: 0 0 20px rgba(197, 32, 38, 0.4);
+}
+
+/* Umpan balik teks khusus untuk modal daftar prompt utama */
+#prompt-modal-overlay .modal-content.drag-over::after {
+  content: attr(data-drop-text);
+  position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 100;
+  display: flex;
   justify-content: center;
   align-items: center;
+  font-size: 1.5rem;
+  font-weight: 500;
   text-align: center;
-  background: linear-gradient(to left, var(--bg-gradient-end), var(--bg-gradient-start));
-  color: var(--text-color);
-  font-family: "Poppins", "Noto Sans JP", Arial, sans-serif;
-  font-size: 1.1rem;
-  padding: 1.5rem;
+  padding: 1rem;
   box-sizing: border-box;
+  color: var(--text-color);
+  background-color: rgba(81, 52, 48, 0.85); /* Fallback untuk tema gelap */
+  z-index: 5;
+  pointer-events: none;
+  border-radius: 12px;
+}
+
+body.light-theme #prompt-modal-overlay .modal-content.drag-over::after {
+    background-color: rgba(255, 255, 255, 0.85);
+}
+
+body.dark-theme #prompt-modal-overlay .modal-content.drag-over::after {
+    background-color: rgba(81, 52, 48, 0.85);
+}
+
+/* ==================== SCROLLBAR TEXTAREA ==================== */
+textarea.modal-input::-webkit-scrollbar {
+  width: 8px;
+}
+textarea.modal-input::-webkit-scrollbar-track {
+  background: transparent;
+}
+textarea.modal-input::-webkit-scrollbar-thumb {
+  background-color: rgba(128, 128, 128, 0.4);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+textarea.modal-input::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(128, 128, 128, 0.6);
 }

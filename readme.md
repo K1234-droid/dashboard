@@ -33,6 +33,32 @@ Tema terang dan gelap mengikuti pengaturan browser Anda secara otomatis. Anda ju
 - Email: [lexlyky@ares.edu.pl] (untuk pertanyaan atau laporan bug).
 - Versi: 3.2 (Juni 2025).
 
+## Struktur dan Isi File
+index_browser_k1234/
+├── assets/
+│   ├── fonts/
+│   │   ├── NotoSansJP-Bold.ttf ----------------------------------
+│   │   ├── NotoSansJP-Medium.ttf     Font untuk bahasa Jepang   |
+│   │   ├── NotoSansJP-Regular.ttf -------------------------------
+│   │   ├── Poppins-Bold.ttf -------------------------------------
+│   │   ├── Poppins-Medium.ttf        Font untuk bahasa Lainnya  |
+│   │   └── Poppins-Regular.ttf ----------------------------------
+│   ├── icons/
+│   │   ├── icon16.png
+│   │   ├── icon48.png
+│   │   └── icon128.png
+│   └── images/
+│       ├── avatar-fullbody.webp
+│       └── avatar-logo.webp
+├── css/
+│   └── styles.css
+├── js/
+│   └── script.js
+├── favicon.ico
+├── index.html
+├── manifest.json
+└── readme.md
+
 ## Catatan Tambahan
 - Ilustrasi karakter dibuat menggunakan **Google Imagen 4**.
 - Untuk pembaruan atau laporan masalah, silakan hubungi melalui email di atas.

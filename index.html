@@ -6,22 +6,16 @@
     <title data-i18n-key="page.title">Tab Baru</title>
 
     <link rel="stylesheet" href="css/styles.css">
-
+    
     <link rel="icon" href="favicon.ico">
 </head>
 <body class="text-gray-900">
-
-    <div id="unsupported-resolution-message">
-        <p data-i18n-key="page.unsupportedRes">Maaf, halaman dashboard belum mendukung resolusi rendah</p>
-    </div>
 
     <div class="hover-dead-zone-top"></div>
 
     <div class="info-section fixed">
         <h1 id="greeting" class="text-4xl font-bold mb-2"></h1>
-        <p id="description" class="description mb-4">
-            
-        </p>
+        <p id="description" class="description mb-4"></p>
         <hr class="separator">
         <div class="time-info text-lg">
             <p id="date"></p>
@@ -32,7 +26,7 @@
     </div>
 
     <div class="container mx-auto p-4">
-        <img src="assets/images/avatar-fullbody.webp" alt="Avatar Assistant" class="avatar-full" loading="lazy">
+        <img src="assets/images/avatar-fullbody.webp" alt="Avatar Assistant" class="avatar-full hidden" loading="lazy">
     </div>
 
     <footer class="footer p-4">
@@ -225,6 +219,26 @@
                 <p class="setting-item"><span data-i18n-key="settings.other.support">Dukungan gambar karakter interaktif:</span> <span id="avatar-status-text"></span></p>
                 <p id="avatar-help-text" class="setting-help-text" data-i18n-key="settings.other.supportHelp">Atur ke resolusi layar lebih tinggi untuk mendapat dukungan gambar karakter interaktif.
                     Minimal 480px (lebar) x 510px (tinggi)</p>
+
+                <h4 class="sub-judul" data-i18n-key="settings.hidden.title">Fitur Tersembunyi</h4>
+                <div class="switch-container">
+                    <label for="hidden-feature-switch" class="switch-label" data-i18n-key="settings.hidden.enable">Aktifkan Fitur Tersembunyi</label>
+                    <label class="switch">
+                        <input type="checkbox" id="hidden-feature-switch">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div id="pin-settings-container" class="hidden">
+                    <div class="setting-item-column">
+                        <label for="pin-input" class="modal-label" data-i18n-key="settings.security.pinLabel">Buat/Ubah PIN Prompt Karakter (4 digit)</label>
+                        <input type="password" id="pin-input" class="modal-input pin-input-field" maxlength="4" placeholder="••••">
+                        <p id="pin-feedback" class="feedback-text"></p>
+                    </div>
+                    <div class="modal-button-group">
+                        <button id="how-it-works-btn" class="modal-secondary-btn" data-i18n-key="hiddenFeature.howItWorks.button">Cara Kerja</button>
+                        <button id="update-pin-btn" class="modal-save-btn" data-i18n-key="settings.hidden.updatePin">Perbarui PIN</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -267,13 +281,192 @@
                     <li data-i18n-key="about.d4">Danny Bungai</li>
                 </ul>
                 <h4 class="sub-judul" data-i18n-key="about.versionTitle">Versi Website</h4>
-                <p>3.2 (06-2025)</p>
+                <p>3.4</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="pin-enter-modal-overlay" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-i18n-key="pin.enter.title">Masukkan PIN</h3>
+                <button id="close-pin-enter-modal-btn" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-item-column">
+                    <label for="pin-enter-input" class="modal-label" data-i18n-key="pin.enter.label">PIN 4 Digit</label>
+                    <input type="password" id="pin-enter-input" class="modal-input pin-input-field" maxlength="4" inputmode="numeric">
+                    <p id="pin-enter-feedback" class="feedback-text"></p>
+                </div>
+                <button id="submit-pin-btn" class="modal-save-btn" data-i18n-key="pin.enter.submit">Masuk</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="prompt-modal-overlay" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-i18n-key="prompt.listTitle">Prompt Karakter AI</h3>
+                <div>
+                    <button id="prompt-manage-btn" class="modal-header-btn" data-i18n-key="prompt.manage">Kelola</button>
+                    <button id="close-prompt-modal-btn" class="close-btn">&times;</button>
+                </div>
+            </div>
+            <div id="prompt-manage-bar" class="prompt-manage-bar hidden">
+                <span id="prompt-select-count">Pilih (0)</span>
+                <div class="prompt-manage-actions">
+                    <button id="prompt-select-all-btn" class="modal-secondary-btn" data-i18n-key="prompt.selectAll">Pilih Semua</button>
+                    <button id="prompt-delete-selected-btn" class="modal-danger-btn" data-i18n-key="prompt.menu.delete" disabled>Hapus</button>
+                    <button id="prompt-cancel-manage-btn" class="modal-secondary-btn" data-i18n-key="prompt.delete.cancel">Batal</button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div id="prompt-grid" class="prompt-grid">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <span class="storage-label" data-i18n-key="prompt.storage.label">Penyimpanan Lokal</span>
+                <div id="storage-indicator" class="storage-indicator">
+                    <div class="storage-bar-container">
+                        <div id="storage-bar" class="storage-bar"></div>
+                    </div>
+                    <span id="storage-text" class="storage-text" data-i18n-key="prompt.storage.loading">Memuat...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="prompt-viewer-modal-overlay" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-i18n-key="prompt.detailTitle">Detail Prompt</h3>
+                <button id="close-prompt-viewer-modal-btn" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-button-group prompt-actions-top">
+                    <button id="copy-prompt-btn" class="modal-save-btn" data-i18n-key="prompt.menu.copy">Salin Teks</button>
+                    <button id="delete-prompt-btn" class="modal-danger-btn" data-i18n-key="prompt.menu.delete">Hapus</button>
+                </div>
+                <p id="prompt-viewer-text"></p>
+                <div class="modal-button-group">
+                    <button id="edit-prompt-btn" class="modal-secondary-btn" data-i18n-key="prompt.menu.edit">Edit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="add-edit-prompt-modal-overlay" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="add-edit-prompt-title">Tambah Prompt Baru</h3>
+                <button id="close-add-edit-prompt-modal-btn" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-item-column">
+                    <label for="prompt-image-file-input" class="modal-label" data-i18n-key="prompt.edit.imageLabel">Pilih File Gambar dari perangkat</label>
+                    
+                    <div id="prompt-image-previews-container" class="image-previews-container hidden">
+                        <img id="prompt-image-preview-old" src="" alt="Gambar Lama" class="image-preview">
+                        <span class="preview-arrow">&rarr;</span>
+                        <img id="prompt-image-preview-new" src="" alt="Gambar Baru" class="image-preview">
+                    </div>
+                    
+                    <img id="prompt-image-preview-single" src="" alt="Pratinjau Gambar" class="image-preview hidden">
+                
+                    <input type="file" id="prompt-image-file-input" class="modal-input-file" accept="image/*">
+                    <p id="prompt-image-help-text" class="setting-help-text" data-i18n-key="prompt.edit.imageHelp">Kosongkan jika tidak ingin mengubah gambar sampul.</p>
+                </div>
+                <div class="setting-item-column">
+                    <label for="prompt-text-input" class="modal-label" data-i18n-key="prompt.edit.textLabel">Teks Prompt</label>
+                    <textarea id="prompt-text-input" class="modal-input" rows="5"></textarea>
+                </div>
+                <button id="save-prompt-btn" class="modal-save-btn">Simpan Prompt</button>
+            </div>
+            <div class="modal-footer">
+                <span class="storage-label" data-i18n-key="prompt.storage.label">Penyimpanan Lokal</span>
+                <div id="storage-indicator-edit" class="storage-indicator">
+                    <div class="storage-bar-container">
+                        <div id="storage-bar-edit" class="storage-bar"></div>
+                    </div>
+                    <span id="storage-text-edit" class="storage-text" data-i18n-key="prompt.storage.loading">Memuat...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="image-viewer-modal-overlay" class="modal-overlay hidden">
+        <div class="image-viewer-content">
+            <img id="full-image-viewer" src="" alt="Tampilan Gambar Penuh">
+            <button id="close-image-viewer-modal-btn" class="close-btn image-viewer-close-btn">&times;</button>
+        </div>
+    </div>
+    
+    <div id="info-modal-overlay" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="info-modal-title">Perhatian</h3>
+                <button id="close-info-modal-btn" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="info-modal-text"></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="create-pin-modal-overlay" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-i18n-key="pin.create.title">Buat PIN Keamanan</h3>
+                <button id="close-create-pin-modal-btn" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-description" data-i18n-key="pin.create.description">PIN akan digunakan untuk melindungi dan mengakses fitur tersembunyi.</p>
+                <div class="setting-item-column">
+                    <label for="create-pin-input" class="modal-label" data-i18n-key="pin.enter.label">PIN 4 Digit</label>
+                    <input type="password" id="create-pin-input" class="modal-input pin-input-field" maxlength="4" inputmode="numeric">
+                    <p id="create-pin-feedback" class="feedback-text"></p>
+                </div>
+                <button id="save-initial-pin-btn" class="modal-save-btn" data-i18n-key="settings.username.save">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="confirmation-modal-overlay" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="confirmation-modal-title" data-i18n-key="prompt.delete.title">Konfirmasi Hapus</h3>
+                <button id="close-confirmation-modal-btn" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmation-modal-text" data-i18n-key="prompt.delete.text">Apakah Anda yakin ingin menghapus prompt ini? Tindakan ini tidak dapat diurungkan.</p>
+                <div class="modal-button-group">
+                    <button id="cancel-confirmation-btn" class="modal-secondary-btn" data-i18n-key="prompt.delete.cancel">Batal</button>
+                    <button id="confirm-confirmation-btn" class="modal-danger-btn" data-i18n-key="prompt.delete.confirm">Ya, Hapus</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="how-it-works-modal-overlay" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-i18n-key="hiddenFeature.howItWorks.title">Cara Kerja Fitur Tersembunyi</h3>
+                <button id="close-how-it-works-modal-btn" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body how-it-works-body">
+                <p data-i18n-key="hiddenFeature.howItWorks.p1">Tekan dua kali pada avatar pojok kanan bawah.</p>
+                <img src="assets/images/avatar-logo.webp" alt="Avatar Logo" class="avatar-logo">
+                <p data-i18n-key="hiddenFeature.howItWorks.p2">Perhatikan bahwa fitur ini akan menggunakan penyimpanan bawaan browser maksimal 5 MB.</p>
             </div>
         </div>
     </div>
 
     <div class="hover-dead-zone"></div>
 
+    <script src="js/sortable.min.js"></script>
     <script src="js/script.js"></script>
+
+    <div id="toast-notification" class="toast-notification"></div>
+
 </body>
 </html>

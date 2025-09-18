@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "K1234 Dashboard",
-    "version": "3.2",
+    "version": "3.4",
     "description": "Mengganti halaman tab baru default dengan halaman kustom K1234.",
     "chrome_url_overrides": {
       "newtab": "index.html"
