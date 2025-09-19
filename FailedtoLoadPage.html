@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n-key="page.title">Tab Baru</title>
+
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/blocker.css">
+    
+    <link rel="icon" href="favicon.ico">
+
+</head>
+<body class="text-gray-900">
+
+    <div id="file-protocol-blocker">
+        <div class="blocker-content">
+            <h1 class="blocker-title lang-text-block">
+                <span lang="id">Gagal Memuat Halaman</span>
+                <span lang="en">Failed to Load Page</span>
+                <span lang="ja">ページの読み込みに失敗しました</span>
+            </h1>
+            <p class="blocker-message lang-text-block">
+                <span lang="id">Halaman ini hanya bisa berjalan jika dipasang sebagai ekstensi atau dijalankan lewat server web. Silakan pilih salah satu cara sebelum melanjutkan.</span>
+                <span lang="en">This page can only run when installed as an extension or served through a web server. Please choose one method to continue.</span>
+                <span lang="ja">このページは、拡張機能としてインストールされるか、ウェブサーバー経由で実行された場合にのみ機能します。続行するには、いずれかの方法を選択してください。</span>
+            </p>
+            <button type="button" id="show-tutorial-btn">
+                <span lang="id">Cara Memasang Ekstensi</span>
+                <span lang="en">How to Install Extension</span>
+                <span lang="ja">拡張機能のインストール方法</span>
+            </button>
+        </div>
+
+        <div id="tutorial-modal-overlay" class="hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="lang-text-block">
+                        <span lang="id">Cara Memasang Ekstensi</span>
+                        <span lang="en">How to Install as an Extension</span>
+                        <span lang="ja">拡張機能としてインストールする方法</span>
+                    </h3>
+                    <button type="button" id="close-tutorial-modal-btn" class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <h4 class="sub-judul lang-text-block">
+                        <span lang="id">Langkah-Langkah Pemasangan</span>
+                        <span lang="en">Installation Steps</span>
+                        <span lang="ja">インストール手順</span>
+                    </h4>
+                    <ol class="tutorial-list">
+                        <li class="lang-text-block">
+                            <span lang="id">Buka browser Chrome atau Edge.</span>
+                            <span lang="en">Open Chrome or Edge browser.</span>
+                            <span lang="ja">ChromeまたはEdgeブラウザを開きます。</span>
+                        </li>
+                        <li class="lang-text-block">
+                            <span lang="id">Ketik <code>chrome://extensions</code> di bilah alamat dan tekan Enter.</span>
+                            <span lang="en">Type <code>chrome://extensions</code> in the address bar and press Enter.</span>
+                            <span lang="ja">アドレスバーに <code>chrome://extensions</code> と入力し、Enterキーを押します。</span>
+                        </li>
+                        <li class="lang-text-block">
+                            <span lang="id">Aktifkan <strong>Mode Developer</strong> di pojok kanan atas.</span>
+                            <span lang="en">Enable <strong>Developer Mode</strong> in the top right corner.</span>
+                            <span lang="ja">右上の<strong>デベロッパーモード</strong>を有効にします。</span>
+                        </li>
+                        <li class="lang-text-block">
+                            <span lang="id">Klik <strong>Muat yang belum dibuka</strong> dan pilih folder proyek <code>index_browser_k1234</code>.</span>
+                            <span lang="en">Click <strong>Load unpacked</strong> and select the <code>index_browser_k1234</code> project folder.</span>
+                            <span lang="ja"><strong>パッケージ化されていない拡張機能を読み込む</strong>をクリックし、<code>index_browser_k1234</code>プロジェクトフォルダを選択します。</span>
+                        </li>
+                        <li class="lang-text-block">
+                            <span lang="id">Selesai! Ekstensi siap digunakan.</span>
+                            <span lang="en">Done! The extension is ready to use.</span>
+                            <span lang="ja">完了です！拡張機能が使用できるようになりました。</span>
+                        </li>
+                        <li class="lang-text-block">
+                            <span lang="id">Akses halaman dengan cara membuka "Tab Baru" pada browser.</span>
+                            <span lang="en">Access the page by opening a "New Tab" in your browser.</span>
+                            <span lang="ja">ブラウザで「新しいタブ」を開いてページにアクセスします。</span>
+                        </li>
+                    </ol>
+                    <p class="setting-help-text lang-text-block">
+                        <span lang="id">Catatan: Ekstensi ini dijalankan secara lokal dan belum diverifikasi oleh toko aplikasi. Gunakan dengan hati-hati.</span>
+                        <span lang="en">Note: This extension runs locally and has not been verified by the app store. Use with caution.</span>
+                        <span lang="ja">注意: この拡張機能はローカルで実行され、アプリストアによる検証は行われていません。自己責任でご使用ください。</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+  <script>
+    (function() {
+        // --- DEKLARASI ELEMEN DOM (BAGIAN YANG DIPERBAIKI) ---
+        const blocker = document.getElementById('file-protocol-blocker');
+        const showBtn = document.getElementById('show-tutorial-btn');
+        const tutorialModal = document.getElementById('tutorial-modal-overlay');
+        const closeBtn = document.getElementById('close-tutorial-modal-btn');
+        const body = document.body;
+
+        // --- FUNGSI PENGELOLA MODAL ---
+        function openTutorialModal() {
+            tutorialModal.classList.remove('hidden');
+        }
+
+        function closeTutorialModal() {
+            tutorialModal.classList.add('hidden');
+        }
+
+        // Deteksi bahasa browser
+        const userLang = (navigator.language || navigator.userLanguage).split('-')[0];
+        const supportedLangs = ['id', 'en', 'ja'];
+        const langToShow = supportedLangs.includes(userLang) ? userLang : 'en'; // Default ke English
+        
+        // Atur bahasa utama dokumen
+        document.documentElement.lang = langToShow;
+        
+        // Tambahkan kelas bahasa ke body untuk di-styling oleh CSS
+        body.classList.add('lang-' + langToShow);
+
+        // Tambahkan event listener untuk tombol
+        showBtn.addEventListener('click', openTutorialModal);
+        closeBtn.addEventListener('click', closeTutorialModal);
+
+        // Tutup modal dengan tombol 'Escape'
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !tutorialModal.classList.contains('hidden')) {
+                closeTutorialModal();
+            }
+        });
+    })();
+</script>
+
+<script>
+    const allowedProtocols = ['http:', 'https:', 'chrome-extension:'];
+    if (allowedProtocols.includes(window.location.protocol)) {
+        window.location.href = 'index.html';
+    }
+</script>
+
+</body>
+</html>

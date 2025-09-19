@@ -116,7 +116,7 @@
                         <div class="custom-select-options">
                             <div class="custom-option" data-value="id">Indonesia</div>
                             <div class="custom-option" data-value="en">English</div>
-                            <div class="custom-option" data-value="jp">日本語</div>
+                            <div class="custom-option" data-value="ja">日本語</div>
                         </div>
                     </div>
                 </div>
@@ -136,7 +136,7 @@
                         <div class="custom-select-options">
                             <div class="custom-option" data-value="id">Indonesia</div>
                             <div class="custom-option" data-value="en">English</div>
-                            <div class="custom-option" data-value="jp">日本語</div>
+                            <div class="custom-option" data-value="ja">日本語</div>
                         </div>
                     </div>
                 </div>
@@ -149,7 +149,7 @@
                         <div class="custom-select-options">
                             <div class="custom-option" data-value="id">Indonesia</div>
                             <div class="custom-option" data-value="en">English</div>
-                            <div class="custom-option" data-value="jp">日本語</div>
+                            <div class="custom-option" data-value="ja">日本語</div>
                         </div>
                     </div>
                 </div>
@@ -162,7 +162,7 @@
                         <div class="custom-select-options">
                             <div class="custom-option" data-value="id">Indonesia</div>
                             <div class="custom-option" data-value="en">English</div>
-                            <div class="custom-option" data-value="jp">日本語</div>
+                            <div class="custom-option" data-value="ja">日本語</div>
                         </div>
                     </div>
                 </div>
@@ -464,7 +464,13 @@
     <div class="hover-dead-zone"></div>
 
     <script src="js/sortable.min.js"></script>
-    <script src="js/script.js"></script>
+    <script type="module" src="js/main.js"></script>
+
+    <script>
+        if (window.location.protocol === 'file:') {
+            window.location.href = 'FailedtoLoadPage.html';
+        }
+    </script>
 
     <div id="toast-notification" class="toast-notification"></div>
 
