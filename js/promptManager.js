@@ -105,8 +105,6 @@ export function renderPrompts(promptsToRender = prompts) {
                 return;
             }
 
-            if (isSearchModeActive) return;
-
             if (e.target.closest('.prompt-item-menu-btn')) {
                 return;
             }
