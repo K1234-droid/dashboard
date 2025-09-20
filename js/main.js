@@ -5,7 +5,7 @@ import {
     settingSwitches, i18nData, userPIN, prompts,
     currentUser, setCurrentUser, setUserPIN, setPrompts, languageSettings, setLanguageSettings,
     activeModalStack, activePromptMenu, confirmationModalPurpose, setConfirmationModalPurpose,
-    isManageModeActive, currentPromptId, setAnimationFrameId, setSortableInstance, setPinModalPurpose, pinModalPurpose
+    isManageModeActive, currentPromptId, setAnimationFrameId, setSortableInstance, setPinModalPurpose, pinModalPurpose, isSearchModeActive
 } from './config.js';
 
 import { debounce, getBrowserLanguage } from './utils.js';
@@ -22,7 +22,8 @@ import {
     renderPrompts, handleOpenAddPromptModal, handleEditPrompt, handleDeletePrompt,
     copyPromptTextFromViewer, showFullImage, copyPromptTextFromItem,
     handleSavePrompt, confirmDelete, closeAllPromptMenus, toggleManageMode,
-    handleSelectAll, handleDeleteSelected, updateManageModeUI
+    handleSelectAll, handleDeleteSelected, updateManageModeUI,
+    toggleSearchMode, handleSearchInput
 } from './promptManager.js';
 
 
@@ -270,7 +271,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 showInfoModal("info.attention.title", "prompt.dnd.notImage");
             }
         };
-        const condition = () => !isManageModeActive;
+        const condition = () => !isManageModeActive && !isSearchModeActive;
         setupDragAndDrop(promptModalContent, onDropOnMainGrid, condition);
     }
     document.body.addEventListener('click', (e) => {
@@ -317,6 +318,10 @@ window.addEventListener("keydown", (event) => {
         }
         if (activeModalStack.length > 0) {
             const lastModal = activeModalStack[activeModalStack.length - 1];
+            if (lastModal === promptModal.overlay && isSearchModeActive) {
+                toggleSearchMode(false);
+                return;
+            }
             if (lastModal === promptModal.overlay && isManageModeActive) {
                 toggleManageMode(false);
                 return;
@@ -386,12 +391,16 @@ if (pinEnterModal.input) pinEnterModal.input.addEventListener("keydown", (e) => 
 
 if (promptModal.closeBtn) promptModal.closeBtn.addEventListener("click", () => {
     toggleManageMode(false);
+    toggleSearchMode(false);
     closeModal(promptModal.overlay);
 });
 if (promptModal.manageBtn) promptModal.manageBtn.addEventListener('click', () => toggleManageMode());
 if (promptModal.cancelManageBtn) promptModal.cancelManageBtn.addEventListener('click', () => toggleManageMode(false));
 if (promptModal.selectAllBtn) promptModal.selectAllBtn.addEventListener('click', handleSelectAll);
 if (promptModal.deleteSelectedBtn) promptModal.deleteSelectedBtn.addEventListener('click', handleDeleteSelected);
+if (promptModal.searchBtn) promptModal.searchBtn.addEventListener('click', () => toggleSearchMode());
+if (promptModal.cancelSearchBtn) promptModal.cancelSearchBtn.addEventListener('click', () => toggleSearchMode(false));
+if (promptModal.searchInput) promptModal.searchInput.addEventListener('input', handleSearchInput);
 
 if (promptViewerModal.closeBtn) promptViewerModal.closeBtn.addEventListener("click", () => { closeModal(promptViewerModal.overlay); });
 if (promptViewerModal.copyBtn) promptViewerModal.copyBtn.addEventListener("click", copyPromptTextFromViewer);

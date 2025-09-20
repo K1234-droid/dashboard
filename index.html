@@ -308,21 +308,31 @@
             <div class="modal-header">
                 <h3 data-i18n-key="prompt.listTitle">Prompt Karakter AI</h3>
                 <div>
+                    <button id="prompt-search-btn" class="modal-header-btn" data-i18n-key="prompt.search">Cari</button>
                     <button id="prompt-manage-btn" class="modal-header-btn" data-i18n-key="prompt.manage">Kelola</button>
                     <button id="close-prompt-modal-btn" class="close-btn">&times;</button>
                 </div>
             </div>
-            <div id="prompt-manage-bar" class="prompt-manage-bar hidden">
-                <span id="prompt-select-count">Pilih (0)</span>
-                <div class="prompt-manage-actions">
-                    <button id="prompt-select-all-btn" class="modal-secondary-btn" data-i18n-key="prompt.selectAll">Pilih Semua</button>
-                    <button id="prompt-delete-selected-btn" class="modal-danger-btn" data-i18n-key="prompt.menu.delete" disabled>Hapus</button>
-                    <button id="prompt-cancel-manage-btn" class="modal-secondary-btn" data-i18n-key="prompt.delete.cancel">Batal</button>
+            
+            <div id="prompt-action-bar" class="prompt-action-bar hidden">
+                <div id="prompt-search-content" class="action-bar-content hidden">
+                    <input type="text" id="prompt-search-input" class="modal-input" title="Search Prompts" placeholder=" ">
+                    <button id="prompt-cancel-search-btn" class="modal-secondary-btn" data-i18n-key="prompt.delete.cancel">Batal</button>
+                </div>
+            
+                <div id="prompt-manage-content" class="action-bar-content hidden">
+                    <span id="prompt-select-count">Pilih (0)</span>
+                    <div class="prompt-manage-actions">
+                        <button id="prompt-select-all-btn" class="modal-secondary-btn" data-i18n-key="prompt.selectAll">Pilih Semua</button>
+                        <button id="prompt-delete-selected-btn" class="modal-danger-btn" data-i18n-key="prompt.menu.delete" disabled>Hapus</button>
+                        <button id="prompt-cancel-manage-btn" class="modal-secondary-btn" data-i18n-key="prompt.delete.cancel">Batal</button>
+                    </div>
                 </div>
             </div>
             <div class="modal-body">
                 <div id="prompt-grid" class="prompt-grid">
                 </div>
+                <p id="prompt-no-results" class="prompt-no-results hidden" data-i18n-key="prompt.search.noResults">Tidak ditemukan hasil</p>
             </div>
             <div class="modal-footer">
                 <span class="storage-label" data-i18n-key="prompt.storage.label">Penyimpanan Lokal</span>
@@ -464,14 +474,10 @@
     <div class="hover-dead-zone"></div>
 
     <script src="js/sortable.min.js"></script>
+    <script src="js/protocol-check.js"></script>
+
     <script type="module" src="js/main.js"></script>
-
-    <script>
-        if (window.location.protocol === 'file:') {
-            window.location.href = 'FailedtoLoadPage.html';
-        }
-    </script>
-
+    
     <div id="toast-notification" class="toast-notification"></div>
 
 </body>

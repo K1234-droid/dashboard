@@ -24,6 +24,11 @@ export function translateUI(lang) {
         const dropText = i18nData["prompt.dnd.dropHere"]?.[lang] || i18nData["prompt.dnd.dropHere"]?.['id'] || '';
         promptModalContent.setAttribute('data-drop-text', dropText);
     }
+    const searchInput = document.getElementById('prompt-search-input');
+    if (searchInput) {
+        const placeholderText = i18nData["prompt.search.placeholder"]?.[lang] || i18nData["prompt.search.placeholder"]?.['id'] || '';
+        searchInput.placeholder = placeholderText;
+    }
 }
 
 export function updateClock() {

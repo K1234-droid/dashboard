@@ -99,11 +99,17 @@ export const promptModal = {
     storageText: document.getElementById('storage-text'),
     content: document.querySelector('#prompt-modal-overlay .modal-content'),
     manageBtn: document.getElementById('prompt-manage-btn'),
-    manageBar: document.getElementById('prompt-manage-bar'),
     selectCount: document.getElementById('prompt-select-count'),
     selectAllBtn: document.getElementById('prompt-select-all-btn'),
     deleteSelectedBtn: document.getElementById('prompt-delete-selected-btn'),
     cancelManageBtn: document.getElementById('prompt-cancel-manage-btn'),
+    searchBtn: document.getElementById('prompt-search-btn'),
+    searchInput: document.getElementById('prompt-search-input'),
+    cancelSearchBtn: document.getElementById('prompt-cancel-search-btn'),
+    noResultsMessage: document.getElementById('prompt-no-results'),
+    actionBar: document.getElementById('prompt-action-bar'),
+    manageContent: document.getElementById('prompt-manage-content'),
+    searchContent: document.getElementById('prompt-search-content'),
 };
   
 export const promptViewerModal = {
@@ -191,6 +197,7 @@ export let tempNewPIN = null;
 export let confirmationModalPurpose = 'deletePrompt'; // 'deletePrompt', 'disableFeature', 'deleteSelectedPrompts'
 export let toastTimeout;
 export let isManageModeActive = false;
+export let isSearchModeActive = false;
 export let selectedPromptIds = [];
 export let sortableInstance = null;
   
@@ -219,6 +226,7 @@ export function setTempNewPIN(value) { tempNewPIN = value; }
 export function setConfirmationModalPurpose(value) { confirmationModalPurpose = value; }
 export function setToastTimeout(value) { toastTimeout = value; }
 export function setIsManageModeActive(value) { isManageModeActive = value; }
+export function setIsSearchModeActive(value) { isSearchModeActive = value; }
 export function setSelectedPromptIds(value) { selectedPromptIds = value; }
 export function setSortableInstance(value) { sortableInstance = value; }
 export function setLanguageSettings(value) { languageSettings = value; }
@@ -337,6 +345,9 @@ export const i18nData = {
     "prompt.menu.edit": { id: "Edit", en: "Edit", ja: "編集" },
     "prompt.menu.delete": { id: "Hapus", en: "Delete", ja: "削除" },
     "prompt.manage": { id: "Kelola", en: "Manage", ja: "管理" },
+    "prompt.search": { id: "Cari", en: "Search", ja: "検索" },
+    "prompt.search.placeholder": { id: "Ketik untuk mencari...", en: "Type to search...", ja: "検索するには入力..." },
+    "prompt.search.noResults": { id: "Tidak ditemukan hasil", en: "No results found", ja: "結果が見つかりません" },
     "prompt.selectCount": { id: "Pilih ({count})", en: "Select ({count})", ja: "選択 ({count})" },
     "prompt.selectAll": { id: "Pilih Semua", en: "Select All", ja: "すべて選択" },
     "prompt.deselectAll": { id: "Batal Pilih Semua", en: "Deselect All", ja: "選択をすべて解除" },

@@ -3,7 +3,8 @@ import {
     promptViewerModal, imageViewerModal, addEditPromptModal, confirmationModal,
     isManageModeActive, selectedPromptIds, confirmationModalPurpose,
     setPrompts, setActivePromptMenu, setCurrentPromptId, setConfirmationModalPurpose,
-    setIsManageModeActive, setSelectedPromptIds, currentPromptId, sortableInstance
+    setIsManageModeActive, setSelectedPromptIds, currentPromptId, sortableInstance,
+    isSearchModeActive, setIsSearchModeActive
 } from './config.js';
 import { openModal, closeModal, showInfoModal } from './ui.js';
 import { showToast, readFileAsDataURL } from './utils.js';
@@ -61,11 +62,12 @@ export function closeAllPromptMenus() {
 }
 
 // --- Rendering and Displaying Prompts ---
-export function renderPrompts() {
+export function renderPrompts(promptsToRender = prompts) {
     promptModal.grid.innerHTML = '';
+    promptModal.noResultsMessage.classList.add('hidden');
     const lang = languageSettings.ui;
   
-    prompts.forEach(p => {
+    promptsToRender.forEach(p => {
         const item = document.createElement('div');
         item.className = 'prompt-item';
         item.dataset.id = p.id;
@@ -102,6 +104,8 @@ export function renderPrompts() {
                 }
                 return;
             }
+
+            if (isSearchModeActive) return;
 
             if (e.target.closest('.prompt-item-menu-btn')) {
                 return;
@@ -318,7 +322,7 @@ export async function confirmDelete() {
 }
 
 
-// --- Manage Mode ---
+// --- Manage & Search Mode ---
 export function updateManageModeUI() {
     const lang = languageSettings.ui;
     const selectCountFormat = i18nData["prompt.selectCount"][lang] || i18nData["prompt.selectCount"]["id"];
@@ -364,26 +368,74 @@ export function handleSelectAll() {
     updateManageModeUI();
 }
 
+function handleDirectBarSwap(outgoingContent, incomingContent, onComplete) {
+    outgoingContent.style.opacity = '0'; // Mulai fade-out konten yang keluar
+
+    setTimeout(() => {
+        outgoingContent.classList.add('hidden');
+        outgoingContent.style.opacity = '1'; // Reset untuk penggunaan selanjutnya
+
+        incomingContent.classList.remove('hidden');
+        incomingContent.style.opacity = '0'; // Buat konten baru tak terlihat sebelum fade-in
+
+        // Memicu reflow agar transisi fade-in berjalan dengan benar
+        void incomingContent.offsetWidth; 
+
+        incomingContent.style.opacity = '1'; // Mulai fade-in konten baru
+
+        if (onComplete) {
+            onComplete();
+        }
+    }, 200); // Sesuaikan durasi dengan transisi di CSS
+}
+
 export function toggleManageMode(forceState = null) {
     const newManageState = forceState !== null ? forceState : !isManageModeActive;
-    setIsManageModeActive(newManageState);
-    
-    promptModal.content.classList.toggle('manage-mode', isManageModeActive);
-    promptModal.manageBar.classList.toggle('hidden', !isManageModeActive);
-    
-    if (sortableInstance) {
-        sortableInstance.option('disabled', isManageModeActive);
+
+    // Menangani kasus khusus: beralih langsung dari mode Cari ke Kelola
+    if (newManageState && isSearchModeActive) {
+        // BARIS BARU: Membersihkan status pencarian sebelumnya
+        promptModal.searchInput.value = '';
+        renderPrompts();
+
+        setIsSearchModeActive(false);
+        setIsManageModeActive(true);
+        promptModal.content.classList.remove('search-mode');
+        promptModal.content.classList.add('manage-mode');
+
+        handleDirectBarSwap(promptModal.searchContent, promptModal.manageContent, () => {
+            if (sortableInstance) sortableInstance.option('disabled', true);
+            updateManageModeUI();
+        });
+        return; // Keluar dari fungsi lebih awal
     }
 
-    if (!isManageModeActive) {
+    // Logika normal untuk masuk/keluar mode Kelola
+    setIsManageModeActive(newManageState);
+    promptModal.content.classList.toggle('manage-mode', newManageState);
+    if (sortableInstance) sortableInstance.option('disabled', newManageState);
+
+    if (newManageState) {
+        promptModal.searchContent.classList.add('hidden');
+        promptModal.manageContent.classList.remove('hidden');
+        promptModal.actionBar.classList.remove('hidden');
+        updateManageModeUI();
+    } else {
+        // BARIS BARU: Memastikan pencarian juga bersih saat membatalkan mode Kelola
+        promptModal.searchInput.value = '';
+        renderPrompts();
+        
+        promptModal.actionBar.classList.add('hidden');
+        setTimeout(() => {
+            promptModal.manageContent.classList.add('hidden');
+        }, 300);
+
         setSelectedPromptIds([]);
         promptModal.grid.querySelectorAll('.prompt-item.selected').forEach(item => {
             item.classList.remove('selected');
         });
         updateManageModeUI();
         updateStorageIndicator();
-    } else {
-        updateManageModeUI();
     }
 }
 
@@ -395,4 +447,61 @@ export function handleDeleteSelected() {
     const textFormat = i18nData["prompt.delete.selectedText"][lang] || i18nData["prompt.delete.selectedText"]["id"];
     confirmationModal.text.textContent = textFormat.replace('{count}', selectedPromptIds.length);
     openModal(confirmationModal.overlay);
+}
+
+export function toggleSearchMode(forceState = null) {
+    const newSearchState = forceState !== null ? forceState : !isSearchModeActive;
+
+    // Menangani kasus khusus: beralih langsung dari mode Kelola ke Cari
+    if (newSearchState && isManageModeActive) {
+        // BARIS BARU: Membersihkan status pengelolaan (item yang dipilih)
+        setSelectedPromptIds([]);
+        promptModal.grid.querySelectorAll('.prompt-item.selected').forEach(item => {
+            item.classList.remove('selected');
+        });
+        updateStorageIndicator();
+
+        setIsManageModeActive(false);
+        setIsSearchModeActive(true);
+        promptModal.content.classList.remove('manage-mode');
+        promptModal.content.classList.add('search-mode');
+
+        handleDirectBarSwap(promptModal.manageContent, promptModal.searchContent, () => {
+            if (sortableInstance) sortableInstance.option('disabled', true);
+            promptModal.searchInput.focus();
+        });
+        return; // Keluar dari fungsi lebih awal
+    }
+
+    // Logika normal untuk masuk/keluar mode Cari
+    setIsSearchModeActive(newSearchState);
+    promptModal.content.classList.toggle('search-mode', newSearchState);
+    if (sortableInstance) sortableInstance.option('disabled', newSearchState);
+
+    if (newSearchState) {
+        promptModal.manageContent.classList.add('hidden');
+        promptModal.searchContent.classList.remove('hidden');
+        promptModal.actionBar.classList.remove('hidden');
+        promptModal.searchInput.focus();
+    } else {
+        promptModal.actionBar.classList.add('hidden');
+        setTimeout(() => {
+            promptModal.searchContent.classList.add('hidden');
+        }, 300);
+        
+        promptModal.searchInput.value = '';
+        renderPrompts();
+    }
+}
+
+export function handleSearchInput() {
+    const searchTerm = promptModal.searchInput.value.toLowerCase().trim();
+    const filteredPrompts = prompts.filter(p =>
+        p.text.toLowerCase().includes(searchTerm)
+    );
+    renderPrompts(filteredPrompts);
+
+    if (filteredPrompts.length === 0 && searchTerm.length > 0) {
+        promptModal.noResultsMessage.classList.remove('hidden');
+    }
 }
