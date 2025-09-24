@@ -1,5 +1,5 @@
 import {
-    languageSettings, i18nData, prompts, promptModal, activePromptMenu,
+    languageSettings, i18nData, prompts, advancedPrompts, promptModal, activePromptMenu,
     promptViewerModal, imageViewerModal, addEditPromptModal, confirmationModal,
     isManageModeActive, selectedPromptIds, confirmationModalPurpose,
     setPrompts, setActivePromptMenu, setCurrentPromptId, setConfirmationModalPurpose,
@@ -165,6 +165,8 @@ export function handleOpenAddPromptModal() {
     addEditPromptModal.saveBtn.textContent = i18nData["settings.username.save"][lang] || i18nData["settings.username.save"]["id"];
     addEditPromptModal.textInput.value = '';
     addEditPromptModal.imageFileInput.value = '';
+
+    addEditPromptModal.textInput.scrollTop = 0;
     
     addEditPromptModal.previewsContainer.classList.add('hidden');
     addEditPromptModal.imagePreviewSingle.classList.add('hidden');
@@ -185,6 +187,8 @@ export function handleEditPrompt(promptId) {
     addEditPromptModal.saveBtn.textContent = i18nData["prompt.saveChanges"][lang] || i18nData["prompt.saveChanges"]["id"];
     addEditPromptModal.textInput.value = promptToEdit.text;
     addEditPromptModal.imageFileInput.value = '';
+
+    addEditPromptModal.textInput.scrollTop = 0;
 
     addEditPromptModal.previewsContainer.classList.remove('hidden');
     addEditPromptModal.imagePreviewOld.src = promptToEdit.imageUrl;
@@ -266,6 +270,9 @@ export async function handleSavePrompt() {
         updateStorageIndicator();
         showToast(isEditing ? "prompt.edit.success" : "prompt.save.success");
         
+        // Memicu pembaruan UI untuk Prompt Builder
+        document.dispatchEvent(new CustomEvent('characterPromptsUpdated'));
+        
         setCurrentPromptId(null);
 
     } catch (error) {
@@ -278,6 +285,13 @@ export async function handleSavePrompt() {
 }
 
 export function handleDeletePrompt(promptId) {
+    const isBeingUsed = advancedPrompts.some(p => p.characterIds && p.characterIds.includes(promptId));
+
+    if (isBeingUsed) {
+        showInfoModal("info.attention.title", "prompt.delete.inUseError");
+        return;
+    }
+
     setConfirmationModalPurpose('deletePrompt');
     setCurrentPromptId(promptId);
     const lang = languageSettings.ui;
@@ -439,6 +453,16 @@ export function toggleManageMode(forceState = null) {
 
 export function handleDeleteSelected() {
     if (selectedPromptIds.length === 0) return;
+
+    const isAnyInUse = selectedPromptIds.some(id =>
+        advancedPrompts.some(p => p.characterIds && p.characterIds.includes(id))
+    );
+
+    if (isAnyInUse) {
+        showInfoModal("info.attention.title", "prompt.delete.inUseError");
+        return;
+    }
+
     setConfirmationModalPurpose('deleteSelectedPrompts');
     const lang = languageSettings.ui;
     confirmationModal.title.textContent = i18nData["prompt.delete.title"][lang] || i18nData["prompt.delete.title"]["id"];
@@ -493,10 +517,16 @@ export function toggleSearchMode(forceState = null) {
 }
 
 export function handleSearchInput() {
-    const searchTerm = promptModal.searchInput.value.toLowerCase().trim();
-    const filteredPrompts = prompts.filter(p =>
-        p.text.toLowerCase().includes(searchTerm)
-    );
+    const searchTerm = promptModal.searchInput.value
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, ' ');
+
+    const filteredPrompts = prompts.filter(p => {
+        const singleLineText = p.text.replace(/\s+/g, ' ');
+        return singleLineText.toLowerCase().includes(searchTerm);
+    });
+    
     renderPrompts(filteredPrompts);
 
     if (filteredPrompts.length === 0 && searchTerm.length > 0) {

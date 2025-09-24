@@ -1,11 +1,13 @@
 import {
     elements, menu, usernameModal, themeModal, otherSettingsModal, aboutModal,
-    pinSettings, createPinModal, pinEnterModal, promptModal, promptViewerModal,
+    pinSettings, createPinModal, createAdvancedPinModal, pinEnterModal, promptModal, promptViewerModal,
     addEditPromptModal, confirmationModal, infoModal, howItWorksModal, imageViewerModal,
-    settingSwitches, i18nData, userPIN, prompts,
-    currentUser, setCurrentUser, setUserPIN, setPrompts, languageSettings, setLanguageSettings,
+    updatePinChoiceModal, advancedPromptModal, addEditAdvancedPromptModal, advancedPromptViewerModal,
+    settingSwitches, i18nData, userPIN, advancedPIN, prompts, advancedPrompts,
+    currentUser, setCurrentUser, setUserPIN, setAdvancedPIN, setPrompts, setAdvancedPrompts, languageSettings, setLanguageSettings,
     activeModalStack, activePromptMenu, confirmationModalPurpose, setConfirmationModalPurpose,
-    isManageModeActive, currentPromptId, setAnimationFrameId, setSortableInstance, setPinModalPurpose, pinModalPurpose, isSearchModeActive
+    isManageModeActive, isAdvancedManageModeActive, isSearchModeActive, isAdvancedSearchModeActive,
+    currentPromptId, setAnimationFrameId, setSortableInstance, setAdvancedSortableInstance, setPinModalPurpose, currentAdvancedPromptId
 } from './config.js';
 
 import { debounce, getBrowserLanguage } from './utils.js';
@@ -15,9 +17,9 @@ import {
     toggleMenu, closeMenuOnClickOutside, openModal, closeModal, closeThemeModal, showInfoModal,
     handleSaveUsername, applyTheme, applyShowSeconds, applyMenuBlur, applyFooterBlur,
     applyAvatarFullShow, applyAvatarAnimation, updateAvatarStatus, updateUsernameDisplay,
-    updateHiddenFeatureUI, checkResolutionAndToggleMessage, setupAvatarHoverListeners
+    updateSecurityFeaturesUI, checkResolutionAndToggleMessage, setupAvatarHoverListeners as mainSetupAvatarListeners, showFeedback
 } from './ui.js';
-import { handleUpdatePin, handleSaveInitialPin, handleDisableFeature, handlePinSubmit } from './pinManager.js';
+import { startPinUpdate, handleSaveInitialPin, handleSaveInitialAdvancedPin, handleDisableFeature, handlePinSubmit } from './pinManager.js';
 import {
     renderPrompts, handleOpenAddPromptModal, handleEditPrompt, handleDeletePrompt,
     copyPromptTextFromViewer, showFullImage, copyPromptTextFromItem,
@@ -25,7 +27,17 @@ import {
     handleSelectAll, handleDeleteSelected, updateManageModeUI,
     toggleSearchMode, handleSearchInput
 } from './promptManager.js';
+import {
+    renderAdvancedPrompts, toggleAdvancedManageMode, handleAdvancedSelectAll, 
+    handleAdvancedDeleteSelected, toggleAdvancedSearchMode, handleAdvancedSearchInput, 
+    updateAdvancedManageModeUI, handleOpenAddAdvancedPromptModal, handleSaveAdvancedPrompt,
+    copyAdvancedPromptText, handleDeleteAdvancedPrompt, handleEditAdvancedPrompt,
+    copyAdvancedPromptTextFromViewer, confirmAdvancedDelete, handleCharacterSearchInput,
+    copyAdvancedCharacterText
+} from './promptBuilder.js';
 
+// Expose setupAvatarHoverListeners to be callable from ui.js
+export const setupAvatarHoverListeners = mainSetupAvatarListeners;
 
 // ===================================================================
 // D. INISIALISASI & EVENT LISTENERS
@@ -43,15 +55,34 @@ function initializeDragAndDrop() {
                 return !evt.related.classList.contains('add-prompt-item');
             },
             onEnd: async function (evt) {
-                const movedItem = prompts.splice(evt.oldIndex, 1)[0];
                 const newPrompts = [...prompts];
+                const movedItem = newPrompts.splice(evt.oldIndex, 1)[0];
                 newPrompts.splice(evt.newIndex, 0, movedItem);
                 setPrompts(newPrompts);
-                await saveSetting('prompts', prompts);
+                await saveSetting('prompts', newPrompts);
             },
         });
-        // CORRECTED: Use the setter to update the shared state
         setSortableInstance(sortable);
+    }
+    if (advancedPromptModal.grid) {
+        const advancedSortable = new Sortable(advancedPromptModal.grid, {
+            animation: 150,
+            ghostClass: 'sortable-ghost',
+            chosenClass: 'sortable-chosen',
+            filter: '.add-prompt-item',
+            preventOnFilter: true,
+            onMove: function (evt) {
+                return !evt.related.classList.contains('add-prompt-item');
+            },
+            onEnd: async function(evt) {
+                const newAdvancedPrompts = [...advancedPrompts];
+                const movedItem = newAdvancedPrompts.splice(evt.oldIndex, 1)[0];
+                newAdvancedPrompts.splice(evt.newIndex, 0, movedItem);
+                setAdvancedPrompts(newAdvancedPrompts);
+                await saveSetting('advancedPrompts', newAdvancedPrompts);
+            },
+        });
+        setAdvancedSortableInstance(advancedSortable);
     }
 }
 
@@ -97,10 +128,14 @@ function setupDropdown(type) {
                 translateUI(newLang);
                 updateUsernameDisplay();
                 updateAvatarStatus();
-                updateHiddenFeatureUI();
+                updateSecurityFeaturesUI();
                 renderPrompts();
+                renderAdvancedPrompts();
                 if (isManageModeActive) {
                     updateManageModeUI();
+                }
+                if (isAdvancedManageModeActive) {
+                    updateAdvancedManageModeUI();
                 }
                 if (languageSettings.applyToAll) {
                     updateApplyAllState(true);
@@ -116,30 +151,47 @@ function setupDropdown(type) {
     updateDropdownDisplay(type);
 }
 
-// ADDED: This function was missing and is now defined here
 function handleAvatarDoubleClick() {
     if (themeModal.previewCheckbox && themeModal.previewCheckbox.checked) {
       return;
     }
     menu.container.classList.remove("show-menu");
-    if (userPIN) {
-        setPinModalPurpose('login');
-        const lang = languageSettings.ui;
-        pinEnterModal.title.textContent = i18nData["pin.enter.title"][lang] || "Enter PIN";
-        pinEnterModal.label.textContent = i18nData["pin.enter.label"][lang] || "4-Digit PIN";
-        openModal(pinEnterModal.overlay);
-        pinEnterModal.input.focus();
+    
+    const isHiddenEnabled = !!userPIN;
+    const isAdvancedEnabled = !!advancedPIN;
+    const lang = languageSettings.ui;
+
+    if (!isHiddenEnabled && !isAdvancedEnabled) return;
+
+    let purpose = '';
+    if (isHiddenEnabled && isAdvancedEnabled) {
+        purpose = 'loginChoice';
+    } else if (isHiddenEnabled) {
+        purpose = 'loginHidden';
+    } else if (isAdvancedEnabled) {
+        purpose = 'loginAdvanced';
     }
+
+    setPinModalPurpose(purpose);
+    pinEnterModal.title.textContent = i18nData["pin.enter.title"][lang];
+    pinEnterModal.label.textContent = i18nData["pin.enter.label"][lang];
+    
+    pinEnterModal.input.value = '';
+    pinEnterModal.feedbackText.classList.remove('show');
+    
+    openModal(pinEnterModal.overlay);
+    pinEnterModal.input.focus();
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-    const keysToLoad = ["username", "theme", "showSeconds", "menuBlur", "footerBlur", "avatarFullShow", "avatarAnimation", "detectMouseStillness", "languageSettings", "userPIN", "prompts"];
+    const keysToLoad = ["username", "theme", "showSeconds", "menuBlur", "footerBlur", "avatarFullShow", "avatarAnimation", "detectMouseStillness", "languageSettings", "userPIN", "prompts", "advancedPIN", "advancedPrompts"];
     const settings = await loadSettings(keysToLoad);
     
-    // CORRECTED: Use setters to modify state
     setCurrentUser(settings.username || "K1234");
     setUserPIN(settings.userPIN || null);
+    setAdvancedPIN(settings.advancedPIN || null);
     setPrompts(settings.prompts || []);
+    setAdvancedPrompts(settings.advancedPrompts || []);
     
     if (settings.languageSettings) {
         setLanguageSettings({ ...languageSettings, ...settings.languageSettings });
@@ -170,16 +222,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     translateUI(languageSettings.ui);
     updateUsernameDisplay();
     updateApplyAllState(languageSettings.applyToAll);
-    updateHiddenFeatureUI();
+    updateSecurityFeaturesUI();
     renderPrompts();
+    renderAdvancedPrompts();
     initializeDragAndDrop();
 
     updateOfflineStatus();
     updateClock();
     updateInfrequentElements();
     
-    // CORRECTED: Use setter
     setAnimationFrameId(requestAnimationFrame(animationLoop));
+
+    // Listener untuk memperbarui UI Prompt Builder saat karakter diubah
+    document.addEventListener('characterPromptsUpdated', () => {
+        renderAdvancedPrompts();
+    });
 
     function handleImageFileSelection(file) {
         if (file && file.type.startsWith('image/')) {
@@ -284,8 +341,15 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (action === 'copy') copyPromptTextFromItem(id);
             if (action === 'edit') handleEditPrompt(id);
             if (action === 'delete') handleDeletePrompt(id);
+            if (action === 'copy-advanced') copyAdvancedPromptText(id);
+            if (action === 'copy-char-advanced') copyAdvancedCharacterText(id);
+            if (action === 'edit-advanced') handleEditAdvancedPrompt(id);
+            if (action === 'delete-advanced') handleDeleteAdvancedPrompt(id);
         }
     });
+    if (addEditAdvancedPromptModal.searchInput) {
+        addEditAdvancedPromptModal.searchInput.addEventListener('input', handleCharacterSearchInput);
+    }
 });
 
 window.addEventListener("click", (e) => {
@@ -318,14 +382,37 @@ window.addEventListener("keydown", (event) => {
         }
         if (activeModalStack.length > 0) {
             const lastModal = activeModalStack[activeModalStack.length - 1];
-            if (lastModal === promptModal.overlay && isSearchModeActive) {
-                toggleSearchMode(false);
-                return;
+
+            if (lastModal === promptModal.overlay) {
+                if (isSearchModeActive) {
+                    toggleSearchMode(false);
+                    return;
+                }
+                if (isManageModeActive) {
+                    toggleManageMode(false);
+                    return;
+                }
             }
-            if (lastModal === promptModal.overlay && isManageModeActive) {
-                toggleManageMode(false);
-                return;
+            
+            if (lastModal === advancedPromptModal.overlay) {
+                if (isAdvancedSearchModeActive) {
+                    toggleAdvancedSearchMode(false);
+                    return;
+                }
+                if (isAdvancedManageModeActive) {
+                    toggleAdvancedManageMode(false);
+                    return;
+                }
             }
+
+            if (lastModal === addEditAdvancedPromptModal.overlay) {
+                if (addEditAdvancedPromptModal.searchInput && addEditAdvancedPromptModal.searchInput.value !== '') {
+                    addEditAdvancedPromptModal.searchInput.value = '';
+                    handleCharacterSearchInput();
+                    return;
+                }
+            }
+
             const closeButton = lastModal.querySelector('.close-btn');
             if (closeButton) {
                 closeButton.click();
@@ -364,6 +451,8 @@ if (otherSettingsModal.openBtn) otherSettingsModal.openBtn.addEventListener("cli
     menu.container.classList.remove("show-menu");
     openModal(otherSettingsModal.overlay);
     updateAvatarStatus();
+    pinSettings.input.value = '';
+    pinSettings.feedbackText.classList.remove('show');
 });
 if (otherSettingsModal.closeBtn) otherSettingsModal.closeBtn.addEventListener("click", () => closeModal(otherSettingsModal.overlay));
 
@@ -373,17 +462,51 @@ if (aboutModal.openBtn) aboutModal.openBtn.addEventListener("click", () => {
 });
 if (aboutModal.closeBtn) aboutModal.closeBtn.addEventListener("click", () => closeModal(aboutModal.overlay));
 
-if (pinSettings.updateBtn) pinSettings.updateBtn.addEventListener('click', handleUpdatePin);
-if (pinSettings.input) pinSettings.input.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleUpdatePin(); });
+const handleUpdatePinClick = () => {
+    const newPin = pinSettings.input.value;
+    if (!/^\d{4}$/.test(newPin)) {
+        showFeedback(pinSettings.feedbackText, "settings.pin.feedback.error", true);
+        return;
+    }
+
+    if (userPIN && advancedPIN) {
+        updatePinChoiceModal.advancedBtn.disabled = false;
+        openModal(updatePinChoiceModal.overlay);
+    } else if (userPIN) {
+        startPinUpdate('hidden');
+    } else if (advancedPIN) {
+        startPinUpdate('advanced');
+    }
+};
+
+if (pinSettings.updateBtn) pinSettings.updateBtn.addEventListener('click', handleUpdatePinClick);
+if (pinSettings.input) pinSettings.input.addEventListener('keydown', (e) => { 
+    if (e.key === 'Enter') handleUpdatePinClick();
+});
+
+
+if (updatePinChoiceModal.closeBtn) updatePinChoiceModal.closeBtn.addEventListener('click', () => closeModal(updatePinChoiceModal.overlay));
+if (updatePinChoiceModal.hiddenBtn) updatePinChoiceModal.hiddenBtn.addEventListener('click', () => {
+    closeModal(updatePinChoiceModal.overlay);
+    startPinUpdate('hidden');
+});
+if (updatePinChoiceModal.advancedBtn) updatePinChoiceModal.advancedBtn.addEventListener('click', () => {
+    closeModal(updatePinChoiceModal.overlay);
+    startPinUpdate('advanced');
+});
 
 if (createPinModal.saveBtn) createPinModal.saveBtn.addEventListener('click', handleSaveInitialPin);
 if (createPinModal.input) createPinModal.input.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSaveInitialPin(); });
 if (createPinModal.closeBtn) createPinModal.closeBtn.addEventListener('click', () => { closeModal(createPinModal.overlay); settingSwitches.hiddenFeature.checked = false; });
 
+if (createAdvancedPinModal.saveBtn) createAdvancedPinModal.saveBtn.addEventListener('click', handleSaveInitialAdvancedPin);
+if (createAdvancedPinModal.input) createAdvancedPinModal.input.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSaveInitialAdvancedPin(); });
+if (createAdvancedPinModal.closeBtn) createAdvancedPinModal.closeBtn.addEventListener('click', () => { closeModal(createAdvancedPinModal.overlay); settingSwitches.continueFeature.checked = false; });
+
 if (pinEnterModal.closeBtn) pinEnterModal.closeBtn.addEventListener("click", () => {
     closeModal(pinEnterModal.overlay);
-    if (confirmationModalPurpose === 'disable') {
-        settingSwitches.hiddenFeature.checked = true;
+    if (confirmationModalPurpose === 'disableHiddenFeature' || confirmationModalPurpose === 'disableContinueFeature') {
+        updateSecurityFeaturesUI();
     }
 });
 if (pinEnterModal.submitBtn) pinEnterModal.submitBtn.addEventListener("click", handlePinSubmit);
@@ -394,6 +517,7 @@ if (promptModal.closeBtn) promptModal.closeBtn.addEventListener("click", () => {
     toggleSearchMode(false);
     closeModal(promptModal.overlay);
 });
+
 if (promptModal.manageBtn) promptModal.manageBtn.addEventListener('click', () => toggleManageMode());
 if (promptModal.cancelManageBtn) promptModal.cancelManageBtn.addEventListener('click', () => toggleManageMode(false));
 if (promptModal.selectAllBtn) promptModal.selectAllBtn.addEventListener('click', handleSelectAll);
@@ -402,27 +526,57 @@ if (promptModal.searchBtn) promptModal.searchBtn.addEventListener('click', () =>
 if (promptModal.cancelSearchBtn) promptModal.cancelSearchBtn.addEventListener('click', () => toggleSearchMode(false));
 if (promptModal.searchInput) promptModal.searchInput.addEventListener('input', handleSearchInput);
 
+// --- Advanced Prompt Modal Listeners ---
+if (advancedPromptModal.closeBtn) advancedPromptModal.closeBtn.addEventListener("click", () => {
+    toggleAdvancedManageMode(false);
+    toggleAdvancedSearchMode(false);
+    closeModal(advancedPromptModal.overlay);
+});
+if (advancedPromptModal.manageBtn) advancedPromptModal.manageBtn.addEventListener('click', () => toggleAdvancedManageMode());
+if (advancedPromptModal.cancelManageBtn) advancedPromptModal.cancelManageBtn.addEventListener('click', () => toggleAdvancedManageMode(false));
+if (advancedPromptModal.selectAllBtn) advancedPromptModal.selectAllBtn.addEventListener('click', handleAdvancedSelectAll);
+if (advancedPromptModal.deleteSelectedBtn) advancedPromptModal.deleteSelectedBtn.addEventListener('click', handleAdvancedDeleteSelected);
+if (advancedPromptModal.searchBtn) advancedPromptModal.searchBtn.addEventListener('click', () => toggleAdvancedSearchMode());
+if (advancedPromptModal.cancelSearchBtn) advancedPromptModal.cancelSearchBtn.addEventListener('click', () => toggleAdvancedSearchMode(false));
+if (advancedPromptModal.searchInput) advancedPromptModal.searchInput.addEventListener('input', handleAdvancedSearchInput);
+
+
 if (promptViewerModal.closeBtn) promptViewerModal.closeBtn.addEventListener("click", () => { closeModal(promptViewerModal.overlay); });
 if (promptViewerModal.copyBtn) promptViewerModal.copyBtn.addEventListener("click", copyPromptTextFromViewer);
 if (promptViewerModal.deleteBtn) promptViewerModal.deleteBtn.addEventListener("click", () => handleDeletePrompt(currentPromptId));
 if (promptViewerModal.editBtn) promptViewerModal.editBtn.addEventListener("click", () => { closeModal(promptViewerModal.overlay); handleEditPrompt(currentPromptId); });
 
+if (advancedPromptViewerModal.closeBtn) advancedPromptViewerModal.closeBtn.addEventListener("click", () => { closeModal(advancedPromptViewerModal.overlay); });
+if (advancedPromptViewerModal.copyBtn) advancedPromptViewerModal.copyBtn.addEventListener("click", () => copyAdvancedPromptTextFromViewer(currentAdvancedPromptId));
+if (advancedPromptViewerModal.deleteBtn) advancedPromptViewerModal.deleteBtn.addEventListener("click", () => handleDeleteAdvancedPrompt(currentAdvancedPromptId));
+if (advancedPromptViewerModal.editBtn) advancedPromptViewerModal.editBtn.addEventListener("click", () => { closeModal(advancedPromptViewerModal.overlay); handleEditAdvancedPrompt(currentAdvancedPromptId); });
+
 if (addEditPromptModal.closeBtn) addEditPromptModal.closeBtn.addEventListener("click", () => { closeModal(addEditPromptModal.overlay); });
 if (addEditPromptModal.saveBtn) addEditPromptModal.saveBtn.addEventListener("click", handleSavePrompt);
 
+if (addEditAdvancedPromptModal.closeBtn) addEditAdvancedPromptModal.closeBtn.addEventListener("click", () => { closeModal(addEditAdvancedPromptModal.overlay); });
+if (addEditAdvancedPromptModal.saveBtn) addEditAdvancedPromptModal.saveBtn.addEventListener("click", handleSaveAdvancedPrompt);
+
 const handleCancelConfirmation = () => {
     closeModal(confirmationModal.overlay);
-    if (confirmationModalPurpose === 'disableFeature') {
+    if (confirmationModalPurpose === 'disableHiddenFeature') {
         settingSwitches.hiddenFeature.checked = true;
+    } else if (confirmationModalPurpose === 'disableContinueFeature') {
+        settingSwitches.continueFeature.checked = true;
     }
 };
 if (confirmationModal.closeBtn) confirmationModal.closeBtn.addEventListener("click", handleCancelConfirmation);
 if (confirmationModal.cancelBtn) confirmationModal.cancelBtn.addEventListener("click", handleCancelConfirmation);
 if (confirmationModal.confirmBtn) confirmationModal.confirmBtn.addEventListener("click", () => {
-    if (confirmationModalPurpose === 'disableFeature') {
-        handleDisableFeature();
-    } else {
+    const purpose = confirmationModalPurpose;
+    if (purpose === 'disableHiddenFeature') {
+        handleDisableFeature('hidden');
+    } else if (purpose === 'disableContinueFeature') {
+        handleDisableFeature('advanced');
+    } else if (purpose === 'deletePrompt' || purpose === 'deleteSelectedPrompts') {
         confirmDelete();
+    } else if (purpose === 'deleteAdvancedPrompt' || purpose === 'deleteSelectedAdvancedPrompts') {
+        confirmAdvancedDelete();
     }
 });
 
@@ -457,15 +611,37 @@ if (settingSwitches.hiddenFeature) {
         if (e.target.checked) {
             if (!userPIN) {
                 e.preventDefault();
+                createPinModal.input.value = '';
+                createPinModal.feedbackText.classList.remove('show');
                 openModal(createPinModal.overlay);
                 createPinModal.input.focus();
             }
         } else {
             e.preventDefault();
-            setConfirmationModalPurpose('disableFeature');
+            setConfirmationModalPurpose('disableHiddenFeature');
             const lang = languageSettings.ui;
             confirmationModal.title.textContent = i18nData["settings.hidden.disableWarningTitle"][lang];
-            confirmationModal.text.textContent = i18nData["settings.hidden.disableWarningText"][lang];
+            confirmationModal.text.textContent = i18nData[advancedPIN ? "settings.hidden.disableWarningText_extended" : "settings.hidden.disableWarningText"][lang];
+            openModal(confirmationModal.overlay);
+        }
+    });
+}
+if (settingSwitches.continueFeature) {
+    settingSwitches.continueFeature.addEventListener('change', (e) => {
+        if (e.target.checked) {
+            if (!advancedPIN) {
+                e.preventDefault();
+                createAdvancedPinModal.input.value = '';
+                createAdvancedPinModal.feedbackText.classList.remove('show');
+                openModal(createAdvancedPinModal.overlay);
+                createAdvancedPinModal.input.focus();
+            }
+        } else {
+            e.preventDefault();
+            setConfirmationModalPurpose('disableContinueFeature');
+            const lang = languageSettings.ui;
+            confirmationModal.title.textContent = i18nData["settings.continue.disableWarningTitle"][lang];
+            confirmationModal.text.textContent = i18nData["settings.continue.disableWarningText"][lang];
             openModal(confirmationModal.overlay);
         }
     });

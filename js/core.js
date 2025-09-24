@@ -1,6 +1,7 @@
 import { elements, connectionStatus, languageSettings, i18nData, localeMap, currentUser, lastUpdatedHour, animationFrameId, setAnimationFrameId, setLastUpdatedHour } from './config.js';
 import { updateUsernameDisplay, updateAvatarStatus } from './ui.js';
 import { renderPrompts } from './promptManager.js';
+import { renderAdvancedPrompts } from './promptBuilder.js';
 
 export function translateUI(lang) {
     document.documentElement.lang = lang;
@@ -24,10 +25,23 @@ export function translateUI(lang) {
         const dropText = i18nData["prompt.dnd.dropHere"]?.[lang] || i18nData["prompt.dnd.dropHere"]?.['id'] || '';
         promptModalContent.setAttribute('data-drop-text', dropText);
     }
+    
+    const placeholderText = i18nData["prompt.search.placeholder"]?.[lang] || i18nData["prompt.search.placeholder"]?.['id'] || '';
+    
     const searchInput = document.getElementById('prompt-search-input');
     if (searchInput) {
-        const placeholderText = i18nData["prompt.search.placeholder"]?.[lang] || i18nData["prompt.search.placeholder"]?.['id'] || '';
         searchInput.placeholder = placeholderText;
+    }
+    
+    const advancedSearchInput = document.getElementById('advanced-prompt-search-input');
+    if (advancedSearchInput) {
+        advancedSearchInput.placeholder = placeholderText;
+    }
+
+    const charSearchInput = document.getElementById('character-search-input');
+    const charPlaceholderText = i18nData["character.search.placeholder"]?.[lang] || i18nData["character.search.placeholder"]?.['id'] || '';
+    if (charSearchInput) {
+        charSearchInput.placeholder = charPlaceholderText;
     }
 }
 

@@ -1,9 +1,27 @@
 import {
-    elements, menu, usernameModal, themeModal, otherSettingsModal, aboutModal, infoModal,
-    activeModalStack, setActiveModalStack, languageSettings, i18nData, feedbackTimeout, setFeedbackTimeout, currentUser,
-    setCurrentUser, settingSwitches, avatarStatus, userPIN, pinSettings
+    elements,
+    usernameModal,
+    themeModal,
+    aboutModal,
+    otherSettingsModal,
+    infoModal,
+    activeModalStack,
+    currentUser,
+    setCurrentUser,
+    languageSettings,
+    i18nData,
+    menu,
+    pinSettings,
+    settingSwitches,
+    avatarStatus,
+    setActiveModalStack,
+    userPIN,
+    advancedPIN,
+    feedbackTimeout,
+    setFeedbackTimeout
 } from './config.js';
 import { saveSetting } from './storage.js';
+import { setupAvatarHoverListeners as mainSetupAvatarListeners } from './main.js';
 
 let hoverTimeout;
 
@@ -23,13 +41,18 @@ export function closeMenuOnClickOutside(event) {
 }
 
 export function openModal(overlay) {
-    if (overlay) {
-        overlay.classList.remove("hidden");
-        const newStack = [...activeModalStack, overlay];
-        setActiveModalStack(newStack);
-        const modalBody = overlay.querySelector(".modal-body");
-        if (modalBody) modalBody.scrollTop = 0;
-    }
+    if (!overlay) return;
+
+    const baseZIndex = 101;
+    overlay.style.zIndex = baseZIndex + activeModalStack.length;
+
+    overlay.classList.remove("hidden");
+    const newStack = [...activeModalStack, overlay];
+    setActiveModalStack(newStack);
+    
+    const modalBody = overlay.querySelector(".modal-body");
+    if (modalBody) modalBody.scrollTop = 0;
+    
     elements.body.classList.add("modal-open");
 }
 
@@ -195,23 +218,29 @@ export function updateAvatarStatus() {
     if (settingSwitches.avatarAnimation) { settingSwitches.avatarAnimation.disabled = disableAnimationSwitches; }
     if (settingSwitches.detectMouseStillness) { settingSwitches.detectMouseStillness.disabled = disableAnimationSwitches || !isAvatarAnimationOn; }
     
-    setupAvatarHoverListeners();
+    mainSetupAvatarListeners();
     checkResolutionAndToggleMessage();
 }
 
-// ADDED: This function was missing.
 export function checkResolutionAndToggleMessage() {
     // This function was intentionally left empty in the original script.
     // It's included here to prevent "not defined" errors.
 }
 
-// ADDED: This function was missing.
-export function updateHiddenFeatureUI() {
-    const isEnabled = !!userPIN;
-    settingSwitches.hiddenFeature.checked = isEnabled;
+export function updateSecurityFeaturesUI() {
+    const isHiddenEnabled = !!userPIN;
+    const isAdvancedEnabled = !!advancedPIN;
     const lang = languageSettings.ui;
 
-    if (isEnabled) {
+    // Hidden Feature Switch
+    settingSwitches.hiddenFeature.checked = isHiddenEnabled;
+
+    // Continue Feature Switch
+    settingSwitches.continueFeature.checked = isAdvancedEnabled;
+    settingSwitches.continueFeature.disabled = !isHiddenEnabled;
+
+    // PIN Settings Container
+    if (isHiddenEnabled || isAdvancedEnabled) {
         pinSettings.container.classList.remove('hidden');
         pinSettings.updateBtn.textContent = i18nData["settings.hidden.updatePin"][lang] || "Update PIN";
     } else {
