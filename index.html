@@ -38,7 +38,7 @@
 
             <span id="loading-message" class="footer-text loading-message" data-i18n-key="footer.checking">Memeriksa koneksi</span>
 
-            <span class="footer-text credit-text" data-i18n-key="footer.credit">
+            <span id="credit-text-span" class="footer-text credit-text" data-i18n-key="footer.credit">
                 Ilustrasi karakter dibuat menggunakan Google Imagen 4
             </span>
 
@@ -215,6 +215,13 @@
                     </label>
                 </div>
                 <p class="setting-help-text" data-i18n-key="settings.other.animHelp">Animasi interaktif akan dimulai setelah kursor diam di atas gambar karakter selama 0,3 detik untuk menghindari interaksi yang tidak disengaja.</p>
+                <div class="switch-container">
+                    <label for="show-credit-switch" class="switch-label" data-i18n-key="settings.other.showCredit">Tampilkan Sumber Karakter</label>
+                    <label class="switch">
+                        <input type="checkbox" id="show-credit-switch">
+                        <span class="slider"></span>
+                    </label>
+                </div>
                 
                 <p class="setting-item"><span data-i18n-key="settings.other.support">Dukungan gambar karakter interaktif:</span> <span id="avatar-status-text"></span></p>
                 <p id="avatar-help-text" class="setting-help-text" data-i18n-key="settings.other.supportHelp">Atur ke resolusi layar lebih tinggi untuk mendapat dukungan gambar karakter interaktif.

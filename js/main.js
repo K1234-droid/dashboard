@@ -17,7 +17,7 @@ import {
     toggleMenu, closeMenuOnClickOutside, openModal, closeModal, closeThemeModal, showInfoModal,
     handleSaveUsername, applyTheme, applyShowSeconds, applyMenuBlur, applyFooterBlur,
     applyAvatarFullShow, applyAvatarAnimation, updateAvatarStatus, updateUsernameDisplay,
-    updateSecurityFeaturesUI, checkResolutionAndToggleMessage, setupAvatarHoverListeners as mainSetupAvatarListeners, showFeedback
+    updateSecurityFeaturesUI, checkResolutionAndToggleMessage, setupAvatarHoverListeners as mainSetupAvatarListeners, showFeedback, applyShowCredit
 } from './ui.js';
 import { startPinUpdate, handleSaveInitialPin, handleSaveInitialAdvancedPin, handleDisableFeature, handlePinSubmit } from './pinManager.js';
 import {
@@ -184,7 +184,7 @@ function handleAvatarDoubleClick() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-    const keysToLoad = ["username", "theme", "showSeconds", "menuBlur", "footerBlur", "avatarFullShow", "avatarAnimation", "detectMouseStillness", "languageSettings", "userPIN", "prompts", "advancedPIN", "advancedPrompts"];
+    const keysToLoad = ["username", "theme", "showSeconds", "menuBlur", "footerBlur", "avatarFullShow", "avatarAnimation", "detectMouseStillness", "languageSettings", "userPIN", "prompts", "advancedPIN", "advancedPrompts", "showCredit"];
     const settings = await loadSettings(keysToLoad);
     
     setCurrentUser(settings.username || "K1234");
@@ -210,6 +210,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const shouldShowAvatar = settings.avatarFullShow !== false; settingSwitches.avatarFullShow.checked = shouldShowAvatar;
     const shouldAnimateAvatar = settings.avatarAnimation !== false; settingSwitches.avatarAnimation.checked = shouldAnimateAvatar;
     const shouldDetectStillness = settings.detectMouseStillness !== false; settingSwitches.detectMouseStillness.checked = shouldDetectStillness;
+    const shouldShowCredit = settings.showCredit !== false; settingSwitches.showCredit.checked = shouldShowCredit;
     settingSwitches.applyToAll.checked = languageSettings.applyToAll;
 
     applyTheme(settings.theme || "system");
@@ -365,8 +366,11 @@ window.addEventListener("click", (e) => {
 
 window.addEventListener("online", updateOfflineStatus);
 window.addEventListener("offline", updateOfflineStatus);
-const debouncedResizeHandler = debounce(() => { updateAvatarStatus(); checkResolutionAndToggleMessage(); }, 250);
-window.addEventListener("resize", debouncedResizeHandler);
+
+window.addEventListener("resize", () => {
+    updateAvatarStatus();
+    checkResolutionAndToggleMessage();
+});
 
 window.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
@@ -606,6 +610,7 @@ if (settingSwitches.footerBlur) settingSwitches.footerBlur.addEventListener("cha
 if (settingSwitches.avatarFullShow) settingSwitches.avatarFullShow.addEventListener("change", async (e) => { applyAvatarFullShow(e.target.checked); await saveSetting("avatarFullShow", e.target.checked); });
 if (settingSwitches.avatarAnimation) settingSwitches.avatarAnimation.addEventListener("change", async (e) => { applyAvatarAnimation(e.target.checked); await saveSetting("avatarAnimation", e.target.checked); });
 if (settingSwitches.detectMouseStillness) settingSwitches.detectMouseStillness.addEventListener("change", async (e) => { await saveSetting("detectMouseStillness", e.target.checked); setupAvatarHoverListeners(); });
+if (settingSwitches.showCredit) settingSwitches.showCredit.addEventListener("change", async (e) => { applyShowCredit(e.target.checked); await saveSetting("showCredit", e.target.checked); });
 if (settingSwitches.hiddenFeature) {
     settingSwitches.hiddenFeature.addEventListener('change', (e) => {
         if (e.target.checked) {

@@ -275,6 +275,10 @@ body.footer-blur-disabled .footer {
 }
 .credit-text {
   margin-right: 1rem;
+  display: none;
+}
+.credit-text.visible {
+  display: inline;
 }
 
 .hover-dead-zone,
@@ -1552,9 +1556,6 @@ body.dark-theme .modal-input-file::file-selector-button {
   .avatar-full {
     max-width: 460px;
     transform: translateX(60px);
-  }
-  .credit-text {
-    display: none;
   }
 }
 @media (max-width: 790px) {

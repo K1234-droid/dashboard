@@ -155,6 +155,10 @@ export function applyShowSeconds(show) { elements.body.classList.toggle("seconds
 export function applyMenuBlur(show) { elements.body.classList.toggle("menu-blur-disabled", !show); }
 export function applyFooterBlur(show) { elements.body.classList.toggle("footer-blur-disabled", !show); }
 
+export function applyShowCredit(show) {
+    updateAvatarStatus();
+}
+
 export function applyAvatarFullShow(show) {
     const avatarFull = document.querySelector(".avatar-full");
     if (avatarFull) { avatarFull.classList.toggle("hidden", !show); }
@@ -203,6 +207,7 @@ export function updateAvatarStatus() {
     if (!avatarStatus.text || !avatarStatus.helpText) return;
     
     const isSupportedResolution = window.innerWidth > 930;
+    const isCreditSupportedResolution = window.innerWidth >= 865;
     const supportedText = { id: "Iya", en: "Yes", jp: "はい" };
     const notSupportedText = { id: "Tidak", en: "No", jp: "いいえ" };
     const lang = languageSettings.ui;
@@ -217,6 +222,15 @@ export function updateAvatarStatus() {
 
     if (settingSwitches.avatarAnimation) { settingSwitches.avatarAnimation.disabled = disableAnimationSwitches; }
     if (settingSwitches.detectMouseStillness) { settingSwitches.detectMouseStillness.disabled = disableAnimationSwitches || !isAvatarAnimationOn; }
+    
+    if (settingSwitches.showCredit) { 
+        settingSwitches.showCredit.disabled = !isAvatarFullShown || !isCreditSupportedResolution;
+    }
+
+    if (elements.creditText) {
+        const isCreditSwitchOn = settingSwitches.showCredit.checked;
+        elements.creditText.classList.toggle('visible', isAvatarFullShown && isCreditSwitchOn && isCreditSupportedResolution);
+    }
     
     mainSetupAvatarListeners();
     checkResolutionAndToggleMessage();

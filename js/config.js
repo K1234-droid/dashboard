@@ -15,6 +15,7 @@ export const elements = {
     body: document.body,
     accountMessage: document.getElementById("account-message"),
     toast: document.getElementById('toast-notification'),
+    creditText: document.getElementById('credit-text-span'),
 };
   
 // Elemen terkait status koneksi.
@@ -233,6 +234,7 @@ export const settingSwitches = {
     applyToAll: document.getElementById("apply-to-all-switch"),
     hiddenFeature: document.getElementById('hidden-feature-switch'),
     continueFeature: document.getElementById('continue-feature-switch'),
+    showCredit: document.getElementById('show-credit-switch'),
 };
   
 // Elemen-elemen terkait status animasi avatar.
@@ -353,6 +355,7 @@ export const i18nData = {
     "settings.other.showChar": { id: "Tampilkan Karakter", en: "Show Character", ja: "キャラクターを表示" },
     "settings.other.enableAnim": { id: "Aktifkan Animasi Interaktif", en: "Enable Interactive Animation", ja: "インタラクティブアニメーションを有効にする" },
     "settings.other.detectMouse": { id: "Deteksi Mouse Diam", en: "Detect Still Mouse", ja: "マウス静止を検出" },
+    "settings.other.showCredit": { id: "Tampilkan Sumber Karakter", en: "Show Character Source", ja: "キャラクターの出典を表示" },
     "settings.other.animHelp": { id: "Animasi interaktif akan dimulai setelah kursor diam di atas gambar karakter selama 0,3 detik untuk menghindari interaksi yang tidak disengaja.", en: "The interactive animation will start after the cursor remains still over the character image for 0.3 seconds to avoid unintentional interactions.", ja: "意図しない操作を避けるため、キャラクター画像上でカーソルが0.3秒間静止した後にインタラクティブアニメーションが開始されます。" },
     "settings.other.support": { id: "Dukungan gambar karakter interaktif:", en: "Interactive character image support:", ja: "インタラクティブキャラクター画像のサポート：" },
     "settings.other.supportHelp": { id: "Atur ke resolusi layar lebih tinggi untuk mendapat dukungan gambar karakter interaktif.\nMinimal 480px (lebar) x 510px (tinggi)", en: "Set to a higher screen resolution to get interactive character image support.\nMinimum 480px (width) x 510px (height)", ja: "インタラクティブキャラクター画像のサポートを得るには、より高い画面解像度に設定してください。\n最小480px（幅）x 510px（高さ）" },
