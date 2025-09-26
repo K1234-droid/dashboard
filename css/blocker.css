@@ -125,7 +125,7 @@
     background-color: rgba(128,128,128,0.15);
     padding: 2px 6px;
     border-radius: 4px;
-    font-family: monospace;
+    font-family: "Poppins", "Noto Sans JP", Arial, sans-serif;
 }
 #tutorial-modal-overlay .setting-help-text {
     margin-top: 1.5rem;

@@ -18,7 +18,8 @@ import {
     userPIN,
     advancedPIN,
     feedbackTimeout,
-    setFeedbackTimeout
+    setFeedbackTimeout,
+    dataManagement
 } from './config.js';
 import { saveSetting } from './storage.js';
 import { setupAvatarHoverListeners as mainSetupAvatarListeners } from './main.js';
@@ -245,6 +246,13 @@ export function updateSecurityFeaturesUI() {
     const isHiddenEnabled = !!userPIN;
     const isAdvancedEnabled = !!advancedPIN;
     const lang = languageSettings.ui;
+    const manageHiddenContainer = document.getElementById('manage-hidden-data-container');
+
+    if (manageHiddenContainer) {
+        manageHiddenContainer.classList.toggle('disabled', !isHiddenEnabled);
+        dataManagement.importHiddenDataBtn.disabled = !isHiddenEnabled;
+        dataManagement.exportHiddenDataBtn.disabled = !isHiddenEnabled;
+    }
 
     // Hidden Feature Switch
     settingSwitches.hiddenFeature.checked = isHiddenEnabled;
