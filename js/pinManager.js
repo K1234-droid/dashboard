@@ -1,3 +1,4 @@
+import { proceedWithHiddenDataExport } from './ImportExport.js';
 import {
     pinSettings, userPIN, advancedPIN, createPinModal, createAdvancedPinModal,
     pinEnterModal, i18nData, prompts, advancedPrompts,
@@ -192,5 +193,14 @@ export async function handlePinSubmit() {
                 updateSecurityFeaturesUI();
             } else { showError(); }
             break;
+
+        case 'exportHidden':
+            if (enteredPin === userPIN) {
+                resetModal();
+                proceedWithHiddenDataExport(); // Panggil fungsi ekspor setelah PIN benar
+            } else { showError(); }
+            break;
+
+        case 'disableConfirmAdvanced':
     }
 }

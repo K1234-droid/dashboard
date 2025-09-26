@@ -200,26 +200,51 @@ export function renderAdvancedPrompts(promptsToRender = advancedPrompts) {
 export function showAdvancedPromptViewer(prompt) {
     setCurrentAdvancedPromptId(prompt.id);
     const viewerBody = advancedPromptViewerModal.body;
-    viewerBody.innerHTML = ''; // Clear previous content
+    viewerBody.innerHTML = ''; // Hapus konten sebelumnya
 
-    // Main prompt text
+    // Teks prompt utama
     const mainPromptText = document.createElement('p');
     mainPromptText.className = 'viewer-prompt-text';
     mainPromptText.textContent = prompt.text;
     viewerBody.appendChild(mainPromptText);
 
-    // Character prompts
+    // Prompt karakter
     if (prompt.characterIds && prompt.characterIds.length > 0) {
+        const lang = languageSettings.ui;
         prompt.characterIds.forEach(charId => {
             const character = prompts.find(c => c.id === charId);
             if (character) {
-                // Character thumbnail
+                // BARU: Buat sebuah div sebagai wadah (wrapper)
+                const imageWrapper = document.createElement('div');
+                imageWrapper.className = 'viewer-character-image-wrapper';
+
+                // Gambar thumbnail karakter (sekarang di dalam wrapper)
                 const thumb = document.createElement('img');
                 thumb.src = character.imageUrl;
                 thumb.className = 'viewer-character-thumbnail';
-                viewerBody.appendChild(thumb);
+                imageWrapper.appendChild(thumb);
 
-                // Character prompt text
+                // Tombol menu tiga titik (juga di dalam wrapper)
+                const menuBtn = document.createElement('button');
+                menuBtn.className = 'prompt-item-menu-btn';
+                menuBtn.innerHTML = '&#8942;';
+                menuBtn.onclick = showPromptContextMenu;
+                imageWrapper.appendChild(menuBtn);
+
+                // Kontainer menu pop-up (juga di dalam wrapper)
+                const menuContainer = document.createElement('div');
+                menuContainer.className = 'prompt-item-menu';
+                menuContainer.dataset.id = character.id;
+                menuContainer.innerHTML = `
+                    <button class="prompt-menu-option" data-action="view-image">${i18nData["prompt.menu.view"][lang]}</button>
+                    <button class="prompt-menu-option" data-action="copy">${i18nData["prompt.menu.copyCharText"][lang]}</button>
+                `;
+                imageWrapper.appendChild(menuContainer);
+                
+                // Tambahkan wrapper ke body modal, bukan gambar secara langsung
+                viewerBody.appendChild(imageWrapper);
+
+                // Teks prompt karakter tetap seperti biasa
                 const charText = document.createElement('p');
                 charText.className = 'viewer-prompt-text';
                 charText.textContent = character.text;

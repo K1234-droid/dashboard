@@ -84,6 +84,10 @@
     color: white; 
     border-color: rgba(255,255,255,0.2);
   }
+  body:not(.light-theme) .nav-tab-btn.active {
+    color: var(--link-color);
+    border-bottom-color: var(--link-color);
+  }
 }
 
 body.light-theme {
@@ -113,6 +117,11 @@ body.dark-theme {
   --link-color: #f57a7e;
   --select-bg: rgba(0, 0, 0, 0.2);
   --select-hover-bg: rgba(0, 0, 0, 0.3);
+}
+
+body.dark-theme .nav-tab-btn.active {
+  color: var(--link-color);
+  border-bottom-color: var(--link-color);
 }
 
 /* ==================== LAYOUT DASAR HALAMAN ==================== */
@@ -857,6 +866,34 @@ body.dark-theme .switch input:checked + .slider:before {
   opacity: 0.9;
 }
 
+/* Import and Export Data */
+.data-section {
+  margin-bottom: 1.5rem;
+}
+.data-section:last-child {
+  margin-bottom: 0;
+}
+.data-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+.modal-button-group-column .modal-save-btn,
+.modal-button-group-column .modal-secondary-btn,
+.modal-button-group-column .modal-danger-btn {
+    width: 100%;
+    align-self: center;
+}
+.modal-warning-text {
+  font-size: 0.8rem;
+  font-weight: 500;
+  opacity: 0.7;
+  text-align: center;
+  margin-top: 1.5rem;
+  line-height: 1.5;
+}
+
 /* ==================== STYLE UNTUK FITUR PIN & PROMPT ==================== */
 .pin-input-field {
   text-align: center;
@@ -1010,8 +1047,8 @@ body.dark-theme .switch input:checked + .slider:before {
 /* Menu titik tiga (Gaya Konsisten) */
 .prompt-item-menu-btn {
   position: absolute;
-  top: 4px;
-  right: 4px;
+  top: 6px;
+  right: 6px;
   width: 28px;
   height: 28px;
   background-color: rgba(0, 0, 0, 0.5);
@@ -1170,13 +1207,25 @@ body.dark-theme .modal-input-file::file-selector-button {
 .viewer-prompt-text:first-child {
   margin-top: 0;
 }
-.viewer-character-thumbnail {
+
+.viewer-character-image-wrapper {
+  position: relative;
   display: block;
   max-width: 48%;
-  max-height: 250px;
-  border-radius: 8px;
   margin: 1.5rem auto 0 auto;
+}
+
+.viewer-character-thumbnail {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 0;
   border: 1px solid var(--select-bg);
+}
+
+.viewer-character-image-wrapper:hover .prompt-item-menu-btn {
+  opacity: 1;
 }
 
 #advanced-prompt-viewer-modal-overlay .modal-content,
@@ -1764,4 +1813,73 @@ textarea.modal-input::-webkit-scrollbar-thumb,
 textarea.modal-input::-webkit-scrollbar-thumb:hover,
 .character-selection-grid::-webkit-scrollbar-thumb:hover {
   background-color: rgba(128, 128, 128, 0.6);
+}
+
+/* ==================== MODAL NAV TABS ==================== */
+.modal-nav-tabs {
+  display: flex;
+  white-space: nowrap;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+  padding: 0 1.5rem;
+  -ms-overflow-style: none;
+}
+.modal-nav-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.nav-tab-btn {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 1.1rem 0rem;
+  margin: 0 0.6rem;
+  cursor: pointer;
+  color: var(--text-color);
+  font-family: "Poppins", "Noto Sans JP", Arial, sans-serif;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: border-color 0.2s ease, color 0.2s ease;
+  flex-shrink: 0; /* Mencegah tab menyusut */
+  white-space: nowrap;
+}
+.nav-tab-btn:first-child {
+    margin-left: 0;
+}
+.nav-tab-btn:last-child {
+    margin-right: 0;
+}
+
+.nav-tab-btn.active {
+  color: var(--accent-color);
+  border-bottom-color: var(--accent-color);
+}
+.nav-tab-btn:not(.active) {
+  opacity: 0.7;
+}
+.nav-tab-btn:not(.active):hover {
+  opacity: 1;
+}
+
+.tab-panel {
+  display: none;
+  animation: fadeIn 0.3s ease-in-out;
+}
+.tab-panel.active {
+  display: block;
+}
+/* Mengatur margin atas sub-judul pada setiap panel */
+.tab-panel .sub-judul:first-of-type {
+  margin-top: 0;
+}
+
+#other-settings-modal-overlay .modal-content {
+  display: flex;
+  flex-direction: column;
+  height: 650px;
+  max-height: 85vh;
+}
+
+#other-settings-modal-overlay .modal-body {
+  flex-grow: 1;
+  min-height: 0;
 }

@@ -7,7 +7,8 @@ import {
     currentUser, setCurrentUser, setUserPIN, setAdvancedPIN, setPrompts, setAdvancedPrompts, languageSettings, setLanguageSettings,
     activeModalStack, activePromptMenu, confirmationModalPurpose, setConfirmationModalPurpose,
     isManageModeActive, isAdvancedManageModeActive, isSearchModeActive, isAdvancedSearchModeActive,
-    currentPromptId, setAnimationFrameId, setSortableInstance, setAdvancedSortableInstance, setPinModalPurpose, currentAdvancedPromptId
+    currentPromptId, setAnimationFrameId, setSortableInstance, setAdvancedSortableInstance, setPinModalPurpose, currentAdvancedPromptId,
+    dataManagement, confirmationMergeReplaceModal
 } from './config.js';
 
 import { debounce, getBrowserLanguage } from './utils.js';
@@ -35,6 +36,10 @@ import {
     copyAdvancedPromptTextFromViewer, confirmAdvancedDelete, handleCharacterSearchInput,
     copyAdvancedCharacterText
 } from './promptBuilder.js';
+import {
+    exportUserData, exportHiddenData, importUserData, importHiddenData,
+    handleMerge, handleReplace
+} from './ImportExport.js';
 
 // Expose setupAvatarHoverListeners to be callable from ui.js
 export const setupAvatarHoverListeners = mainSetupAvatarListeners;
@@ -42,6 +47,38 @@ export const setupAvatarHoverListeners = mainSetupAvatarListeners;
 // ===================================================================
 // D. INISIALISASI & EVENT LISTENERS
 // ===================================================================
+
+function handleSettingsTabSwitch(activeTab) {
+    const tabs = [otherSettingsModal.generalTab, otherSettingsModal.displayTab, otherSettingsModal.dataTab, otherSettingsModal.otherTab];
+    const panels = [otherSettingsModal.generalPanel, otherSettingsModal.displayPanel, otherSettingsModal.dataPanel, otherSettingsModal.otherPanel];
+    
+    tabs.forEach(tab => tab.classList.remove('active'));
+    panels.forEach(panel => panel.classList.remove('active'));
+
+    switch (activeTab) {
+        case 'display':
+            otherSettingsModal.displayTab.classList.add('active');
+            otherSettingsModal.displayPanel.classList.add('active');
+            break;
+        case 'data':
+            otherSettingsModal.dataTab.classList.add('active');
+            otherSettingsModal.dataPanel.classList.add('active');
+            break;
+        case 'other':
+            otherSettingsModal.otherTab.classList.add('active');
+            otherSettingsModal.otherPanel.classList.add('active');
+            break;
+        case 'general':
+        default:
+            otherSettingsModal.generalTab.classList.add('active');
+            otherSettingsModal.generalPanel.classList.add('active');
+            break;
+    }
+    const modalBody = otherSettingsModal.overlay.querySelector('.modal-body');
+    if (modalBody) {
+        modalBody.scrollTop = 0;
+    }
+}
 
 function initializeDragAndDrop() {
     if (promptModal.grid) {
@@ -351,6 +388,22 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (addEditAdvancedPromptModal.searchInput) {
         addEditAdvancedPromptModal.searchInput.addEventListener('input', handleCharacterSearchInput);
     }
+
+    // Import and Export Data
+    if (otherSettingsModal.dataTab) {
+        otherSettingsModal.dataTab.addEventListener('click', () => handleSettingsTabSwitch('data'));
+    }
+
+    if (dataManagement.exportUserDataBtn) dataManagement.exportUserDataBtn.addEventListener('click', exportUserData);
+    if (dataManagement.importUserDataBtn) dataManagement.importUserDataBtn.addEventListener('click', importUserData);
+    if (dataManagement.exportHiddenDataBtn) dataManagement.exportHiddenDataBtn.addEventListener('click', exportHiddenData);
+    if (dataManagement.importHiddenDataBtn) dataManagement.importHiddenDataBtn.addEventListener('click', importHiddenData);
+
+    // Listener untuk modal konfirmasi Gabung/Ganti
+    if (confirmationMergeReplaceModal.closeBtn) confirmationMergeReplaceModal.closeBtn.addEventListener('click', () => closeModal(confirmationMergeReplaceModal.overlay));
+    if (confirmationMergeReplaceModal.cancelBtn) confirmationMergeReplaceModal.cancelBtn.addEventListener('click', () => closeModal(confirmationMergeReplaceModal.overlay));
+    if (confirmationMergeReplaceModal.mergeBtn) confirmationMergeReplaceModal.mergeBtn.addEventListener('click', handleMerge);
+    if (confirmationMergeReplaceModal.replaceBtn) confirmationMergeReplaceModal.replaceBtn.addEventListener('click', handleReplace);
 });
 
 window.addEventListener("click", (e) => {
@@ -457,8 +510,19 @@ if (otherSettingsModal.openBtn) otherSettingsModal.openBtn.addEventListener("cli
     updateAvatarStatus();
     pinSettings.input.value = '';
     pinSettings.feedbackText.classList.remove('show');
+    handleSettingsTabSwitch('general');
 });
 if (otherSettingsModal.closeBtn) otherSettingsModal.closeBtn.addEventListener("click", () => closeModal(otherSettingsModal.overlay));
+
+if (otherSettingsModal.generalTab) {
+    otherSettingsModal.generalTab.addEventListener('click', () => handleSettingsTabSwitch('general'));
+}
+if (otherSettingsModal.displayTab) {
+    otherSettingsModal.displayTab.addEventListener('click', () => handleSettingsTabSwitch('display'));
+}
+if (otherSettingsModal.otherTab) {
+    otherSettingsModal.otherTab.addEventListener('click', () => handleSettingsTabSwitch('other'));
+}
 
 if (aboutModal.openBtn) aboutModal.openBtn.addEventListener("click", () => {
     menu.container.classList.remove("show-menu");

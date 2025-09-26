@@ -57,6 +57,14 @@ export const otherSettingsModal = {
     overlay: document.getElementById("other-settings-modal-overlay"),
     openBtn: document.getElementById("open-other-settings-modal-btn"),
     closeBtn: document.getElementById("close-other-settings-modal-btn"),
+    generalTab: document.getElementById('settings-tab-general'),
+    displayTab: document.getElementById('settings-tab-display'),
+    otherTab: document.getElementById('settings-tab-other'),
+    generalPanel: document.getElementById('settings-panel-general'),
+    displayPanel: document.getElementById('settings-panel-display'),
+    otherPanel: document.getElementById('settings-panel-other'),
+    dataTab: document.getElementById('settings-tab-data'),
+    dataPanel: document.getElementById('settings-panel-data'),
 };
   
 // Elemen terkait Modal Tentang.
@@ -64,6 +72,23 @@ export const aboutModal = {
     overlay: document.getElementById("about-modal-overlay"),
     openBtn: document.getElementById("open-about-modal-btn"),
     closeBtn: document.getElementById("close-about-modal-btn"),
+};
+
+export const dataManagement = {
+    importUserDataBtn: document.getElementById('import-user-data-btn'),
+    exportUserDataBtn: document.getElementById('export-user-data-btn'),
+    importHiddenDataBtn: document.getElementById('import-hidden-data-btn'),
+    exportHiddenDataBtn: document.getElementById('export-hidden-data-btn'),
+};
+
+export const confirmationMergeReplaceModal = {
+    overlay: document.getElementById('confirmation-merge-replace-modal-overlay'),
+    closeBtn: document.getElementById('close-confirmation-merge-replace-modal-btn'),
+    cancelBtn: document.getElementById('cancel-confirmation-merge-replace-btn'),
+    title: document.getElementById('confirmation-merge-replace-modal-title'),
+    text: document.getElementById('confirmation-merge-replace-modal-text'),
+    mergeBtn: document.getElementById('confirm-merge-btn'),
+    replaceBtn: document.getElementById('confirm-replace-btn'),
 };
   
 // ==================== DEFINISI ELEMEN FITUR PIN & PROMPT ====================
@@ -256,6 +281,7 @@ export let activeModalStack = [];
 export let pinModalPurpose = 'login'; // 'loginHidden', 'loginAdvanced', 'loginChoice', 'updateConfirmHidden', 'updateConfirmAdvanced', 'disableConfirmHidden', 'disableConfirmAdvanced'
 export let tempNewPIN = null;
 export let confirmationModalPurpose = 'deletePrompt'; // 'deletePrompt', 'disableHiddenFeature', 'disableContinueFeature', 'deleteSelectedPrompts', 'deleteAdvancedPrompt', 'deleteSelectedAdvancedPrompts'
+export let tempImportData = null;
 export let toastTimeout;
 export let isManageModeActive = false;
 export let isSearchModeActive = false;
@@ -292,6 +318,7 @@ export function setActiveModalStack(value) { activeModalStack = value; }
 export function setPinModalPurpose(value) { pinModalPurpose = value; }
 export function setTempNewPIN(value) { tempNewPIN = value; }
 export function setConfirmationModalPurpose(value) { confirmationModalPurpose = value; }
+export function setTempImportData(value) { tempImportData = value; }
 export function setToastTimeout(value) { toastTimeout = value; }
 export function setIsManageModeActive(value) { isManageModeActive = value; }
 export function setIsSearchModeActive(value) { isSearchModeActive = value; }
@@ -477,5 +504,31 @@ export const i18nData = {
     "prompt.menu.view": { id: "Tampilkan Gambar Penuh", en: "View Full Image", ja: "画像全体を表示" },
     "advanced.prompt.noCharacters": { id: "Karakter AI Kosong", en: "No AI Characters Available", ja: "AIキャラクターがいません" },
     "character.search.placeholder": { id: "Cari karakter...", en: "Search characters...", ja: "キャラクターを検索..." },
-    "character.search.noResults": { id: "Karakter tidak ditemukan", en: "No characters found", ja: "キャラクターが見つかりません" }
+    "character.search.noResults": { id: "Karakter tidak ditemukan", en: "No characters found", ja: "キャラクターが見つかりません" },
+    "prompt.menu.copyCharText": { id: "Salin Teks Karakter", en: "Copy Character Text", ja: "キャラクターテキストをコピー" },
+    "settings.tabs.general": { id: "Umum", en: "General", ja: "一般" },
+    "settings.tabs.display": { id: "Tampilan", en: "Display", ja: "表示" },
+    "settings.tabs.other": { id: "Lainnya", en: "Other", ja: "その他" },
+    // Import and Export Data
+    "settings.tabs.data": { id: "Data", en: "Data", ja: "データ" },
+    "data.manageUser.title": { id: "Kelola Data Pengguna", en: "Manage User Data", ja: "ユーザーデータの管理" },
+    "data.manageUser.desc": { id: "Mengelola username, pilihan tema, dan pengaturan lainnya.", en: "Manage username, theme preferences, and other settings.", ja: "ユーザー名、テーマ設定、その他の設定を管理します。" },
+    "data.manageHidden.title": { id: "Kelola Data Fitur Tersembunyi", en: "Manage Hidden Feature Data", ja: "隠し機能データの管理" },
+    "data.manageHidden.desc": { id: "Mengelola data prompt karakter dan pembuat prompt beserta PIN nya.", en: "Manage character prompt and prompt builder data, including PINs.", ja: "キャラクタープロンプトとプロンプトビルダーのデータ（PINを含む）を管理します。" },
+    "data.button.import": { id: "Impor File", en: "Import File", ja: "ファイルをインポート" },
+    "data.button.export": { id: "Ekspor File", en: "Export File", ja: "ファイルをエクスポート" },
+    "pin.enter.confirmExport": { id: "Konfirmasi Ekspor", en: "Confirm Export", ja: "エクスポートの確認" },
+    "pin.enter.confirmExportLabel": { id: "Masukkan PIN Fitur Tersembunyi untuk melanjutkan", en: "Enter Hidden Feature PIN to continue", ja: "続行するには隠し機能のPINを入力してください" },
+    "export.success": { id: "Data berhasil diekspor!", en: "Data exported successfully!", ja: "データが正常にエクスポートされました！" },
+    "export.failed": { id: "Gagal mengekspor data.", en: "Failed to export data.", ja: "データのエクスポートに失敗しました。" },
+    "import.success": { id: "Data berhasil diimpor!", en: "Data imported successfully!", ja: "データが正常にインポートされました！" },
+    "import.failed": { id: "Gagal mengimpor data. File mungkin rusak atau tidak valid.", en: "Failed to import data. The file may be corrupt or invalid.", ja: "データのインポートに失敗しました。ファイルが破損しているか、無効な可能性があります。" },
+    "import.noData": { id: "Tidak ada data yang ditemukan untuk diimpor.", en: "No data found to import.", ja: "インポートするデータが見つかりません。" },
+    "confirm.import.mergeTitle": { id: "Impor Data Fitur Tersembunyi", en: "Import Hidden Feature Data", ja: "隠し機能データをインポート" },
+    "confirm.import.mergeText": { id: "File cadangan terdeteksi. Apa yang ingin Anda lakukan dengan data yang ada saat ini?", en: "Backup file detected. What would you like to do with the current data?", ja: "バックアップファイルが検出されました。現在のデータをどうしますか？" },
+    "confirm.import.mergeBtn": { id: "Gabungkan", en: "Merge", ja: "マージ" },
+    "confirm.import.replaceBtn": { id: "Gantikan Semua", en: "Replace All", ja: "すべて置き換える" },
+    "import.merged": { id: "Data berhasil digabungkan!", en: "Data merged successfully!", ja: "データが正常にマージされました！" },
+    "import.replaced": { id: "Data berhasil digantikan!", en: "Data replaced successfully!", ja: "データが正常に置き換えられました！" },
+    "confirm.import.pinWarning": { id: "Jika memilih salah satu opsi ini, PIN dari file cadangan akan digunakan dan menggantikan PIN yang sekarang.", en: "By selecting either option, the PINs from the backup file will be used and will replace your current PINs.", ja: "いずれかのオプションを選択すると、バックアップファイルのPINが使用され、現在のPINが置き換えられます。" },
 };

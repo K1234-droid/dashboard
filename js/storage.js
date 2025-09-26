@@ -30,6 +30,18 @@ export async function loadSettings(keys) {
     }
 }
 
+// =================== TAMBAHAN UNTUK MEMPERBAIKI ERROR ===================
+/**
+ * Mendapatkan beberapa pengaturan sekaligus. Ini adalah alias untuk loadSettings
+ * untuk memenuhi permintaan impor dari modul lain.
+ * @param {string[]} keys - Array dari kunci pengaturan yang ingin diambil.
+ * @returns {Promise<Object>} Sebuah promise yang resolve dengan objek pengaturan.
+ */
+export async function getAllSettings(keys) {
+    return loadSettings(keys);
+}
+// =======================================================================
+
 export async function updateStorageIndicator() {
     const lang = languageSettings.ui;
     try {
