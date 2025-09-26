@@ -1403,7 +1403,7 @@ body.dark-theme .modal-input-file::file-selector-button {
   display: flex;
   padding: 0;
   border-bottom: 1px solid rgba(128, 128, 128, 0.2);
-  background-color: var(--select-bg);
+  background-color: transparent;
   transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out, padding 0.3s ease-in-out;
   max-height: 0;
   opacity: 0;
@@ -1461,6 +1461,10 @@ body.dark-theme .modal-input-file::file-selector-button {
     background-color: #6c757d;
     cursor: not-allowed;
     opacity: 0.65;
+}
+.modal-content.search-mode .modal-header,
+.modal-content.manage-mode .modal-header {
+  border-bottom: none;
 }
 .modal-content.manage-mode .prompt-item,
 .modal-content.manage-mode .advanced-prompt-item {
