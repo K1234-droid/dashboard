@@ -39,7 +39,7 @@ import {
 import {
     exportUserData, exportHiddenData, importUserData, importHiddenData,
     handleMerge, handleReplace
-} from './ImportExport.js';
+} from './importExport.js';
 
 // Expose setupAvatarHoverListeners to be callable from ui.js
 export const setupAvatarHoverListeners = mainSetupAvatarListeners;

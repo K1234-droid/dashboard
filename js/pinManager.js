@@ -1,4 +1,4 @@
-import { proceedWithHiddenDataExport } from './ImportExport.js';
+import { proceedWithHiddenDataExport } from './importExport.js';
 import {
     pinSettings, userPIN, advancedPIN, createPinModal, createAdvancedPinModal,
     pinEnterModal, i18nData, prompts, advancedPrompts,
