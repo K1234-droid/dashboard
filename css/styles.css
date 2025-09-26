@@ -898,6 +898,9 @@ body.dark-theme .switch input:checked + .slider:before {
   cursor: not-allowed;
   pointer-events: none;
 }
+#other-settings-modal-overlay .modal-header {
+  border-bottom: none;
+}
 
 /* ==================== STYLE UNTUK FITUR PIN & PROMPT ==================== */
 .pin-input-field {
@@ -1019,7 +1022,6 @@ body.dark-theme .switch input:checked + .slider:before {
   font-weight: 500;
   border: 1px solid rgba(128, 128, 128, 0.5);
 }
-
 
 /* Status Drag-and-Drop dari SortableJS */
 .prompt-item.sortable-ghost, .advanced-prompt-item.sortable-ghost {
@@ -1250,6 +1252,10 @@ body.dark-theme .modal-input-file::file-selector-button {
 #advanced-prompt-viewer-modal-overlay .modal-body,
 #prompt-viewer-modal-overlay .modal-body {
     flex-grow: 1;
+}
+#prompt-viewer-modal-overlay .modal-header,
+#advanced-prompt-viewer-modal-overlay .modal-header {
+  border-bottom: none;
 }
 .modal-footer-actions {
     display: flex;
