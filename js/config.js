@@ -84,7 +84,6 @@ export const dataManagement = {
 export const confirmationMergeReplaceModal = {
     overlay: document.getElementById('confirmation-merge-replace-modal-overlay'),
     closeBtn: document.getElementById('close-confirmation-merge-replace-modal-btn'),
-    cancelBtn: document.getElementById('cancel-confirmation-merge-replace-btn'),
     title: document.getElementById('confirmation-merge-replace-modal-title'),
     text: document.getElementById('confirmation-merge-replace-modal-text'),
     mergeBtn: document.getElementById('confirm-merge-btn'),

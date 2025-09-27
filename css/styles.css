@@ -1246,6 +1246,7 @@ body.dark-theme .modal-input-file::file-selector-button {
     justify-content: flex-end;
     gap: 0.75rem;
     padding: 1rem 1.5rem;
+    padding-top: 0rem;
     border-bottom: 1px solid rgba(128,128,128,0.2);
     flex-shrink: 0;
 }
@@ -1414,6 +1415,7 @@ body.dark-theme .modal-input-file::file-selector-button {
   max-height: 100px;
   opacity: 1;
   padding: 0.75rem 1.5rem;
+  padding-top: 0rem;
 }
 .action-bar-content {
   display: none;
@@ -1847,6 +1849,7 @@ textarea.modal-input::-webkit-scrollbar-thumb:hover,
   border: none;
   border-bottom: 2px solid transparent;
   padding: 1.1rem 0rem;
+  padding-top: 0.4rem;
   margin: 0 0.6rem;
   cursor: pointer;
   color: var(--text-color);

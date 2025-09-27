@@ -49,6 +49,13 @@ export const setupAvatarHoverListeners = mainSetupAvatarListeners;
 // ===================================================================
 
 function handleSettingsTabSwitch(activeTab) {
+    if (pinSettings.input) {
+        pinSettings.input.value = '';
+    }
+    if (pinSettings.feedbackText) {
+        pinSettings.feedbackText.classList.remove('show');
+    }
+
     const tabs = [otherSettingsModal.generalTab, otherSettingsModal.displayTab, otherSettingsModal.dataTab, otherSettingsModal.otherTab];
     const panels = [otherSettingsModal.generalPanel, otherSettingsModal.displayPanel, otherSettingsModal.dataPanel, otherSettingsModal.otherPanel];
     
@@ -401,7 +408,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Listener untuk modal konfirmasi Gabung/Ganti
     if (confirmationMergeReplaceModal.closeBtn) confirmationMergeReplaceModal.closeBtn.addEventListener('click', () => closeModal(confirmationMergeReplaceModal.overlay));
-    if (confirmationMergeReplaceModal.cancelBtn) confirmationMergeReplaceModal.cancelBtn.addEventListener('click', () => closeModal(confirmationMergeReplaceModal.overlay));
     if (confirmationMergeReplaceModal.mergeBtn) confirmationMergeReplaceModal.mergeBtn.addEventListener('click', handleMerge);
     if (confirmationMergeReplaceModal.replaceBtn) confirmationMergeReplaceModal.replaceBtn.addEventListener('click', handleReplace);
 });

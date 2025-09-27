@@ -115,6 +115,14 @@
         
         // Atur bahasa utama dokumen
         document.documentElement.lang = langToShow;
+
+        // --- BARIS BARU: TERJEMAHKAN JUDUL HALAMAN ---
+        const pageTitles = {
+            id: "Tab Baru",
+            en: "New Tab",
+            ja: "新しいタブ"
+        };
+        document.title = pageTitles[langToShow];
         
         // Tambahkan kelas bahasa ke body untuk di-styling oleh CSS
         body.classList.add('lang-' + langToShow);

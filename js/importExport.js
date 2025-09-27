@@ -148,13 +148,19 @@ async function applyImportedData(data, replace = false) {
         }
     }
 
-    // Periksa kuota penyimpanan sebelum menyimpan
+    // Periksa kuota penyimpanan sebelum menyimpan (dengan perhitungan yang lebih akurat)
     const QUOTA_BYTES = 5 * 1024 * 1024;
-    const finalSize = new Blob([JSON.stringify(finalPrompts)]).size;
+    const dataToEstimate = {
+        userPIN: data.userPIN || userPIN,
+        advancedPIN: data.advancedPIN || advancedPIN,
+        prompts: finalPrompts,
+        advancedPrompts: finalAdvancedPrompts
+    };
+    const finalSize = new Blob([JSON.stringify(dataToEstimate)]).size;
 
     if (finalSize > QUOTA_BYTES) {
         showInfoModal("info.attention.title", "prompt.save.storageError");
-        return;
+        return false; // Kembalikan status gagal
     }
     
     // Terapkan dan simpan data
@@ -173,21 +179,26 @@ async function applyImportedData(data, replace = false) {
     updateSecurityFeaturesUI();
 
     showToast(replace ? 'import.replaced' : 'import.merged');
+    return true; // Kembalikan status sukses
 }
 
 
 export async function handleMerge() {
     if (tempImportData) {
-        await applyImportedData(tempImportData, false);
-        closeModal(confirmationMergeReplaceModal.overlay);
-        setTempImportData(null);
+        const success = await applyImportedData(tempImportData, false);
+        if (success) {
+            closeModal(confirmationMergeReplaceModal.overlay);
+            setTempImportData(null);
+        }
     }
 }
 
 export async function handleReplace() {
     if (tempImportData) {
-        await applyImportedData(tempImportData, true);
-        closeModal(confirmationMergeReplaceModal.overlay);
-        setTempImportData(null);
+        const success = await applyImportedData(tempImportData, true);
+        if (success) {
+            closeModal(confirmationMergeReplaceModal.overlay);
+            setTempImportData(null);
+        }
     }
 }
