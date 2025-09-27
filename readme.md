@@ -48,9 +48,6 @@ The light and dark themes automatically follow your browser's settings. You can 
 ## Requirements
 * An internet connection is required to check the online status (uses `google.com`).
 
-## Website Version
-* 3.5
-
 ## Additional Notes
 * Character illustration created using **Google Imagen 4**.
 
