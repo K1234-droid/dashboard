@@ -1,47 +1,58 @@
-# Halaman Beranda Browser
-Halaman ini merupakan halaman beranda yang dirancang untuk memberikan pengalaman personal dan menyenangkan setiap kali Anda membuka tab baru di browser.
+# Browser Homepage
+This page is a homepage designed to provide a personal and enjoyable experience every time you open a new tab in your browser.
 
-## Fitur Utama
-* **Sapaan Dinamis**: Menampilkan ucapan seperti "Selamat Pagi", "Selamat Siang", atau "Selamat Malam" berdasarkan waktu setempat.
-* **Favicon Khusus**: Ikon unik di tab browser untuk identitas visual.
-* **Deskripsi Motivasi**: Pesan singkat untuk menyemangati hari Anda.
-* **Informasi Waktu Real-time**: Menampilkan hari, tanggal, tahun, dan jam yang selalu ter-update.
-* **Ilustrasi Karakter**: Karakter pendamping di sisi kanan dengan interaksi hover pada layar tertentu (resolusi > 930px).
-* **Tema Terang & Gelap Otomatis**: Menyesuaikan dengan tema browser Anda.
-* **Footer Informatif**:
+## Main Features
+* **Dynamic Greetings**: Displays greetings like "Good Morning", "Good Afternoon", or "Good Evening" based on the local time.
+* **Custom Favicon**: A unique icon on the browser tab for visual identity.
+* **Motivational Description**: A short message to brighten your day.
+* **Real-time Time Information**: Displays the day, date, year, and an always-updated clock.
+* **Interactive Character Illustration**: A companion character with show/hide options, animations, idle mouse detection, and interactive effects on resolutions > 930px.
+* **Complete Themes**: Choose light, dark, or device default mode, with a page preview option.
+* **Multilingual Support**: Supports Indonesian, English, and 日本語. Can be set differently for greetings, descriptions, and dates.
+* **Informative Footer**:
+    * Internet connection status (offline/online).
+    * User info (e.g., "You are logged in as K1234").
+* **Username Settings**: Change the username directly from the menu.
+* **Additional Display Controls**:
+    * Show/hide seconds on the clock.
+    * Blur effect for the menu and footer.
+    * Show or hide the character illustration source.
+* **Data Management**:
+    * Import/Export user data (username, theme, settings).
+    * Import/Export hidden feature data (prompt + PIN).
+* **PIN Security**:
+    * Create/Change a PIN for hidden and advanced features.
+    * Option to merge or replace all data when importing with a PIN.
+* **Hidden & Advanced Features**:
+    * Save AI character prompts with 4-digit PIN protection.
+    * Supports text + images for each prompt.
+    * Manage basic prompts: add, edit, copy, delete, or search.
+    * Advanced prompts (Prompt Builder) support AI character selection and additional options.
+    * Storage uses local storage with a maximum capacity of **5 MB**.
+    * Disabling the feature will permanently delete all prompt data.
+* **Image Viewer**: Full view of prompt images through a dedicated modal.
+* **Toast Notifications**: Brief notifications in the corner of the screen.
 
-  * Status koneksi internet (offline/online).
-  * Info pengguna (misalnya, "Anda sebagai K1234").
-* **Fitur Tersembunyi (Baru di Versi 3.4)**:
+## How Themes Work
+The light and dark themes automatically follow your browser's settings. You can also change them manually through the settings on the page.
 
-  * Simpan **prompt karakter AI** langsung di browser dengan perlindungan PIN 4 digit.
-  * Mendukung teks + gambar untuk setiap prompt.
-  * Kelola prompt dengan mudah: tambah, edit, salin, atau hapus.
-  * Penyimpanan menggunakan local storage dengan kapasitas maksimal **5 MB**.
-  * Menonaktifkan fitur akan menghapus semua data prompt secara permanen.
+## How to Install the Extension
+1.  Open Chrome or Edge browser.
+2.  Type `chrome://extensions` in the address bar and press Enter.
+3.  Enable **Developer Mode** in the top right corner.
+4.  Click **Load unpacked** and select the `index_browser_k1234` project folder.
+5.  Done! The extension is ready to use.
 
-## Cara Kerja Tema
-Tema terang dan gelap mengikuti pengaturan browser Anda secara otomatis. Anda juga bisa mengubahnya secara manual melalui pengaturan di halaman.
+**Note**: This extension runs locally and has not been verified by the app store. Use with caution.
 
-## Cara Memasang Ekstensi
-1. Buka browser Chrome atau Edge.
-2. Ketik `chrome://extensions` di bilah alamat dan tekan Enter.
-3. Aktifkan **Mode Developer** di pojok kanan atas.
-4. Klik **Muat yang belum dibuka** dan pilih folder proyek `index_browser_k1234`.
-5. Selesai! Ekstensi siap digunakan.
+## Requirements
+* An internet connection is required to check the online status (uses `google.com`).
 
-**Catatan**: Ekstensi ini dijalankan secara lokal dan belum diverifikasi oleh toko aplikasi. Gunakan dengan hati-hati.
+## Website Version
+* 3.5
 
-## Persyaratan
-* Koneksi internet diperlukan untuk memeriksa status online (menggunakan `google.com`).
+## Additional Notes
+* Character illustration created using **Google Imagen 4**.
 
-## Kontak & Dukungan
-* Email: \[[lexlyky@ares.edu.pl](mailto:lexlyky@ares.edu.pl)] (untuk pertanyaan atau laporan bug).
-* Versi: 3.4.
-
-## Catatan Tambahan
-* Ilustrasi karakter dibuat menggunakan **Google Imagen 4**.
-* Untuk pembaruan atau laporan masalah, silakan hubungi melalui email di atas.
-
-Salam hangat,
+Best regards,
 **K1234**
