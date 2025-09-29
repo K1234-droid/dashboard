@@ -23,16 +23,21 @@ export function getBrowserLanguage() {
     return 'en';
 }
 
-export function showToast(messageKey) {
+export function showToast(messageKey, value = null) {
     if (!elements.toast) return;
     clearTimeout(toastTimeout);
     const lang = languageSettings.ui;
-    const message = i18nData[messageKey]?.[lang] || i18nData[messageKey]?.['id'] || messageKey;
+    let message = i18nData[messageKey]?.[lang] || i18nData[messageKey]?.['id'] || messageKey;
+    
+    if (message && value !== null) {
+        message = message.replace('{value}', value);
+    }
+
     elements.toast.textContent = message;
     elements.toast.classList.add('show');
     const newTimeout = setTimeout(() => {
         elements.toast.classList.remove('show');
-    }, 2500);
+    }, 3000); // Durasi toast diperpanjang sedikit
     setToastTimeout(newTimeout);
 }
 

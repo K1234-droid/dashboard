@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akses Prompt AI</title>
+    <link rel="stylesheet" href="css/popup.css">
+</head>
+<body>
+    <div class="modal-content">
+        <div id="popup-disabled-message" class="disabled-message hidden">
+            <div class="modal-header">
+                <h3 data-i18n-key="popup.featureDisabled.title">Fitur Dinonaktifkan</h3>
+            </div>
+            <div class="modal-body">
+                <p data-i18n-key="popup.featureDisabled.message">Fitur Pop-up Pencari dinonaktifkan. Silakan aktifkan melalui menu "Pengaturan Lainnya" di halaman utama.</p>
+            </div>
+        </div>
+        <div class="modal-body" id="main-popup-content">
+            <div class="modal-button-group-column">
+                <input type="text" id="search-input" class="modal-input" placeholder="Cari karakter AI atau prompt builder..." data-i18n-key-placeholder="popup.search.placeholder">
+            </div>
+            <div id="search-results">
+                <div class="results-list"></div>
+            </div>
+        </div>
+    </div>
+    <script src="js/protocolCheck.js"></script>
+    <script type="module" src="js/popup.js"></script>
+</body>
+</html>

@@ -57,7 +57,7 @@ export async function exportUserData() {
     const settingsToExport = await getAllSettings([
         'username', 'theme', 'showSeconds', 'menuBlur', 'footerBlur',
         'avatarFullShow', 'avatarAnimation', 'detectMouseStillness',
-        'languageSettings', 'showCredit'
+        'languageSettings', 'showCredit', 'showFooterInfo', 'showFooter'
     ]);
     
     // Membuat format tanggal YYYY-MM-DD
@@ -89,7 +89,7 @@ export function exportHiddenData() {
 
 // Dipanggil dari pinManager setelah PIN benar
 export async function proceedWithHiddenDataExport() {
-    const settingsToExport = await getAllSettings(['userPIN', 'advancedPIN', 'prompts', 'advancedPrompts']);
+    const settingsToExport = await getAllSettings(['userPIN', 'advancedPIN', 'prompts', 'advancedPrompts', 'enablePopupFinder']);
     
     // Membuat format tanggal YYYY-MM-DD
     const now = new Date();
@@ -169,6 +169,10 @@ async function applyImportedData(data, replace = false) {
     setPrompts(finalPrompts);
     setAdvancedPrompts(finalAdvancedPrompts);
 
+    if (typeof data.enablePopupFinder !== 'undefined') {
+        await saveSetting('enablePopupFinder', data.enablePopupFinder);
+    }
+
     await saveSetting('userPIN', data.userPIN || userPIN);
     await saveSetting('advancedPIN', data.advancedPIN || advancedPIN);
     await saveSetting('prompts', finalPrompts);
@@ -189,6 +193,8 @@ export async function handleMerge() {
         if (success) {
             closeModal(confirmationMergeReplaceModal.overlay);
             setTempImportData(null);
+            // Tambahkan baris ini untuk memuat ulang halaman
+            setTimeout(() => window.location.reload(), 1000);
         }
     }
 }
@@ -199,6 +205,8 @@ export async function handleReplace() {
         if (success) {
             closeModal(confirmationMergeReplaceModal.overlay);
             setTempImportData(null);
+            // Tambahkan baris ini juga di sini
+            setTimeout(() => window.location.reload(), 1000);
         }
     }
 }

@@ -259,6 +259,9 @@ export const settingSwitches = {
     hiddenFeature: document.getElementById('hidden-feature-switch'),
     continueFeature: document.getElementById('continue-feature-switch'),
     showCredit: document.getElementById('show-credit-switch'),
+    showFooter: document.getElementById('show-footer-switch'),
+    showFooterInfo: document.getElementById('show-footer-info-switch'),
+    enablePopupFinder: document.getElementById('enable-popup-finder-switch'),
 };
   
 // Elemen-elemen terkait status animasi avatar.
@@ -382,6 +385,7 @@ export const i18nData = {
     "settings.other.enableAnim": { id: "Aktifkan Animasi Interaktif", en: "Enable Interactive Animation", ja: "インタラクティブアニメーションを有効にする" },
     "settings.other.detectMouse": { id: "Deteksi Mouse Diam", en: "Detect Still Mouse", ja: "マウス静止を検出" },
     "settings.other.showCredit": { id: "Tampilkan Sumber Karakter", en: "Show Character Source", ja: "キャラクターの出典を表示" },
+    "settings.other.showFooter": { id: "Tampilkan Footer", en: "Show Footer", ja: "フッターを表示" },
     "settings.other.animHelp": { id: "Animasi interaktif akan dimulai setelah kursor diam di atas gambar karakter selama 0,3 detik untuk menghindari interaksi yang tidak disengaja.", en: "The interactive animation will start after the cursor remains still over the character image for 0.3 seconds to avoid unintentional interactions.", ja: "意図しない操作を避けるため、キャラクター画像上でカーソルが0.3秒間静止した後にインタラクティブアニメーションが開始されます。" },
     "settings.other.support": { id: "Dukungan gambar karakter interaktif:", en: "Interactive character image support:", ja: "インタラクティブキャラクター画像のサポート：" },
     "settings.other.supportHelp": { id: "Atur ke resolusi layar lebih tinggi untuk mendapat dukungan gambar karakter interaktif.\nMinimal 480px (lebar) x 510px (tinggi)", en: "Set to a higher screen resolution to get interactive character image support.\nMinimum 480px (width) x 510px (height)", ja: "インタラクティブキャラクター画像のサポートを得るには、より高い画面解像度に設定してください。\n最小480px（幅）x 510px（高さ）" },
@@ -508,6 +512,9 @@ export const i18nData = {
     "settings.tabs.general": { id: "Umum", en: "General", ja: "一般" },
     "settings.tabs.display": { id: "Tampilan", en: "Display", ja: "表示" },
     "settings.tabs.other": { id: "Lainnya", en: "Other", ja: "その他" },
+    "settings.popup.enable": { id: "Aktifkan Pop-up Pencari Prompt", en: "Enable Prompt Finder Pop-up", ja: "プロンプト検索ポップアップを有効にする" },
+    "settings.popup.enableHelp": { id: "Dengan mengaktifkan fitur ini, maka data prompt Anda akan mudah dicari melalui Pop-up Dashboard.", en: "By enabling this feature, your prompt data can be easily searched via the Dashboard Pop-up.", ja: "この機能を有効にすると、ダッシュボードのポップアップからプロンプトデータを簡単に検索できます。" },
+    "settings.other.showFooterInfo": { id: "Tampilkan Informasi Username dan Koneksi Internet di Footer", en: "Show Username and Internet Connection Information in Footer", ja: "フッターにユーザー名とインターネット接続情報を表示する" },
     // Import and Export Data
     "settings.tabs.data": { id: "Data", en: "Data", ja: "データ" },
     "data.manageUser.title": { id: "Kelola Data Pengguna", en: "Manage User Data", ja: "ユーザーデータの管理" },
@@ -530,4 +537,15 @@ export const i18nData = {
     "import.merged": { id: "Data berhasil digabungkan!", en: "Data merged successfully!", ja: "データが正常にマージされました！" },
     "import.replaced": { id: "Data berhasil digantikan!", en: "Data replaced successfully!", ja: "データが正常に置き換えられました！" },
     "confirm.import.pinWarning": { id: "Jika memilih salah satu opsi ini, PIN dari file cadangan akan digunakan dan menggantikan PIN yang sekarang.", en: "By selecting either option, the PINs from the backup file will be used and will replace your current PINs.", ja: "いずれかのオプションを選択すると、バックアップファイルのPINが使用され、現在のPINが置き換えられます。" },
+    // Pop-up Feature
+    "popup.featureDisabled.title": { id: "Fitur Dinonaktifkan", en: "Feature Disabled", ja: "機能が無効です" },
+    "popup.featureDisabled.message": { id: "Fitur Pop-up Pencari dinonaktifkan. Silakan aktifkan melalui menu \"Pengaturan Lainnya\" di halaman utama.", en: "The Pop-up Finder feature is disabled. Please enable it through the \"Other Settings\" menu on the main page.", ja: "ポップアップファインダー機能は無効です。メインページの「その他の設定」メニューから有効にしてください。" },
+    "popup.search.placeholder": { id: "Cari karakter AI atau prompt builder...", en: "Search AI characters or prompt builder...", ja: "AIキャラクターまたはプロンプトビルダーを検索..." },
+    "popup.type.character": { id: "Karakter", en: "Character", ja: "キャラクター" },
+    "popup.type.builder": { id: "Builder", en: "Builder", ja: "ビルダー" },
+    "popup.error.loadFailed": { id: "Gagal memuat data", en: "Failed to load data", ja: "データの読み込みに失敗しました" },
+    "popup.error.noResults": { id: "Tidak ditemukan hasil", en: "No results found", ja: "結果が見つかりません" },
+    "popup.copy.success": { id: "Teks berhasil disalin!", en: "Text copied successfully!", ja: "テキストをコピーしました！" },
+    "popup.copy.errorVerbose": { id: "Gagal menyalin teks (detail teknis):", en: "Failed to copy text (technical detail):", ja: "テキストのコピーに失敗しました（技術的な詳細）：" },
+    "popup.copy.error": { id: "Gagal menyalin teks!", en: "Failed to copy text!", ja: "テキストのコピーに失敗しました！" }
 };

@@ -195,9 +195,23 @@
                         </label>
                     </div>
                     <div class="switch-container">
+                        <label for="show-footer-switch" class="switch-label" data-i18n-key="settings.other.showFooter">Tampilkan Footer</label>
+                        <label class="switch">
+                            <input type="checkbox" id="show-footer-switch">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="switch-container">
                         <label for="blur-footer-switch" class="switch-label" data-i18n-key="settings.other.blurFooter">Aktifkan Efek Blur Footer</label>
                         <label class="switch">
                             <input type="checkbox" id="blur-footer-switch">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="switch-container">
+                        <label for="show-footer-info-switch" class="switch-label" data-i18n-key="settings.other.showFooterInfo">Tampilkan Informasi Username dan Koneksi Internet di Footer</label>
+                        <label class="switch">
+                            <input type="checkbox" id="show-footer-info-switch">
                             <span class="slider"></span>
                         </label>
                     </div>
@@ -224,7 +238,7 @@
                             <span class="slider"></span>
                         </label>
                     </div>
-                    <p class="setting-help-text" data-i18n-key="settings.other.animHelp">Animasi interaktif akan dimulai setelah kursor diam di atas gambar karakter selama 0,3 detik untuk menghindari interaksi yang tidak disengaja.</p>
+                    <p id="detect-mouse-stillness-help-text" class="setting-help-text" data-i18n-key="settings.other.animHelp">Animasi interaktif akan dimulai setelah kursor diam di atas gambar karakter selama 0,3 detik untuk menghindari interaksi yang tidak disengaja.</p>
                     <div class="switch-container">
                         <label for="show-credit-switch" class="switch-label" data-i18n-key="settings.other.showCredit">Tampilkan Sumber Karakter</label>
                         <label class="switch">
@@ -277,9 +291,17 @@
                             <span class="slider"></span>
                         </label>
                     </div>
+                    <div class="switch-container">
+                        <label for="enable-popup-finder-switch" class="switch-label" data-i18n-key="settings.popup.enable">Aktifkan Pop-up Pencari Prompt</label>
+                        <label class="switch">
+                            <input type="checkbox" id="enable-popup-finder-switch">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <p id="enable-popup-finder-help-text" class="setting-help-text" data-i18n-key="settings.popup.enableHelp">Dengan mengaktifkan fitur ini, maka data prompt Anda akan mudah dicari melalui Pop-up Dashboard.</p>
                     <div id="pin-settings-container" class="hidden">
                         <div class="setting-item-column">
-                            <label for="pin-input" class="modal-label" data-i18n-key="settings.security.changePinLabel">Ubah PIN Keamanan (4 digit)</label>
+                            <label for="pin-input" id="pin-update-label" class="switch-label" data-i18n-key="settings.security.changePinLabel">Ubah PIN Keamanan (4 digit)</label>
                             <input type="password" id="pin-input" class="modal-input pin-input-field" maxlength="4" placeholder="••••">
                             <p id="pin-feedback" class="feedback-text"></p>
                         </div>
@@ -331,7 +353,7 @@
                     <li data-i18n-key="about.d4">Danny Bungai</li>
                 </ul>
                 <h4 class="sub-judul" data-i18n-key="about.versionTitle">Versi Website</h4>
-                <p>3.5.0</p>
+                <p>3.6.0</p>
             </div>
         </div>
     </div>

@@ -18,7 +18,8 @@ import {
     toggleMenu, closeMenuOnClickOutside, openModal, closeModal, closeThemeModal, showInfoModal,
     handleSaveUsername, applyTheme, applyShowSeconds, applyMenuBlur, applyFooterBlur,
     applyAvatarFullShow, applyAvatarAnimation, updateAvatarStatus, updateUsernameDisplay,
-    updateSecurityFeaturesUI, checkResolutionAndToggleMessage, setupAvatarHoverListeners as mainSetupAvatarListeners, showFeedback, applyShowCredit
+    updateSecurityFeaturesUI, checkResolutionAndToggleMessage, setupAvatarHoverListeners as mainSetupAvatarListeners, showFeedback,
+    applyShowCredit, applyShowFooter, applyShowFooterInfo
 } from './ui.js';
 import { startPinUpdate, handleSaveInitialPin, handleSaveInitialAdvancedPin, handleDisableFeature, handlePinSubmit } from './pinManager.js';
 import {
@@ -228,7 +229,7 @@ function handleAvatarDoubleClick() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-    const keysToLoad = ["username", "theme", "showSeconds", "menuBlur", "footerBlur", "avatarFullShow", "avatarAnimation", "detectMouseStillness", "languageSettings", "userPIN", "prompts", "advancedPIN", "advancedPrompts", "showCredit"];
+    const keysToLoad = ["username", "theme", "showSeconds", "menuBlur", "footerBlur", "avatarFullShow", "avatarAnimation", "detectMouseStillness", "languageSettings", "userPIN", "prompts", "advancedPIN", "advancedPrompts", "showCredit", "showFooter", "showFooterInfo", "enablePopupFinder"];
     const settings = await loadSettings(keysToLoad);
     
     setCurrentUser(settings.username || "K1234");
@@ -255,7 +256,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     const shouldAnimateAvatar = settings.avatarAnimation !== false; settingSwitches.avatarAnimation.checked = shouldAnimateAvatar;
     const shouldDetectStillness = settings.detectMouseStillness !== false; settingSwitches.detectMouseStillness.checked = shouldDetectStillness;
     const shouldShowCredit = settings.showCredit !== false; settingSwitches.showCredit.checked = shouldShowCredit;
+    const shouldShowFooter = settings.showFooter !== false; settingSwitches.showFooter.checked = shouldShowFooter;
+    const shouldShowFooterInfo = settings.showFooterInfo !== false && shouldShowFooter;
     settingSwitches.applyToAll.checked = languageSettings.applyToAll;
+    settingSwitches.showFooterInfo.checked = shouldShowFooterInfo;
+
+    const shouldEnablePopupFinder = settings.enablePopupFinder === true;
+    if (settingSwitches.enablePopupFinder) {
+        settingSwitches.enablePopupFinder.checked = shouldEnablePopupFinder;
+    }
 
     applyTheme(settings.theme || "system");
     applyShowSeconds(shouldShowSeconds);
@@ -263,6 +272,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     applyFooterBlur(shouldUseFooterBlur);
     applyAvatarFullShow(shouldShowAvatar);
     applyAvatarAnimation(shouldAnimateAvatar);
+    applyShowCredit(shouldShowCredit);
+    applyShowFooter(shouldShowFooter);
+    applyShowFooterInfo(shouldShowFooterInfo);
+
+    if (shouldShowFooter) {
+        applyShowFooterInfo(shouldShowFooterInfo);
+    }
 
     translateUI(languageSettings.ui);
     updateUsernameDisplay();
@@ -410,6 +426,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (confirmationMergeReplaceModal.closeBtn) confirmationMergeReplaceModal.closeBtn.addEventListener('click', () => closeModal(confirmationMergeReplaceModal.overlay));
     if (confirmationMergeReplaceModal.mergeBtn) confirmationMergeReplaceModal.mergeBtn.addEventListener('click', handleMerge);
     if (confirmationMergeReplaceModal.replaceBtn) confirmationMergeReplaceModal.replaceBtn.addEventListener('click', handleReplace);
+
+    document.querySelector('.footer').classList.add('footer-visible');
 });
 
 window.addEventListener("click", (e) => {
@@ -681,6 +699,27 @@ if (settingSwitches.avatarFullShow) settingSwitches.avatarFullShow.addEventListe
 if (settingSwitches.avatarAnimation) settingSwitches.avatarAnimation.addEventListener("change", async (e) => { applyAvatarAnimation(e.target.checked); await saveSetting("avatarAnimation", e.target.checked); });
 if (settingSwitches.detectMouseStillness) settingSwitches.detectMouseStillness.addEventListener("change", async (e) => { await saveSetting("detectMouseStillness", e.target.checked); setupAvatarHoverListeners(); });
 if (settingSwitches.showCredit) settingSwitches.showCredit.addEventListener("change", async (e) => { applyShowCredit(e.target.checked); await saveSetting("showCredit", e.target.checked); });
+if (settingSwitches.showFooter) {
+    settingSwitches.showFooter.addEventListener("change", async (e) => {
+        applyShowFooter(e.target.checked);
+        await saveSetting("showFooter", e.target.checked);
+        // Panggil updateOfflineStatus untuk segera merefleksikan perubahan
+        updateOfflineStatus();
+    });
+}
+if (settingSwitches.showFooterInfo) {
+    settingSwitches.showFooterInfo.addEventListener("change", async (e) => {
+        applyShowFooterInfo(e.target.checked);
+        await saveSetting("showFooterInfo", e.target.checked);
+        // Panggil updateOfflineStatus untuk segera merefleksikan perubahan
+        updateOfflineStatus();
+    });
+}
+if (settingSwitches.enablePopupFinder) {
+    settingSwitches.enablePopupFinder.addEventListener("change", async (e) => {
+        await saveSetting("enablePopupFinder", e.target.checked);
+    });
+}
 if (settingSwitches.hiddenFeature) {
     settingSwitches.hiddenFeature.addEventListener('change', (e) => {
         if (e.target.checked) {

@@ -1,3 +1,4 @@
+import { showToast } from './utils.js';
 import { elements, connectionStatus, languageSettings, i18nData, localeMap, currentUser, lastUpdatedHour, animationFrameId, setAnimationFrameId, setLastUpdatedHour } from './config.js';
 import { updateUsernameDisplay, updateAvatarStatus } from './ui.js';
 import { renderPrompts } from './promptManager.js';
@@ -112,29 +113,77 @@ async function checkRealInternetConnection() {
     }
 }
 
+let isInitialCheck = true;
+let footerMessageTimeout;
+
 export async function updateOfflineStatus() {
-    const showOfflineState = () => {
-        if (connectionStatus.offlineMessage) connectionStatus.offlineMessage.classList.add("show");
-        if (connectionStatus.loadingMessage) connectionStatus.loadingMessage.classList.remove("show");
-        if (elements.accountMessage) elements.accountMessage.style.display = "none";
+    clearTimeout(footerMessageTimeout);
+    const useToast = document.body.classList.contains('footer-info-as-toast');
+
+    if (connectionStatus.offlineMessage) connectionStatus.offlineMessage.classList.remove("show");
+    if (connectionStatus.loadingMessage) connectionStatus.loadingMessage.classList.remove("show");
+    if (elements.accountMessage) elements.accountMessage.classList.remove("show");
+
+    const showOfflineState = (isInitial = false) => {
+        if (useToast) {
+            // Jika ini adalah pengecekan awal saat offline, tampilkan pesan offline dahulu
+            if (isInitial) {
+                showToast('footer.offline'); // Tampilkan "Anda sedang offline"
+                // Setelah 2 detik, tampilkan pesan username
+                footerMessageTimeout = setTimeout(() => {
+                    showToast('footer.account', currentUser);
+                }, 2000);
+            } else {
+                // Untuk kejadian offline berikutnya, cukup tampilkan status offline
+                showToast('footer.offline');
+            }
+        } else {
+            // Logika fallback untuk footer non-toast
+            if (connectionStatus.offlineMessage) connectionStatus.offlineMessage.classList.add("show");
+            if (connectionStatus.loadingMessage) connectionStatus.loadingMessage.classList.remove("show");
+            if (elements.accountMessage) elements.accountMessage.style.display = "none";
+
+            footerMessageTimeout = setTimeout(() => {
+                if (connectionStatus.offlineMessage) connectionStatus.offlineMessage.classList.remove("show");
+                if (elements.accountMessage) elements.accountMessage.style.display = "inline";
+            }, 2000);
+        }
     };
+    
     const showOnlineState = () => {
-        if (connectionStatus.offlineMessage) connectionStatus.offlineMessage.classList.remove("show");
-        if (connectionStatus.loadingMessage) connectionStatus.loadingMessage.classList.remove("show");
-        if (elements.accountMessage) elements.accountMessage.style.display = "inline";
+        if (useToast) {
+            showToast('footer.account', currentUser);
+        } else {
+            if (connectionStatus.offlineMessage) connectionStatus.offlineMessage.classList.remove("show");
+            if (connectionStatus.loadingMessage) connectionStatus.loadingMessage.classList.remove("show");
+            if (elements.accountMessage) elements.accountMessage.style.display = "inline";
+        }
     };
 
-    if (navigator.onLine) {
-        if (connectionStatus.loadingMessage) connectionStatus.loadingMessage.classList.add("show");
-        if (connectionStatus.offlineMessage) connectionStatus.offlineMessage.classList.remove("show");
-        if (elements.accountMessage) elements.accountMessage.style.display = "none";
+    if (!navigator.onLine) {
+        // --- OFFLINE (Browser yakin sedang offline) ---
+        showOfflineState(isInitialCheck);
+    } else {
+        // --- ONLINE (Browser mengira online, perlu verifikasi) ---
+        if (useToast) {
+            showToast('footer.checking');
+        } else {
+            if (connectionStatus.loadingMessage) connectionStatus.loadingMessage.classList.add("show");
+            if (connectionStatus.offlineMessage) connectionStatus.offlineMessage.classList.remove("show");
+            if (elements.accountMessage) elements.accountMessage.style.display = "none";
+        }
+        
         const isTrulyOnline = await checkRealInternetConnection();
+        
         if (isTrulyOnline) {
+            // Koneksi terkonfirmasi, tampilkan status online
             showOnlineState();
         } else {
-            showOfflineState();
+            // Gagal verifikasi, berarti sebenarnya offline
+            showOfflineState(isInitialCheck);
         }
-    } else {
-        showOfflineState();
     }
+
+    // Tandai bahwa pengecekan awal sudah selesai
+    isInitialCheck = false;
 }
