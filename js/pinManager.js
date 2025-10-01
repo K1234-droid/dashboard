@@ -201,6 +201,28 @@ export async function handlePinSubmit() {
             } else { showError(); }
             break;
 
+        case 'confirmEnablePopupFinder':
+            if (enteredPin === userPIN) {
+                settingSwitches.enablePopupFinder.checked = true;
+                await saveSetting("enablePopupFinder", true);
+                resetModal();
+                showToast("popup.success.enabled");
+            } else { 
+                showError(); 
+            }
+            break;
+
+        case 'confirmDisablePopupFinder':
+            if (enteredPin === userPIN) {
+                settingSwitches.enablePopupFinder.checked = false;
+                await saveSetting("enablePopupFinder", false);
+                resetModal();
+                showToast("popup.success.disabled");
+            } else { 
+                showError(); 
+            }
+            break;
+
         case 'disableConfirmAdvanced':
     }
 }

@@ -4,7 +4,8 @@ import {
     isManageModeActive, selectedPromptIds, confirmationModalPurpose,
     setPrompts, setActivePromptMenu, setCurrentPromptId, setConfirmationModalPurpose,
     setIsManageModeActive, setSelectedPromptIds, currentPromptId, sortableInstance,
-    isSearchModeActive, setIsSearchModeActive
+    isSearchModeActive, setIsSearchModeActive, setCurrentImageViewerId, setImageViewerSource,
+    uiHideTimeout, setUiHideTimeout, imageViewerSource, currentImageViewerId, currentImageNavList
 } from './config.js';
 import { openModal, closeModal, showInfoModal } from './ui.js';
 import { showToast, readFileAsDataURL } from './utils.js';
@@ -90,6 +91,7 @@ export function renderPrompts(promptsToRender = prompts) {
         menuContainer.innerHTML = `
             <button class="prompt-menu-option" data-action="view-image">${i18nData["prompt.menu.view"][lang] || i18nData["prompt.menu.view"]["id"]}</button>
             <button class="prompt-menu-option" data-action="copy">${i18nData["prompt.menu.copy"][lang] || i18nData["prompt.menu.copy"]["id"]}</button>
+            <button class="prompt-menu-option" data-action="save-image">${i18nData["prompt.menu.saveImage"][lang] || i18nData["prompt.menu.saveImage"]["id"]}</button>
             <button class="prompt-menu-option" data-action="edit">${i18nData["prompt.menu.edit"][lang] || i18nData["prompt.menu.edit"]["id"]}</button>
             <button class="prompt-menu-option" data-action="delete">${i18nData["prompt.menu.delete"][lang] || i18nData["prompt.menu.delete"]["id"]}</button>
         `;
@@ -128,11 +130,44 @@ export function showPromptViewer(prompt) {
     openModal(promptViewerModal.overlay);
 }
 
-export function showFullImage(promptId) {
+export function navigateImageViewer(direction) {
+    const contextMenu = document.getElementById('image-viewer-context-menu');
+    if (contextMenu) {
+        contextMenu.style.display = 'none';
+    }
+
+    const navList = currentImageNavList; 
+    if (navList.length <= 1) return;
+
+    const currentIndex = navList.indexOf(currentImageViewerId);
+    if (currentIndex === -1) return;
+
+    const newIndex = (currentIndex + direction + navList.length) % navList.length;
+    const newPromptId = navList[newIndex];
+    
+    showFullImage(newPromptId, imageViewerSource); 
+}
+
+export function showFullImage(promptId, source = 'grid') {
     const prompt = prompts.find(p => p.id === promptId);
     if (prompt) {
+        setCurrentImageViewerId(promptId);
+        setImageViewerSource(source);
         imageViewerModal.image.src = prompt.imageUrl;
         openModal(imageViewerModal.overlay);
+
+        const controls = imageViewerModal.controls;
+        if (controls) {
+            controls.classList.toggle('nav-disabled', source !== 'grid');
+            
+            clearTimeout(uiHideTimeout);
+            controls.classList.remove('hidden-ui');
+
+            const newTimeout = setTimeout(() => {
+                controls.classList.add('hidden-ui');
+            }, 3000);
+            setUiHideTimeout(newTimeout);
+        }
     }
 }
 
@@ -146,6 +181,28 @@ export async function copyPromptTextFromItem(promptId) {
         } catch (err) {
             console.error('Gagal menyalin teks: ', err);
         }
+    }
+}
+
+/**
+ * Membuat dan memicu unduhan untuk gambar dari prompt yang dipilih.
+ * @param {number} promptId - ID dari prompt yang gambarnya akan disimpan.
+ */
+export function savePromptImage(promptId) {
+    const prompt = prompts.find(p => p.id === promptId);
+    if (prompt && prompt.imageUrl) {
+        const link = document.createElement('a');
+        link.href = prompt.imageUrl;
+
+        const extension = prompt.imageUrl.split(';')[0].split('/')[1] || 'png';
+        
+        link.download = `prompt_${prompt.id}.${extension}`;
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    } else {
+        console.error('Prompt atau URL gambar tidak ditemukan untuk ID:', promptId);
     }
 }
 
@@ -323,6 +380,11 @@ export async function confirmDelete() {
 
         updateStorageIndicator();
         closeModal(confirmationModal.overlay);
+
+        if(!imageViewerModal.overlay.classList.contains('hidden')) {
+            closeModal(imageViewerModal.overlay);
+        }
+
         showToast("prompt.delete.success");
         if(!promptViewerModal.overlay.classList.contains('hidden')) {
             closeModal(promptViewerModal.overlay);

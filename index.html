@@ -353,7 +353,7 @@
                     <li data-i18n-key="about.d4">Danny Bungai</li>
                 </ul>
                 <h4 class="sub-judul" data-i18n-key="about.versionTitle">Versi Website</h4>
-                <p>3.6.0</p>
+                <p>3.7.0</p>
             </div>
         </div>
     </div>
@@ -499,8 +499,12 @@
 
     <div id="image-viewer-modal-overlay" class="modal-overlay hidden">
         <div class="image-viewer-content">
+            <div id="image-viewer-controls" class="image-viewer-controls">
+                <button id="prev-image-btn" class="image-viewer-nav-btn prev-btn" aria-label="Previous Image"><span class="nav-arrow"></span></button>
+                <button id="next-image-btn" class="image-viewer-nav-btn next-btn" aria-label="Next Image"><span class="nav-arrow"></span></button>
+                <button id="close-image-viewer-modal-btn" class="close-btn image-viewer-close-btn">&times;</button>
+            </div>
             <img id="full-image-viewer" src="" alt="Tampilan Gambar Penuh">
-            <button id="close-image-viewer-modal-btn" class="close-btn image-viewer-close-btn">&times;</button>
         </div>
     </div>
     
@@ -677,6 +681,13 @@
                 <button id="save-advanced-prompt-btn" class="modal-save-btn" data-i18n-key="settings.username.save">Simpan</button>
             </div>
         </div>
+    </div>
+
+    <div id="image-viewer-context-menu" class="prompt-item-menu">
+        <button class="prompt-menu-option" data-action="copy" data-i18n-key="prompt.menu.copy">Salin Teks</button>
+        <button class="prompt-menu-option" data-action="save-image" data-i18n-key="prompt.menu.saveImage">Simpan Gambar</button>
+        <button class="prompt-menu-option" data-action="edit" data-i18n-key="prompt.menu.edit">Edit</button>
+        <button class="prompt-menu-option" data-action="delete" data-i18n-key="prompt.menu.delete">Hapus</button>
     </div>
 
     <div class="hover-dead-zone"></div>

@@ -244,6 +244,9 @@ export const imageViewerModal = {
     overlay: document.getElementById('image-viewer-modal-overlay'),
     closeBtn: document.getElementById('close-image-viewer-modal-btn'),
     image: document.getElementById('full-image-viewer'),
+    prevBtn: document.getElementById('prev-image-btn'),
+    nextBtn: document.getElementById('next-image-btn'),
+    controls: document.getElementById('image-viewer-controls'),
 };
 // ===================================================================================
   
@@ -277,10 +280,12 @@ export let advancedPIN = null;
 export let prompts = [];
 export let advancedPrompts = [];
 export let currentPromptId = null;
+export let currentImageViewerId = null;
+export let imageViewerSource = 'grid';
 export let currentAdvancedPromptId = null;
 export let activePromptMenu = null;
 export let activeModalStack = []; 
-export let pinModalPurpose = 'login'; // 'loginHidden', 'loginAdvanced', 'loginChoice', 'updateConfirmHidden', 'updateConfirmAdvanced', 'disableConfirmHidden', 'disableConfirmAdvanced'
+export let pinModalPurpose = 'login'; // 'loginHidden', 'loginAdvanced', 'loginChoice', 'updateConfirmHidden', 'updateConfirmAdvanced', 'disableConfirmHidden', 'disableConfirmAdvanced', 'confirmEnablePopupFinder', 'confirmDisablePopupFinder'
 export let tempNewPIN = null;
 export let confirmationModalPurpose = 'deletePrompt'; // 'deletePrompt', 'disableHiddenFeature', 'disableContinueFeature', 'deleteSelectedPrompts', 'deleteAdvancedPrompt', 'deleteSelectedAdvancedPrompts'
 export let tempImportData = null;
@@ -293,6 +298,11 @@ export let isAdvancedSearchModeActive = false;
 export let selectedAdvancedPromptIds = [];
 export let sortableInstance = null;
 export let advancedSortableInstance = null;
+
+export let currentImageNavList = [];
+export let uiHideTimeout = null;
+export function setUiHideTimeout(value) { uiHideTimeout = value; }
+export function setCurrentImageNavList(value) { currentImageNavList = value; }
   
 export let languageSettings = {
     ui: 'id',
@@ -314,6 +324,8 @@ export function setAdvancedPIN(value) { advancedPIN = value; }
 export function setPrompts(value) { prompts = value; }
 export function setAdvancedPrompts(value) { advancedPrompts = value; }
 export function setCurrentPromptId(value) { currentPromptId = value; }
+export function setCurrentImageViewerId(value) { currentImageViewerId = value; }
+export function setImageViewerSource(value) { imageViewerSource = value; }
 export function setCurrentAdvancedPromptId(value) { currentAdvancedPromptId = value; }
 export function setActivePromptMenu(value) { activePromptMenu = value; }
 export function setActiveModalStack(value) { activeModalStack = value; }
@@ -346,7 +358,7 @@ export const i18nData = {
     "greeting.evening": { id: "Selamat Sore!", en: "Good Evening!", ja: "こんばんは!" },
     "greeting.night": { id: "Selamat Malam!", en: "Good Night!", ja: "おやすみなさい!" },
     "description.day": { id: "Teruslah menjelajahi untuk menemukan hal-hal baru dimasa depan. Tetap semangat.", en: "Keep exploring to find new things in the future. Stay spirited.", ja: "未来に新しいものを見つけるために探検を続けてください。元気でね。" },
-    "description.night": { id: "Jangan lupa istahat karena sudah malam :)", en: "It's late, don't forget to rest :)", ja: "夜遅いですので、休むことを忘れないでください :)" },
+    "description.night": { id: "Jangan lupa istirahat karena sudah malam :)", en: "It's late, don't forget to rest :)", ja: "夜遅いですので、休むことを忘れないでください :)" },
     "page.title": { id: "Tab Baru", en: "New Tab", ja: "新しいタブ" },
     "page.unsupportedRes": { id: "Maaf, halaman dashboard belum mendukung resolusi rendah", en: "Sorry, the dashboard page doesn't support low resolutions yet", ja: "申し訳ありませんが、ダッシュボードはまだ低解像度をサポートしていません" },
     "footer.account": { id: "Anda sebagai {value}", en: "You are logged in as {value}", ja: "{value} としてログイン中" },
@@ -354,6 +366,7 @@ export const i18nData = {
     "footer.checking": { id: "Memeriksa koneksi", en: "Checking connection", ja: "接続を確認しています" },
     "footer.credit": { id: "Ilustrasi karakter dibuat menggunakan Google Imagen 4", en: "Character illustration created using Google Imagen 4", ja: "キャラクターイラストはGoogle Imagen 4を使用して作成" },
     "footer.tooltip.settings": { id: "Pengaturan Dashboard", en: "Dashboard Settings", ja: "ダッシュボード設定" },
+    "footer.enableRequired": { id: "Anda harus mengaktifkan footer terlebih dahulu.", en: "You must enable the footer first.", ja: "まずフッターを有効にする必要があります。" },
     "menu.changeUsername": { id: "Ubah Username", en: "Change Username", ja: "ユーザー名を変更" },
     "menu.adjustTheme": { id: "Sesuaikan Tema", en: "Adjust Theme", ja: "テーマを調整" },
     "menu.otherSettings": { id: "Pengaturan Lainnya", en: "Other Settings", ja: "その他の設定" },
@@ -447,6 +460,7 @@ export const i18nData = {
     "advanced.prompt.addComma": { id: "Tambahkan Koma", en: "Add Commas", ja: "コンマを追加" },
     "prompt.menu.view": { id: "Tampilkan Gambar Penuh", en: "View Full Image", ja: "画像全体を表示" },
     "prompt.menu.copy": { id: "Salin Teks", en: "Copy Text", ja: "テキストをコピー" },
+    "prompt.menu.saveImage": { id: "Simpan Gambar", en: "Save Image", ja: "画像を保存" },
     "prompt.menu.copyChar": { id: "Salin Karakter", en: "Copy Characters", ja: "キャラクターをコピー" },
     "prompt.menu.edit": { id: "Edit", en: "Edit", ja: "編集" },
     "prompt.menu.delete": { id: "Hapus", en: "Delete", ja: "削除" },
@@ -538,6 +552,10 @@ export const i18nData = {
     "import.replaced": { id: "Data berhasil digantikan!", en: "Data replaced successfully!", ja: "データが正常に置き換えられました！" },
     "confirm.import.pinWarning": { id: "Jika memilih salah satu opsi ini, PIN dari file cadangan akan digunakan dan menggantikan PIN yang sekarang.", en: "By selecting either option, the PINs from the backup file will be used and will replace your current PINs.", ja: "いずれかのオプションを選択すると、バックアップファイルのPINが使用され、現在のPINが置き換えられます。" },
     // Pop-up Feature
+    "pin.enter.confirmFeatureTitle": { id: "Konfirmasi Fitur", en: "Feature Confirmation", ja: "機能の確認" },
+    "pin.enter.confirmFeatureLabel": { id: "Masukkan PIN Fitur Tersembunyi untuk melanjutkan", en: "Enter Hidden Feature PIN to continue", ja: "続行するには隠し機能のPINを入力してください" },
+    "popup.success.enabled": { id: "Pop-up pencari prompt berhasil diaktifkan!", en: "Prompt finder pop-up enabled successfully!", ja: "プロンプト検索ポップアップが正常に有効化されました！" },
+    "popup.success.disabled": { id: "Pop-up pencari prompt dinonaktifkan.", en: "Prompt finder pop-up disabled.", ja: "プロンプト検索ポップアップが無効になりました。" },
     "popup.featureDisabled.title": { id: "Fitur Dinonaktifkan", en: "Feature Disabled", ja: "機能が無効です" },
     "popup.featureDisabled.message": { id: "Fitur Pop-up Pencari dinonaktifkan. Silakan aktifkan melalui menu \"Pengaturan Lainnya\" di halaman utama.", en: "The Pop-up Finder feature is disabled. Please enable it through the \"Other Settings\" menu on the main page.", ja: "ポップアップファインダー機能は無効です。メインページの「その他の設定」メニューから有効にしてください。" },
     "popup.search.placeholder": { id: "Cari karakter AI atau prompt builder...", en: "Search AI characters or prompt builder...", ja: "AIキャラクターまたはプロンプトビルダーを検索..." },

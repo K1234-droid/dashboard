@@ -8,10 +8,11 @@ import {
     activeModalStack, activePromptMenu, confirmationModalPurpose, setConfirmationModalPurpose,
     isManageModeActive, isAdvancedManageModeActive, isSearchModeActive, isAdvancedSearchModeActive,
     currentPromptId, setAnimationFrameId, setSortableInstance, setAdvancedSortableInstance, setPinModalPurpose, currentAdvancedPromptId,
-    dataManagement, confirmationMergeReplaceModal
+    pinModalPurpose, dataManagement, confirmationMergeReplaceModal, currentImageViewerId, imageViewerSource,
+    uiHideTimeout, setUiHideTimeout, setCurrentImageNavList
 } from './config.js';
 
-import { debounce, getBrowserLanguage } from './utils.js';
+import { debounce, getBrowserLanguage, showToast } from './utils.js';
 import { loadSettings, saveSetting, updateEditStorageIndicator } from './storage.js';
 import { translateUI, updateClock, updateInfrequentElements, animationLoop, handleVisibilityChange, updateOfflineStatus } from './core.js';
 import {
@@ -27,7 +28,7 @@ import {
     copyPromptTextFromViewer, showFullImage, copyPromptTextFromItem,
     handleSavePrompt, confirmDelete, closeAllPromptMenus, toggleManageMode,
     handleSelectAll, handleDeleteSelected, updateManageModeUI,
-    toggleSearchMode, handleSearchInput
+    toggleSearchMode, handleSearchInput, savePromptImage, navigateImageViewer
 } from './promptManager.js';
 import {
     renderAdvancedPrompts, toggleAdvancedManageMode, handleAdvancedSelectAll, 
@@ -261,6 +262,130 @@ document.addEventListener("DOMContentLoaded", async () => {
     settingSwitches.applyToAll.checked = languageSettings.applyToAll;
     settingSwitches.showFooterInfo.checked = shouldShowFooterInfo;
 
+    const fullImageViewer = imageViewerModal.image;
+    const contextMenu = document.getElementById('image-viewer-context-menu');
+
+    if (fullImageViewer && contextMenu) {
+        // Tampilkan menu saat klik kanan pada gambar
+        fullImageViewer.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            contextMenu.style.zIndex = parseInt(imageViewerModal.overlay.style.zIndex || 102) + 1;
+            contextMenu.innerHTML = ''; // Kosongkan menu
+
+            const source = imageViewerSource;
+            const lang = languageSettings.ui;
+            let menuItems = [];
+
+            // Tentukan item menu berdasarkan source
+            if (source === 'grid') {
+                menuItems = [
+                    { action: 'copy', key: 'prompt.menu.copy' },
+                    { action: 'save-image', key: 'prompt.menu.saveImage' },
+                    { action: 'edit', key: 'prompt.menu.edit' },
+                    { action: 'delete', key: 'prompt.menu.delete' }
+                ];
+            } else if (source === 'builder') {
+                // Ambil text key dari config.js
+                const copyCharTextKey = "prompt.menu.copyCharText";
+                menuItems = [
+                    { action: 'copy-char-text-only', key: copyCharTextKey },
+                    { action: 'save-image', key: 'prompt.menu.saveImage' }
+                ];
+            }
+
+            // Buat tombol untuk setiap item menu
+            menuItems.forEach(item => {
+                const button = document.createElement('button');
+                button.className = 'prompt-menu-option';
+                button.dataset.action = item.action;
+                button.textContent = i18nData[item.key]?.[lang] || i18nData[item.key]?.['id'];
+                contextMenu.appendChild(button);
+            });
+
+            // Atur posisi dan tampilkan menu (logika ini tetap sama)
+            const { clientX: mouseX, clientY: mouseY } = e;
+            const { innerWidth, innerHeight } = window;
+            const menuWidth = contextMenu.offsetWidth;
+            const menuHeight = contextMenu.offsetHeight;
+            let top = mouseY, left = mouseX;
+            if (mouseY + menuHeight > innerHeight) top = innerHeight - menuHeight - 5;
+            if (mouseX + menuWidth > innerWidth) left = innerWidth - menuWidth - 5;
+            contextMenu.style.top = `${top}px`;
+            contextMenu.style.left = `${left}px`;
+            contextMenu.style.display = 'flex';
+        });
+
+        // Sembunyikan menu saat ada klik di tempat lain
+        window.addEventListener('click', () => {
+            if (contextMenu && contextMenu.style.display === 'flex') { 
+                contextMenu.style.display = 'none';
+            }
+        });
+
+        // Tangani aksi saat item menu di-klik
+        contextMenu.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const target = e.target.closest('.prompt-menu-option');
+            if (!target) return;
+
+            const action = target.dataset.action;
+            const promptId = currentImageViewerId;
+
+            switch (action) {
+                case 'copy':
+                    copyPromptTextFromItem(promptId);
+                    break;
+                case 'save-image':
+                    savePromptImage(promptId);
+                    break;
+                case 'edit':
+                    closeModal(imageViewerModal.overlay);
+                    handleEditPrompt(promptId);
+                    break;
+                case 'delete':
+                    handleDeletePrompt(promptId);
+                    break;
+                case 'copy-char-text-only': // Aksi baru khusus untuk teks karakter
+                    const character = prompts.find(c => c.id === promptId);
+                    if (character) {
+                        navigator.clipboard.writeText(character.text);
+                        showToast("prompt.copy.success");
+                    }
+                    break;
+            }
+            contextMenu.style.display = 'none';
+        });
+    }
+
+    if (imageViewerModal.prevBtn) {
+        imageViewerModal.prevBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            navigateImageViewer(-1);
+        });
+    }
+    if (imageViewerModal.nextBtn) {
+        imageViewerModal.nextBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            navigateImageViewer(1);
+        });
+    }
+    if (imageViewerModal.overlay) {
+        imageViewerModal.overlay.addEventListener('mousemove', () => {
+            const controls = imageViewerModal.controls;
+            if (controls && !imageViewerModal.overlay.classList.contains('hidden')) {
+                controls.classList.remove('hidden-ui');
+                clearTimeout(uiHideTimeout);
+                const newTimeout = setTimeout(() => {
+                    controls.classList.add('hidden-ui');
+                }, 3000);
+                setUiHideTimeout(newTimeout);
+            }
+        });
+        imageViewerModal.closeBtn.addEventListener('click', () => {
+            clearTimeout(uiHideTimeout);
+        });
+    }
+
     const shouldEnablePopupFinder = settings.enablePopupFinder === true;
     if (settingSwitches.enablePopupFinder) {
         settingSwitches.enablePopupFinder.checked = shouldEnablePopupFinder;
@@ -398,8 +523,19 @@ document.addEventListener("DOMContentLoaded", async () => {
             const action = target.dataset.action;
             const id = parseInt(target.closest('.prompt-item-menu').dataset.id, 10);
             closeAllPromptMenus();
-            if (action === 'view-image') showFullImage(id);
+            if (action === 'view-image') {
+                const isFromBuilder = target.closest('#advanced-prompt-viewer-modal-overlay');
+                const source = isFromBuilder ? 'builder' : 'grid';
+
+                if (source === 'grid') {
+                    const allPromptIds = prompts.map(p => p.id);
+                    setCurrentImageNavList(allPromptIds);
+                }
+
+                showFullImage(id, source);
+            } 
             if (action === 'copy') copyPromptTextFromItem(id);
+            if (action === 'save-image') savePromptImage(id);
             if (action === 'edit') handleEditPrompt(id);
             if (action === 'delete') handleDeletePrompt(id);
             if (action === 'copy-advanced') copyAdvancedPromptText(id);
@@ -450,7 +586,18 @@ window.addEventListener("resize", () => {
 });
 
 window.addEventListener("keydown", (event) => {
+    const isImageViewerOpen = activeModalStack.length > 0 && 
+                              activeModalStack[activeModalStack.length - 1] === imageViewerModal.overlay &&
+                              imageViewerSource === 'grid';
+
     if (event.key === "Escape") {
+        const contextMenu = document.getElementById('image-viewer-context-menu');
+
+        if (contextMenu && contextMenu.style.display === 'flex') {
+            contextMenu.style.display = 'none';
+            return;
+        }
+
         if (activePromptMenu) { closeAllPromptMenus(); return; }
         if (menu.container.classList.contains('show-menu')) { menu.container.classList.remove('show-menu'); return; }
         const openSelects = document.querySelectorAll('.custom-select-options.show');
@@ -461,6 +608,7 @@ window.addEventListener("keydown", (event) => {
             });
             return;
         }
+
         if (activeModalStack.length > 0) {
             const lastModal = activeModalStack[activeModalStack.length - 1];
 
@@ -501,6 +649,10 @@ window.addEventListener("keydown", (event) => {
                 closeModal(lastModal);
             }
         }
+    } else if (event.key === "ArrowLeft" && isImageViewerOpen) {
+        navigateImageViewer(-1);
+    } else if (event.key === "ArrowRight" && isImageViewerOpen) {
+        navigateImageViewer(1);
     }
 });
 
@@ -600,7 +752,15 @@ if (pinEnterModal.closeBtn) pinEnterModal.closeBtn.addEventListener("click", () 
     if (confirmationModalPurpose === 'disableHiddenFeature' || confirmationModalPurpose === 'disableContinueFeature') {
         updateSecurityFeaturesUI();
     }
+
+    const currentPurpose = pinModalPurpose;
+    if (currentPurpose === 'confirmEnablePopupFinder') {
+        settingSwitches.enablePopupFinder.checked = false;
+    } else if (currentPurpose === 'confirmDisablePopupFinder') {
+        settingSwitches.enablePopupFinder.checked = true;
+    }
 });
+
 if (pinEnterModal.submitBtn) pinEnterModal.submitBtn.addEventListener("click", handlePinSubmit);
 if (pinEnterModal.input) pinEnterModal.input.addEventListener("keydown", (e) => { if (e.key === "Enter") handlePinSubmit(); });
 
@@ -698,12 +858,39 @@ if (settingSwitches.footerBlur) settingSwitches.footerBlur.addEventListener("cha
 if (settingSwitches.avatarFullShow) settingSwitches.avatarFullShow.addEventListener("change", async (e) => { applyAvatarFullShow(e.target.checked); await saveSetting("avatarFullShow", e.target.checked); });
 if (settingSwitches.avatarAnimation) settingSwitches.avatarAnimation.addEventListener("change", async (e) => { applyAvatarAnimation(e.target.checked); await saveSetting("avatarAnimation", e.target.checked); });
 if (settingSwitches.detectMouseStillness) settingSwitches.detectMouseStillness.addEventListener("change", async (e) => { await saveSetting("detectMouseStillness", e.target.checked); setupAvatarHoverListeners(); });
-if (settingSwitches.showCredit) settingSwitches.showCredit.addEventListener("change", async (e) => { applyShowCredit(e.target.checked); await saveSetting("showCredit", e.target.checked); });
+
+if (settingSwitches.showCredit) {
+    const creditSwitchContainer = settingSwitches.showCredit.closest('.switch-container');
+
+    if (creditSwitchContainer) {
+        creditSwitchContainer.addEventListener('click', () => {
+            if (settingSwitches.showCredit.disabled) {
+                showToast("footer.enableRequired");
+            }
+        });
+    }
+
+    settingSwitches.showCredit.addEventListener("change", async (e) => {
+        applyShowCredit(e.target.checked);
+        await saveSetting("showCredit", e.target.checked);
+    });
+}
+
 if (settingSwitches.showFooter) {
     settingSwitches.showFooter.addEventListener("change", async (e) => {
-        applyShowFooter(e.target.checked);
-        await saveSetting("showFooter", e.target.checked);
-        // Panggil updateOfflineStatus untuk segera merefleksikan perubahan
+        const isChecked = e.target.checked;
+        applyShowFooter(isChecked);
+        await saveSetting("showFooter", isChecked);
+        
+        if (!isChecked) {
+            if (settingSwitches.showCredit) {
+                settingSwitches.showCredit.checked = false;
+                await saveSetting("showCredit", false);
+            }
+            if (settingSwitches.showFooterInfo) {
+                await saveSetting("showFooterInfo", false);
+            }
+        }
         updateOfflineStatus();
     });
 }
@@ -716,8 +903,22 @@ if (settingSwitches.showFooterInfo) {
     });
 }
 if (settingSwitches.enablePopupFinder) {
-    settingSwitches.enablePopupFinder.addEventListener("change", async (e) => {
-        await saveSetting("enablePopupFinder", e.target.checked);
+    settingSwitches.enablePopupFinder.addEventListener("change", (e) => {
+        e.preventDefault();
+
+        const targetState = e.target.checked;
+        const purpose = targetState ? 'confirmEnablePopupFinder' : 'confirmDisablePopupFinder';
+        setPinModalPurpose(purpose);
+        
+        const lang = languageSettings.ui;
+        
+        pinEnterModal.title.textContent = i18nData["pin.enter.confirmFeatureTitle"][lang];
+        pinEnterModal.label.textContent = i18nData["pin.enter.confirmFeatureLabel"][lang];
+        pinEnterModal.input.value = '';
+        pinEnterModal.feedbackText.classList.remove('show');
+        
+        openModal(pinEnterModal.overlay);
+        pinEnterModal.input.focus();
     });
 }
 if (settingSwitches.hiddenFeature) {

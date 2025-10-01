@@ -153,6 +153,7 @@ export function applyShowFooter(show) {
             applyShowFooterInfo(false); 
         }
     }
+    updateAvatarStatus(); // Re-evaluate disabled states for avatar-related switches
 }
 
 export function applyShowFooterInfo(show) {
@@ -262,7 +263,8 @@ export function updateAvatarStatus() {
     }
     
     if (settingSwitches.showCredit) { 
-        settingSwitches.showCredit.disabled = !isAvatarFullShown || !isCreditSupportedResolution;
+        const isFooterHidden = settingSwitches.showFooter && !settingSwitches.showFooter.checked;
+        settingSwitches.showCredit.disabled = !isAvatarFullShown || !isCreditSupportedResolution || isFooterHidden;
     }
 
     if (elements.creditText) {

@@ -151,6 +151,8 @@ body::-webkit-scrollbar {
   padding-bottom: 10rem;
   display: flex;
   justify-content: flex-end;
+  position: relative;
+  z-index: 2;
 }
 
 .info-section {
@@ -161,6 +163,7 @@ body::-webkit-scrollbar {
   max-width: 43%;
   padding: 1rem;
   transition: max-width 0.3s ease;
+  z-index: 1;
 }
 
 body.avatar-hidden .info-section {
@@ -1292,7 +1295,7 @@ body.dark-theme .modal-input-file::file-selector-button {
   height: auto;
   border-radius: 8px;
   margin: 0;
-  border: 1px solid var(--select-bg);
+  border: 2px solid var(--select-bg);
 }
 
 .viewer-character-image-wrapper:hover .prompt-item-menu-btn {
@@ -1364,7 +1367,7 @@ body.dark-theme .modal-input-file::file-selector-button {
 }
 
 #image-viewer-modal-overlay {
-  background-color: rgba(0, 0, 0, 0.8);
+  background-color: rgba(0, 0, 0, 0.7);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -1380,17 +1383,24 @@ body.dark-theme .modal-input-file::file-selector-button {
   object-fit: contain;
 }
 .image-viewer-close-btn {
-  position: absolute;
-  top: -15px;
-  right: -15px;
+  position: fixed; 
+  top: 2rem;
+  right: calc(2rem + 4px);
   color: white;
   background-color: rgba(0, 0, 0, 0.5);
   border-radius: 50%;
-  width: 36px;
-  height: 36px;
+  width: 36px; 
+  height: 36px; 
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 105; 
+  transition: background-color 0.2s ease;
+  font-weight: 400;
+  font-size: 1.8rem;
+}
+.image-viewer-close-btn:hover {
+  background-color: rgba(0, 0, 0, 0.7);
 }
 
 /* ==================== TOAST NOTIFICATION ==================== */
@@ -1403,7 +1413,7 @@ body.dark-theme .modal-input-file::file-selector-button {
   color: #fff;
   padding: 6px 12px;
   border-radius: 6px;
-  z-index: 105;
+  z-index: 200;
   font-size: 0.85rem;
   font-weight: 500;
   white-space: nowrap;
@@ -1638,6 +1648,83 @@ body.dark-theme .modal-input-file::file-selector-button {
   margin-bottom: 0.75rem;
 }
 
+/* ==================== NAVIGASI IMAGE VIEWER ==================== */
+#image-viewer-controls {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.4s ease-in-out;
+}
+
+#image-viewer-controls.hidden-ui {
+  opacity: 0;
+}
+
+.image-viewer-nav-btn {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 105;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.2s ease;
+  pointer-events: all;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.image-viewer-nav-btn:hover {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.prev-btn {
+  left: 2rem;
+}
+
+.next-btn {
+  right: 2rem;
+}
+
+.image-viewer-close-btn {
+pointer-events: all;
+}
+
+#image-viewer-controls.nav-disabled .image-viewer-nav-btn {
+  display: none;
+}
+
+.modal-overlay.hidden .image-viewer-nav-btn,
+.modal-overlay.hidden .image-viewer-close-btn {
+  pointer-events: none;
+}
+
+/* ==================== STYLE PANAH NAVIGASI BARU ==================== */
+.nav-arrow {
+  border: solid white;
+  border-width: 0 3px 3px 0;
+  display: inline-block;
+  padding: 5px;
+}
+
+.prev-btn .nav-arrow {
+  transform: translate(2px, 0px) rotate(135deg); 
+}
+
+.next-btn .nav-arrow {
+  transform: translate(-2px, 0px) rotate(-45deg);
+}
 
 /* ==================== RESPONSIVE DESIGN ==================== */
 @media (max-width: 1328px) {
@@ -1963,4 +2050,11 @@ textarea.modal-input::-webkit-scrollbar-thumb:hover,
 #other-settings-modal-overlay .modal-body {
   flex-grow: 1;
   min-height: 0;
+}
+
+/* Penyesuaian untuk menu konteks viewer gambar */
+#image-viewer-context-menu {
+  position: fixed;
+  z-index: 106;
+  flex-direction: column;
 }

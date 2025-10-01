@@ -5,12 +5,12 @@ import {
     setAdvancedPrompts, setActivePromptMenu, setCurrentAdvancedPromptId, setConfirmationModalPurpose,
     setIsAdvancedManageModeActive, setSelectedAdvancedPromptIds, currentAdvancedPromptId,
     isAdvancedSearchModeActive, setIsAdvancedSearchModeActive, advancedSortableInstance,
-    confirmationModalPurpose
+    confirmationModalPurpose, setCurrentImageNavList
 } from './config.js';
 import { openModal, closeModal, showInfoModal } from './ui.js';
 import { showToast } from './utils.js';
 import { saveSetting } from './storage.js';
-import { showPromptContextMenu } from './promptManager.js';
+import { showPromptContextMenu, showFullImage } from './promptManager.js';
 
 let selectionOrder = [];
 
@@ -249,6 +249,11 @@ export function showAdvancedPromptViewer(prompt) {
                 charText.className = 'viewer-prompt-text';
                 charText.textContent = character.text;
                 viewerBody.appendChild(charText);
+
+                thumb.addEventListener('click', () => {
+                    setCurrentImageNavList(prompt.characterIds);
+                    showFullImage(character.id, 'builder');
+                });
             }
         });
     }
