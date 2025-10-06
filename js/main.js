@@ -806,8 +806,8 @@ if (promptModal.searchInput) promptModal.searchInput.addEventListener('input', h
 if (advancedPromptModal.closeBtn) advancedPromptModal.closeBtn.addEventListener("click", () => {
     cleanupAdvancedPromptBlobs();
 
-    setIsAdvancedManageModeActive(false);
-    setIsAdvancedSearchModeActive(false);
+    toggleAdvancedManageMode(false);
+    toggleAdvancedSearchMode(false);
     advancedPromptModal.content.classList.remove('manage-mode', 'search-mode');
 
     closeModal(advancedPromptModal.overlay);
