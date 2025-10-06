@@ -37,21 +37,38 @@ export function showToast(messageKey, value = null) {
     elements.toast.classList.add('show');
     const newTimeout = setTimeout(() => {
         elements.toast.classList.remove('show');
-    }, 3000); // Durasi toast diperpanjang sedikit
+    }, 3000);
     setToastTimeout(newTimeout);
 }
 
-/**
- * Membaca file sebagai Data URL menggunakan Promise.
- * @param {File} file - File yang akan dibaca.
- * @returns {Promise<string>} Sebuah Promise yang akan resolve dengan Data URL file.
- */
-export function readFileAsDataURL(file) {
+export function dataURLToBlob(dataurl) {
+    return new Promise((resolve, reject) => {
+        try {
+            const arr = dataurl.split(',');
+            const mimeMatch = arr[0].match(/:(.*?);/);
+            if (!mimeMatch) {
+                throw new Error("Invalid Data URL format");
+            }
+            const mime = mimeMatch[1];
+            const bstr = atob(arr[1]);
+            let n = bstr.length;
+            const u8arr = new Uint8Array(n);
+            while(n--){
+                u8arr[n] = bstr.charCodeAt(n);
+            }
+            resolve(new Blob([u8arr], {type:mime}));
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+export function blobToDataURL(blob) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => resolve(reader.result);
-        reader.onerror = () => reject(reader.error);
-        reader.readAsDataURL(file);
+        reader.onerror = (error) => reject(error);
+        reader.readAsDataURL(blob);
     });
 }
 
@@ -62,4 +79,54 @@ export function formatBytes(bytes, decimals = 2) {
     const sizes = ['Bytes', 'KB', 'MB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+}
+
+/**
+ * Mengubah ukuran gambar menggunakan Canvas.
+ * @param {Blob|File} file - File gambar yang akan diubah ukurannya.
+ * @param {number} maxWidth - Lebar maksimum gambar hasil.
+ * @param {number} maxHeight - Tinggi maksimum gambar hasil.
+ * @returns {Promise<Blob>} Promise yang resolve dengan Blob gambar yang sudah diubah ukurannya.
+ */
+export function resizeImage(file, maxWidth, maxHeight) {
+    return new Promise((resolve, reject) => {
+        const img = document.createElement('img');
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const reader = new FileReader();
+
+        reader.onload = (e) => {
+            img.src = e.target.result;
+        };
+        reader.onerror = reject;
+        img.onload = () => {
+            let { width, height } = img;
+
+            if (width > height) {
+                if (width > maxWidth) {
+                    height = Math.round((height * maxWidth) / width);
+                    width = maxWidth;
+                }
+            } else {
+                if (height > maxHeight) {
+                    width = Math.round((width * maxHeight) / height);
+                    height = maxHeight;
+                }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            ctx.drawImage(img, 0, 0, width, height);
+
+            canvas.toBlob((blob) => {
+                if (blob) {
+                    resolve(blob);
+                } else {
+                    reject(new Error('Canvas to Blob conversion failed'));
+                }
+            }, file.type || 'image/png', 0.9);
+        };
+        img.onerror = reject;
+        reader.readAsDataURL(file);
+    });
 }

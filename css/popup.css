@@ -284,3 +284,13 @@ font-size: 0.9rem;
     line-height: 1.6;
     opacity: 0.9;
 }
+
+/* ==================== GLOBAL ANIMATION OFF SWITCH ==================== */
+.animations-disabled *,
+.animations-disabled *::before,
+.animations-disabled *::after {
+    transition-duration: 0s !important;
+    animation-duration: 0s !important;
+    transition-delay: 0s !important;
+    animation-delay: 0s !important;
+}

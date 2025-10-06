@@ -7,13 +7,12 @@ import {
     promptModal, advancedPromptModal, tempNewPIN, pinModalPurpose
 } from './config.js';
 import { showFeedback, openModal, closeModal, updateSecurityFeaturesUI } from './ui.js';
-import { saveSetting } from './storage.js';
+import { saveSetting, deleteAllPrompts } from './storage.js';
 import { showToast } from './utils.js';
 import { renderPrompts } from './promptManager.js';
-import { updateStorageIndicator } from './storage.js';
 import { renderAdvancedPrompts } from './promptBuilder.js';
 
-export function startPinUpdate(type) { // type is 'hidden' or 'advanced'
+export function startPinUpdate(type) {
     const newPin = pinSettings.input.value;
     
     if (!/^\d{4}$/.test(newPin)) {
@@ -34,7 +33,6 @@ export function startPinUpdate(type) { // type is 'hidden' or 'advanced'
     pinEnterModal.title.textContent = i18nData["pin.enter.confirmUpdate"][lang];
     pinEnterModal.label.textContent = i18nData["pin.enter.confirmUpdateLabel"][lang];
     
-    // Membersihkan input PIN dan pesan feedback saat modal dibuka
     pinEnterModal.input.value = '';
     pinEnterModal.feedbackText.classList.remove('show');
     
@@ -80,14 +78,13 @@ export function handleSaveInitialAdvancedPin() {
 }
 
 
-export function handleDisableFeature(type) { // 'hidden' or 'advanced'
+export function handleDisableFeature(type) {
     closeModal(confirmationModal.overlay);
     setPinModalPurpose(type === 'hidden' ? 'disableConfirmHidden' : 'disableConfirmAdvanced');
     const lang = languageSettings.ui;
     pinEnterModal.title.textContent = i18nData["pin.enter.confirmDisable"][lang];
     pinEnterModal.label.textContent = i18nData["pin.enter.confirmDisableLabel"][lang];
     
-    // Membersihkan input PIN dan pesan feedback saat modal dibuka
     pinEnterModal.input.value = '';
     pinEnterModal.feedbackText.classList.remove('show');
 
@@ -113,7 +110,6 @@ export async function handlePinSubmit() {
             if (enteredPin === userPIN) {
                 resetModal();
                 openModal(promptModal.overlay);
-                updateStorageIndicator();
             } else { showError(); }
             break;
 
@@ -128,7 +124,6 @@ export async function handlePinSubmit() {
             if (enteredPin === userPIN) {
                 resetModal();
                 openModal(promptModal.overlay);
-                updateStorageIndicator();
             } else if (enteredPin === advancedPIN) {
                 resetModal();
                 openModal(advancedPromptModal.overlay);
@@ -161,18 +156,23 @@ export async function handlePinSubmit() {
 
         case 'disableConfirmHidden':
             if (enteredPin === userPIN) {
-                setUserPIN(null);
-                setPrompts([]);
-                setAdvancedPIN(null);
-                setAdvancedPrompts([]);
+                await deleteAllPrompts();
+
                 await Promise.all([
                     saveSetting('userPIN', null),
-                    saveSetting('prompts', []),
                     saveSetting('advancedPIN', null),
-                    saveSetting('advancedPrompts', [])
+                    saveSetting('promptOrder', []),
+                    saveSetting('advancedPrompts', []),
+                    saveSetting('enablePopupFinder', false)
                 ]);
+
+                setUserPIN(null);
+                setAdvancedPIN(null);
+                setPrompts([]);
+                setAdvancedPrompts([]);
+                
                 renderPrompts();
-                renderAdvancedPrompts(); // <--- PERBAIKAN DI SINI
+                renderAdvancedPrompts();
                 resetModal();
                 showToast("settings.hidden.disabled");
                 updateSecurityFeaturesUI();
@@ -187,7 +187,7 @@ export async function handlePinSubmit() {
                     saveSetting('advancedPIN', null),
                     saveSetting('advancedPrompts', [])
                 ]);
-                renderAdvancedPrompts(); // <--- DAN DI SINI
+                renderAdvancedPrompts();
                 resetModal();
                 showToast("settings.hidden.disabled");
                 updateSecurityFeaturesUI();
@@ -197,7 +197,7 @@ export async function handlePinSubmit() {
         case 'exportHidden':
             if (enteredPin === userPIN) {
                 resetModal();
-                proceedWithHiddenDataExport(); // Panggil fungsi ekspor setelah PIN benar
+                proceedWithHiddenDataExport();
             } else { showError(); }
             break;
 

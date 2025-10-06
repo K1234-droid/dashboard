@@ -9,18 +9,19 @@ import {
     isManageModeActive, isAdvancedManageModeActive, isSearchModeActive, isAdvancedSearchModeActive,
     currentPromptId, setAnimationFrameId, setSortableInstance, setAdvancedSortableInstance, setPinModalPurpose, currentAdvancedPromptId,
     pinModalPurpose, dataManagement, confirmationMergeReplaceModal, currentImageViewerId, imageViewerSource,
-    uiHideTimeout, setUiHideTimeout, setCurrentImageNavList
+    uiHideTimeout, setUiHideTimeout, setCurrentImageNavList, setIsAdvancedManageModeActive, setIsAdvancedSearchModeActive,
+    isBlockingModalActive
 } from './config.js';
 
 import { debounce, getBrowserLanguage, showToast } from './utils.js';
-import { loadSettings, saveSetting, updateEditStorageIndicator } from './storage.js';
+import { loadSettings, saveSetting, getAllPromptMetadata } from './storage.js';
 import { translateUI, updateClock, updateInfrequentElements, animationLoop, handleVisibilityChange, updateOfflineStatus } from './core.js';
 import {
     toggleMenu, closeMenuOnClickOutside, openModal, closeModal, closeThemeModal, showInfoModal,
     handleSaveUsername, applyTheme, applyShowSeconds, applyMenuBlur, applyFooterBlur,
     applyAvatarFullShow, applyAvatarAnimation, updateAvatarStatus, updateUsernameDisplay,
-    updateSecurityFeaturesUI, checkResolutionAndToggleMessage, setupAvatarHoverListeners as mainSetupAvatarListeners, showFeedback,
-    applyShowCredit, applyShowFooter, applyShowFooterInfo
+    updateSecurityFeaturesUI, checkResolutionAndToggleMessage, setupAvatarHoverListeners, showFeedback,
+    applyShowCredit, applyShowFooter, applyShowFooterInfo, applyEnableAnimation
 } from './ui.js';
 import { startPinUpdate, handleSaveInitialPin, handleSaveInitialAdvancedPin, handleDisableFeature, handlePinSubmit } from './pinManager.js';
 import {
@@ -28,7 +29,7 @@ import {
     copyPromptTextFromViewer, showFullImage, copyPromptTextFromItem,
     handleSavePrompt, confirmDelete, closeAllPromptMenus, toggleManageMode,
     handleSelectAll, handleDeleteSelected, updateManageModeUI,
-    toggleSearchMode, handleSearchInput, savePromptImage, navigateImageViewer
+    toggleSearchMode, handleSearchInput, savePromptImage, navigateImageViewer, cleanupPromptBlobs
 } from './promptManager.js';
 import {
     renderAdvancedPrompts, toggleAdvancedManageMode, handleAdvancedSelectAll, 
@@ -36,15 +37,12 @@ import {
     updateAdvancedManageModeUI, handleOpenAddAdvancedPromptModal, handleSaveAdvancedPrompt,
     copyAdvancedPromptText, handleDeleteAdvancedPrompt, handleEditAdvancedPrompt,
     copyAdvancedPromptTextFromViewer, confirmAdvancedDelete, handleCharacterSearchInput,
-    copyAdvancedCharacterText
+    copyAdvancedCharacterText, cleanupAdvancedPromptBlobs
 } from './promptBuilder.js';
 import {
     exportUserData, exportHiddenData, importUserData, importHiddenData,
     handleMerge, handleReplace
 } from './importExport.js';
-
-// Expose setupAvatarHoverListeners to be callable from ui.js
-export const setupAvatarHoverListeners = mainSetupAvatarListeners;
 
 // ===================================================================
 // D. INISIALISASI & EVENT LISTENERS
@@ -105,7 +103,8 @@ function initializeDragAndDrop() {
                 const movedItem = newPrompts.splice(evt.oldIndex, 1)[0];
                 newPrompts.splice(evt.newIndex, 0, movedItem);
                 setPrompts(newPrompts);
-                await saveSetting('prompts', newPrompts);
+                const newOrder = newPrompts.map(p => p.id);
+                await saveSetting('promptOrder', newOrder);
             },
         });
         setSortableInstance(sortable);
@@ -115,6 +114,8 @@ function initializeDragAndDrop() {
             animation: 150,
             ghostClass: 'sortable-ghost',
             chosenClass: 'sortable-chosen',
+            forceFallback: true,
+            fallbackOnBody: true,
             filter: '.add-prompt-item',
             preventOnFilter: true,
             onMove: function (evt) {
@@ -230,13 +231,12 @@ function handleAvatarDoubleClick() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-    const keysToLoad = ["username", "theme", "showSeconds", "menuBlur", "footerBlur", "avatarFullShow", "avatarAnimation", "detectMouseStillness", "languageSettings", "userPIN", "prompts", "advancedPIN", "advancedPrompts", "showCredit", "showFooter", "showFooterInfo", "enablePopupFinder"];
+    const keysToLoad = ["username", "theme", "showSeconds", "menuBlur", "footerBlur", "avatarFullShow", "avatarAnimation", "detectMouseStillness", "languageSettings", "userPIN", "advancedPIN", "advancedPrompts", "showCredit", "showFooter", "showFooterInfo", "enablePopupFinder", "promptOrder", "enableAnimation"];
     const settings = await loadSettings(keysToLoad);
     
     setCurrentUser(settings.username || "K1234");
     setUserPIN(settings.userPIN || null);
     setAdvancedPIN(settings.advancedPIN || null);
-    setPrompts(settings.prompts || []);
     setAdvancedPrompts(settings.advancedPrompts || []);
     
     if (settings.languageSettings) {
@@ -250,6 +250,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     ['ui', ...langDropdowns].forEach(setupDropdown);
 
+    const shouldEnableAnimation = settings.enableAnimation !== false;
     const shouldShowSeconds = settings.showSeconds !== false; settingSwitches.showSeconds.checked = shouldShowSeconds;
     const shouldUseMenuBlur = settings.menuBlur !== false; settingSwitches.menuBlur.checked = shouldUseMenuBlur;
     const shouldUseFooterBlur = settings.footerBlur !== false; settingSwitches.footerBlur.checked = shouldUseFooterBlur;
@@ -258,25 +259,39 @@ document.addEventListener("DOMContentLoaded", async () => {
     const shouldDetectStillness = settings.detectMouseStillness !== false; settingSwitches.detectMouseStillness.checked = shouldDetectStillness;
     const shouldShowCredit = settings.showCredit !== false; settingSwitches.showCredit.checked = shouldShowCredit;
     const shouldShowFooter = settings.showFooter !== false; settingSwitches.showFooter.checked = shouldShowFooter;
-    const shouldShowFooterInfo = settings.showFooterInfo !== false && shouldShowFooter;
+    const shouldShowFooterInfo = settings.showFooterInfo !== false;
+    settingSwitches.enableAnimation.checked = shouldEnableAnimation;
     settingSwitches.applyToAll.checked = languageSettings.applyToAll;
     settingSwitches.showFooterInfo.checked = shouldShowFooterInfo;
+
+    let promptMetadata = await getAllPromptMetadata();
+
+    if (settings.promptOrder && Array.isArray(settings.promptOrder)) {
+        const orderMap = new Map(settings.promptOrder.map((id, index) => [id, index]));
+        promptMetadata.sort((a, b) => {
+            const aIndex = orderMap.get(a.id) ?? Infinity;
+            const bIndex = orderMap.get(b.id) ?? Infinity;
+            return aIndex - bIndex;
+        });
+    }
+
+    setPrompts(promptMetadata || []);
+    await renderPrompts();
+    initializeDragAndDrop();
 
     const fullImageViewer = imageViewerModal.image;
     const contextMenu = document.getElementById('image-viewer-context-menu');
 
     if (fullImageViewer && contextMenu) {
-        // Tampilkan menu saat klik kanan pada gambar
         fullImageViewer.addEventListener('contextmenu', (e) => {
             e.preventDefault();
             contextMenu.style.zIndex = parseInt(imageViewerModal.overlay.style.zIndex || 102) + 1;
-            contextMenu.innerHTML = ''; // Kosongkan menu
+            contextMenu.innerHTML = '';
 
             const source = imageViewerSource;
             const lang = languageSettings.ui;
             let menuItems = [];
 
-            // Tentukan item menu berdasarkan source
             if (source === 'grid') {
                 menuItems = [
                     { action: 'copy', key: 'prompt.menu.copy' },
@@ -285,7 +300,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                     { action: 'delete', key: 'prompt.menu.delete' }
                 ];
             } else if (source === 'builder') {
-                // Ambil text key dari config.js
                 const copyCharTextKey = "prompt.menu.copyCharText";
                 menuItems = [
                     { action: 'copy-char-text-only', key: copyCharTextKey },
@@ -293,7 +307,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                 ];
             }
 
-            // Buat tombol untuk setiap item menu
             menuItems.forEach(item => {
                 const button = document.createElement('button');
                 button.className = 'prompt-menu-option';
@@ -302,7 +315,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                 contextMenu.appendChild(button);
             });
 
-            // Atur posisi dan tampilkan menu (logika ini tetap sama)
             const { clientX: mouseX, clientY: mouseY } = e;
             const { innerWidth, innerHeight } = window;
             const menuWidth = contextMenu.offsetWidth;
@@ -315,14 +327,12 @@ document.addEventListener("DOMContentLoaded", async () => {
             contextMenu.style.display = 'flex';
         });
 
-        // Sembunyikan menu saat ada klik di tempat lain
         window.addEventListener('click', () => {
             if (contextMenu && contextMenu.style.display === 'flex') { 
                 contextMenu.style.display = 'none';
             }
         });
 
-        // Tangani aksi saat item menu di-klik
         contextMenu.addEventListener('click', (e) => {
             e.stopPropagation();
             const target = e.target.closest('.prompt-menu-option');
@@ -345,7 +355,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 case 'delete':
                     handleDeletePrompt(promptId);
                     break;
-                case 'copy-char-text-only': // Aksi baru khusus untuk teks karakter
+                case 'copy-char-text-only':
                     const character = prompts.find(c => c.id === promptId);
                     if (character) {
                         navigator.clipboard.writeText(character.text);
@@ -392,6 +402,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     applyTheme(settings.theme || "system");
+    applyEnableAnimation(shouldEnableAnimation);
     applyShowSeconds(shouldShowSeconds);
     applyMenuBlur(shouldUseMenuBlur);
     applyFooterBlur(shouldUseFooterBlur);
@@ -401,17 +412,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     applyShowFooter(shouldShowFooter);
     applyShowFooterInfo(shouldShowFooterInfo);
 
-    if (shouldShowFooter) {
-        applyShowFooterInfo(shouldShowFooterInfo);
-    }
-
     translateUI(languageSettings.ui);
     updateUsernameDisplay();
     updateApplyAllState(languageSettings.applyToAll);
     updateSecurityFeaturesUI();
-    renderPrompts();
     renderAdvancedPrompts();
-    initializeDragAndDrop();
 
     updateOfflineStatus();
     updateClock();
@@ -419,41 +424,60 @@ document.addEventListener("DOMContentLoaded", async () => {
     
     setAnimationFrameId(requestAnimationFrame(animationLoop));
 
-    // Listener untuk memperbarui UI Prompt Builder saat karakter diubah
     document.addEventListener('characterPromptsUpdated', () => {
         renderAdvancedPrompts();
     });
 
     function handleImageFileSelection(file) {
-        if (file && file.type.startsWith('image/')) {
-            if (file.size === 0) {
-                showInfoModal("info.longPath.title", "info.longPath.text");
-                return;
-            }
-            const reader = new FileReader();
-            reader.onerror = (error) => {
-                console.error("FileReader Error: ", error);
-                showInfoModal("info.attention.title", "prompt.save.fileError");
-            };
-            reader.onload = (e) => {
-                if (currentPromptId === null) {
-                    addEditPromptModal.previewsContainer.classList.add('hidden');
-                    addEditPromptModal.imagePreviewSingle.src = e.target.result;
-                    addEditPromptModal.imagePreviewSingle.classList.remove('hidden');
-                } else {
-                    addEditPromptModal.imagePreviewSingle.classList.add('hidden');
-                    addEditPromptModal.previewsContainer.classList.remove('hidden');
-                    addEditPromptModal.imagePreviewNew.src = e.target.result;
-                }
-            };
-            reader.readAsDataURL(file);
-            const dataTransfer = new DataTransfer();
-            dataTransfer.items.add(file);
-            addEditPromptModal.imageFileInput.files = dataTransfer.files;
-            updateEditStorageIndicator(file);
-        } else if (file) {
+        if (!file) return;
+    
+        if (!file.type.startsWith('image/')) {
             showInfoModal("info.attention.title", "prompt.dnd.notImage");
+            addEditPromptModal.imageFileInput.value = '';
+            return;
         }
+    
+        if (file.size === 0) {
+            showInfoModal("info.longPath.title", "info.longPath.text");
+            addEditPromptModal.imageFileInput.value = '';
+            return;
+        }
+    
+        const isAdding = currentPromptId === null;
+        const targetImage = isAdding ? addEditPromptModal.imagePreviewSingle : addEditPromptModal.imagePreviewNew;
+        const targetContainer = isAdding ? targetImage.parentElement : addEditPromptModal.previewsContainer;
+    
+        addEditPromptModal.previewsContainer.classList.toggle('hidden', isAdding);
+        addEditPromptModal.imagePreviewSingle.parentElement.classList.toggle('hidden', !isAdding);
+        targetContainer.classList.add('is-loading');
+    
+        targetImage.onload = () => {
+            targetContainer.classList.remove('is-loading');
+            targetImage.classList.remove('hidden');
+        };
+        
+        targetImage.onerror = () => {
+            targetContainer.classList.remove('is-loading');
+            console.error("Gagal memuat pratinjau gambar.");
+            showInfoModal("info.attention.title", "prompt.save.fileError");
+        };
+    
+        const reader = new FileReader();
+        reader.onerror = (error) => {
+            console.error("FileReader Error: ", error);
+            targetContainer.classList.remove('is-loading');
+            showInfoModal("info.attention.title", "prompt.save.fileError");
+        };
+        
+        reader.onload = (e) => {
+            targetImage.src = e.target.result;
+        };
+    
+        reader.readAsDataURL(file);
+    
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        addEditPromptModal.imageFileInput.files = dataTransfer.files;
     }
 
     if (addEditPromptModal.imageFileInput) {
@@ -558,7 +582,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (dataManagement.exportHiddenDataBtn) dataManagement.exportHiddenDataBtn.addEventListener('click', exportHiddenData);
     if (dataManagement.importHiddenDataBtn) dataManagement.importHiddenDataBtn.addEventListener('click', importHiddenData);
 
-    // Listener untuk modal konfirmasi Gabung/Ganti
     if (confirmationMergeReplaceModal.closeBtn) confirmationMergeReplaceModal.closeBtn.addEventListener('click', () => closeModal(confirmationMergeReplaceModal.overlay));
     if (confirmationMergeReplaceModal.mergeBtn) confirmationMergeReplaceModal.mergeBtn.addEventListener('click', handleMerge);
     if (confirmationMergeReplaceModal.replaceBtn) confirmationMergeReplaceModal.replaceBtn.addEventListener('click', handleReplace);
@@ -609,7 +632,7 @@ window.addEventListener("keydown", (event) => {
             return;
         }
 
-        if (activeModalStack.length > 0) {
+        if (activeModalStack.length > 0 && !isBlockingModalActive) {
             const lastModal = activeModalStack[activeModalStack.length - 1];
 
             if (lastModal === promptModal.overlay) {
@@ -765,6 +788,7 @@ if (pinEnterModal.submitBtn) pinEnterModal.submitBtn.addEventListener("click", h
 if (pinEnterModal.input) pinEnterModal.input.addEventListener("keydown", (e) => { if (e.key === "Enter") handlePinSubmit(); });
 
 if (promptModal.closeBtn) promptModal.closeBtn.addEventListener("click", () => {
+    cleanupPromptBlobs();
     toggleManageMode(false);
     toggleSearchMode(false);
     closeModal(promptModal.overlay);
@@ -780,8 +804,12 @@ if (promptModal.searchInput) promptModal.searchInput.addEventListener('input', h
 
 // --- Advanced Prompt Modal Listeners ---
 if (advancedPromptModal.closeBtn) advancedPromptModal.closeBtn.addEventListener("click", () => {
-    toggleAdvancedManageMode(false);
-    toggleAdvancedSearchMode(false);
+    cleanupAdvancedPromptBlobs();
+
+    setIsAdvancedManageModeActive(false);
+    setIsAdvancedSearchModeActive(false);
+    advancedPromptModal.content.classList.remove('manage-mode', 'search-mode');
+
     closeModal(advancedPromptModal.overlay);
 });
 if (advancedPromptModal.manageBtn) advancedPromptModal.manageBtn.addEventListener('click', () => toggleAdvancedManageMode());
@@ -798,12 +826,28 @@ if (promptViewerModal.copyBtn) promptViewerModal.copyBtn.addEventListener("click
 if (promptViewerModal.deleteBtn) promptViewerModal.deleteBtn.addEventListener("click", () => handleDeletePrompt(currentPromptId));
 if (promptViewerModal.editBtn) promptViewerModal.editBtn.addEventListener("click", () => { closeModal(promptViewerModal.overlay); handleEditPrompt(currentPromptId); });
 
-if (advancedPromptViewerModal.closeBtn) advancedPromptViewerModal.closeBtn.addEventListener("click", () => { closeModal(advancedPromptViewerModal.overlay); });
+if (advancedPromptViewerModal.closeBtn) advancedPromptViewerModal.closeBtn.addEventListener("click", () => { 
+    advancedPromptViewerModal.body.querySelectorAll('.viewer-character-thumbnail').forEach(img => {
+        if (img.src.startsWith('blob:')) {
+            URL.revokeObjectURL(img.src);
+        }
+    });
+    closeModal(advancedPromptViewerModal.overlay); 
+});
+
 if (advancedPromptViewerModal.copyBtn) advancedPromptViewerModal.copyBtn.addEventListener("click", () => copyAdvancedPromptTextFromViewer(currentAdvancedPromptId));
 if (advancedPromptViewerModal.deleteBtn) advancedPromptViewerModal.deleteBtn.addEventListener("click", () => handleDeleteAdvancedPrompt(currentAdvancedPromptId));
 if (advancedPromptViewerModal.editBtn) advancedPromptViewerModal.editBtn.addEventListener("click", () => { closeModal(advancedPromptViewerModal.overlay); handleEditAdvancedPrompt(currentAdvancedPromptId); });
 
-if (addEditPromptModal.closeBtn) addEditPromptModal.closeBtn.addEventListener("click", () => { closeModal(addEditPromptModal.overlay); });
+if (addEditPromptModal.closeBtn) addEditPromptModal.closeBtn.addEventListener("click", () => { 
+    [addEditPromptModal.imagePreviewSingle, addEditPromptModal.imagePreviewOld, addEditPromptModal.imagePreviewNew].forEach(img => {
+        if(img && img.src.startsWith('blob:')) {
+            URL.revokeObjectURL(img.src);
+        }
+    });
+    closeModal(addEditPromptModal.overlay); 
+});
+
 if (addEditPromptModal.saveBtn) addEditPromptModal.saveBtn.addEventListener("click", handleSavePrompt);
 
 if (addEditAdvancedPromptModal.closeBtn) addEditAdvancedPromptModal.closeBtn.addEventListener("click", () => { closeModal(addEditAdvancedPromptModal.overlay); });
@@ -837,7 +881,14 @@ if (infoModal.closeBtn) infoModal.closeBtn.addEventListener("click", () => close
 if (howItWorksModal.openBtn) howItWorksModal.openBtn.addEventListener("click", () => openModal(howItWorksModal.overlay));
 if (howItWorksModal.closeBtn) howItWorksModal.closeBtn.addEventListener("click", () => closeModal(howItWorksModal.overlay));
 
-if (imageViewerModal.closeBtn) imageViewerModal.closeBtn.addEventListener("click", () => closeModal(imageViewerModal.overlay));
+if (imageViewerModal.closeBtn) imageViewerModal.closeBtn.addEventListener("click", () => {
+    const img = imageViewerModal.image;
+    if (img && img.src.startsWith('blob:')) {
+        URL.revokeObjectURL(img.src);
+    }
+    closeModal(imageViewerModal.overlay)
+});
+
 if (imageViewerModal.overlay) imageViewerModal.overlay.addEventListener("click", (e) => { if (e.target === imageViewerModal.overlay) closeModal(imageViewerModal.overlay); });
 
 // Event Listeners for Settings
@@ -856,7 +907,32 @@ if (settingSwitches.showSeconds) settingSwitches.showSeconds.addEventListener("c
 if (settingSwitches.menuBlur) settingSwitches.menuBlur.addEventListener("change", async (e) => { applyMenuBlur(e.target.checked); await saveSetting("menuBlur", e.target.checked); });
 if (settingSwitches.footerBlur) settingSwitches.footerBlur.addEventListener("change", async (e) => { applyFooterBlur(e.target.checked); await saveSetting("footerBlur", e.target.checked); });
 if (settingSwitches.avatarFullShow) settingSwitches.avatarFullShow.addEventListener("change", async (e) => { applyAvatarFullShow(e.target.checked); await saveSetting("avatarFullShow", e.target.checked); });
-if (settingSwitches.avatarAnimation) settingSwitches.avatarAnimation.addEventListener("change", async (e) => { applyAvatarAnimation(e.target.checked); await saveSetting("avatarAnimation", e.target.checked); });
+
+if (settingSwitches.avatarAnimation) {
+    const animSwitchContainer = settingSwitches.avatarAnimation.closest('.switch-container');
+
+    if (animSwitchContainer) {
+        animSwitchContainer.addEventListener('click', () => {
+            if (settingSwitches.avatarAnimation.disabled && !settingSwitches.enableAnimation.checked) {
+                showToast("animation.enableRequired");
+            }
+        });
+    }
+
+    settingSwitches.avatarAnimation.addEventListener("change", async (e) => {
+        applyAvatarAnimation(e.target.checked);
+        await saveSetting("avatarAnimation", e.target.checked);
+    });
+}
+
+if (settingSwitches.enableAnimation) {
+    settingSwitches.enableAnimation.addEventListener("change", async (e) => {
+        const isChecked = e.target.checked;
+        applyEnableAnimation(isChecked);
+        await saveSetting("enableAnimation", isChecked);
+    });
+}
+
 if (settingSwitches.detectMouseStillness) settingSwitches.detectMouseStillness.addEventListener("change", async (e) => { await saveSetting("detectMouseStillness", e.target.checked); setupAvatarHoverListeners(); });
 
 if (settingSwitches.showCredit) {
@@ -882,14 +958,8 @@ if (settingSwitches.showFooter) {
         applyShowFooter(isChecked);
         await saveSetting("showFooter", isChecked);
         
-        if (!isChecked) {
-            if (settingSwitches.showCredit) {
-                settingSwitches.showCredit.checked = false;
-                await saveSetting("showCredit", false);
-            }
-            if (settingSwitches.showFooterInfo) {
-                await saveSetting("showFooterInfo", false);
-            }
+        if (settingSwitches.showFooterInfo) {
+            applyShowFooterInfo(settingSwitches.showFooterInfo.checked);
         }
         updateOfflineStatus();
     });
@@ -898,7 +968,6 @@ if (settingSwitches.showFooterInfo) {
     settingSwitches.showFooterInfo.addEventListener("change", async (e) => {
         applyShowFooterInfo(e.target.checked);
         await saveSetting("showFooterInfo", e.target.checked);
-        // Panggil updateOfflineStatus untuk segera merefleksikan perubahan
         updateOfflineStatus();
     });
 }

@@ -19,10 +19,12 @@ import {
     advancedPIN,
     feedbackTimeout,
     setFeedbackTimeout,
-    dataManagement
+    dataManagement,
+    progressModal,
+    loadingModal,
+    setIsBlockingModalActive
 } from './config.js';
 import { saveSetting } from './storage.js';
-import { setupAvatarHoverListeners as mainSetupAvatarListeners } from './main.js';
 import { showToast } from './utils.js';
 
 let hoverTimeout;
@@ -144,20 +146,20 @@ export async function handleSaveUsername() {
 export function applyShowFooter(show) {
     elements.body.classList.toggle("footer-hidden", !show);
     
-    // Disable and uncheck the "show footer info" switch when the footer is hidden
     if (settingSwitches.showFooterInfo) {
         settingSwitches.showFooterInfo.disabled = !show;
-        if (!show) {
-            settingSwitches.showFooterInfo.checked = false;
-            // Also apply the visual change for the info text
-            applyShowFooterInfo(false); 
-        }
     }
-    updateAvatarStatus(); // Re-evaluate disabled states for avatar-related switches
+    updateAvatarStatus();
 }
 
 export function applyShowFooterInfo(show) {
-    elements.body.classList.toggle("footer-info-as-toast", !show);
+    const isFooterOn = settingSwitches.showFooter ? settingSwitches.showFooter.checked : false;
+    elements.body.classList.toggle("footer-info-as-toast", !show || !isFooterOn);
+}
+
+export function applyEnableAnimation(show) {
+    elements.body.classList.toggle("animations-disabled", !show);
+    updateAvatarStatus();
 }
 
 // --- Apply Settings ---
@@ -238,25 +240,25 @@ export function updateAvatarStatus() {
     const supportedText = { id: "Iya", en: "Yes", jp: "はい" };
     const notSupportedText = { id: "Tidak", en: "No", jp: "いいえ" };
     const lang = languageSettings.ui;
-    const stillnessHelpText = document.getElementById('detect-mouse-stillness-help-text'); // Tambahkan ini
+    const stillnessHelpText = document.getElementById('detect-mouse-stillness-help-text');
 
     avatarStatus.text.textContent = isSupportedResolution ? supportedText[lang] || supportedText['id'] : notSupportedText[lang] || notSupportedText['id'];
     avatarStatus.text.className = isSupportedResolution ? "supported" : "not-supported";
     avatarStatus.helpText.classList.toggle("is-hidden", isSupportedResolution);
 
     const isAvatarFullShown = settingSwitches.avatarFullShow.checked;
+    const areGlobalAnimationsEnabled = settingSwitches.enableAnimation ? settingSwitches.enableAnimation.checked : true;
     const isAvatarAnimationOn = settingSwitches.avatarAnimation.checked;
-    const disableAnimationSwitches = !isAvatarFullShown || !isSupportedResolution;
+    const disableAnimationSwitches = !isAvatarFullShown || !isSupportedResolution || !areGlobalAnimationsEnabled;
 
     if (settingSwitches.avatarAnimation) { 
-        settingSwitches.avatarAnimation.disabled = disableAnimationSwitches; 
+        settingSwitches.avatarAnimation.disabled = disableAnimationSwitches;
     }
     
     if (settingSwitches.detectMouseStillness) { 
         const isStillnessDisabled = disableAnimationSwitches || !isAvatarAnimationOn;
         settingSwitches.detectMouseStillness.disabled = isStillnessDisabled;
         
-        // Tambahkan/hapus kelas 'disabled' pada teks bantuan
         if (stillnessHelpText) {
             stillnessHelpText.classList.toggle('disabled', isStillnessDisabled);
         }
@@ -269,16 +271,15 @@ export function updateAvatarStatus() {
 
     if (elements.creditText) {
         const isCreditSwitchOn = settingSwitches.showCredit.checked;
-        elements.creditText.classList.toggle('visible', isAvatarFullShown && isCreditSwitchOn && isCreditSupportedResolution);
+        const isFooterOn = settingSwitches.showFooter ? settingSwitches.showFooter.checked : false;
+        elements.creditText.classList.toggle('visible', isAvatarFullShown && isCreditSwitchOn && isCreditSupportedResolution && isFooterOn);
     }
     
-    mainSetupAvatarListeners();
+    setupAvatarHoverListeners();
     checkResolutionAndToggleMessage();
 }
 
 export function checkResolutionAndToggleMessage() {
-    // This function was intentionally left empty in the original script.
-    // It's included here to prevent "not defined" errors.
 }
 
 export function updateSecurityFeaturesUI() {
@@ -286,7 +287,7 @@ export function updateSecurityFeaturesUI() {
     const isAdvancedEnabled = !!advancedPIN;
     const lang = languageSettings.ui;
     const manageHiddenContainer = document.getElementById('manage-hidden-data-container');
-    const popupFinderHelpText = document.getElementById('enable-popup-finder-help-text'); // Tambahkan ini
+    const popupFinderHelpText = document.getElementById('enable-popup-finder-help-text');
 
     if (manageHiddenContainer) {
         manageHiddenContainer.classList.toggle('disabled', !isHiddenEnabled);
@@ -294,14 +295,11 @@ export function updateSecurityFeaturesUI() {
         dataManagement.exportHiddenDataBtn.disabled = !isHiddenEnabled;
     }
 
-    // Hidden Feature Switch
     settingSwitches.hiddenFeature.checked = isHiddenEnabled;
 
-    // Continue Feature Switch
     settingSwitches.continueFeature.checked = isAdvancedEnabled;
     settingSwitches.continueFeature.disabled = !isHiddenEnabled;
 
-    // PIN Settings Container
     if (isHiddenEnabled || isAdvancedEnabled) {
         pinSettings.container.classList.remove('hidden');
         pinSettings.updateBtn.textContent = i18nData["settings.hidden.updatePin"][lang] || "Update PIN";
@@ -310,19 +308,62 @@ export function updateSecurityFeaturesUI() {
     }
     if (settingSwitches.enablePopupFinder) {
         const isDisabled = !isHiddenEnabled;
-        // Nonaktifkan (disable) switch Pop-up jika Fitur Tersembunyi tidak aktif
         settingSwitches.enablePopupFinder.disabled = isDisabled;
 
-        // Tambahkan/hapus kelas 'disabled' pada teks bantuan
         if (popupFinderHelpText) {
             popupFinderHelpText.classList.toggle('disabled', isDisabled);
         }
 
-        // Jika Fitur Tersembunyi dimatikan, paksa switch Pop-up untuk mati juga
         if (isDisabled) {
             settingSwitches.enablePopupFinder.checked = false;
-            // Simpan juga status 'off' ini ke storage agar konsisten
             saveSetting("enablePopupFinder", false);
         }
+    }
+}
+
+export function showLoadingModal() {
+    setIsBlockingModalActive(true);
+    const lang = languageSettings.ui;
+    loadingModal.title.textContent = i18nData["loading.title"]?.[lang] || "Reading Data";
+    loadingModal.text.textContent = i18nData["loading.message"]?.[lang] || "Please wait...";
+    loadingModal.overlay.classList.remove('hidden');
+    elements.body.classList.add("modal-open");
+}
+
+export function hideLoadingModal() {
+    loadingModal.overlay.classList.add('hidden');
+    if (activeModalStack.length === 0) {
+        elements.body.classList.remove("modal-open");
+    }
+    setIsBlockingModalActive(false);
+}
+
+export function showProgressModal(titleKey, messageKey) {
+    setIsBlockingModalActive(true);
+    const lang = languageSettings.ui;
+    progressModal.title.textContent = i18nData[titleKey]?.[lang] || titleKey;
+    progressModal.text.textContent = i18nData[messageKey]?.[lang] || messageKey;
+    progressModal.bar.style.width = '0%';
+    progressModal.percentage.textContent = '0%';
+    
+    progressModal.overlay.classList.remove('hidden');
+    elements.body.classList.add("modal-open");
+}
+
+export function updateProgress(percent) {
+    const p = Math.min(100, Math.max(0, Math.round(percent)));
+    if (progressModal.bar) progressModal.bar.style.width = `${p}%`;
+    if (progressModal.percentage) progressModal.percentage.textContent = `${p}%`;
+}
+
+export function hideProgressModal() {
+    setIsBlockingModalActive(false);
+    if (progressModal.overlay) progressModal.overlay.classList.add('hidden');
+
+    if (progressModal.bar) progressModal.bar.style.width = '0%';
+    if (progressModal.percentage) progressModal.percentage.textContent = '0%';
+
+    if (activeModalStack.length === 0) {
+        elements.body.classList.remove("modal-open");
     }
 }

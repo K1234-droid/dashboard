@@ -99,7 +99,7 @@ export function handleVisibilityChange() {
     if (document.hidden) {
         cancelAnimationFrame(animationFrameId);
     } else {
-        setLastUpdatedHour(-1); // Force update on return
+        setLastUpdatedHour(-1);
         setAnimationFrameId(requestAnimationFrame(animationLoop));
     }
 }
@@ -126,19 +126,15 @@ export async function updateOfflineStatus() {
 
     const showOfflineState = (isInitial = false) => {
         if (useToast) {
-            // Jika ini adalah pengecekan awal saat offline, tampilkan pesan offline dahulu
             if (isInitial) {
-                showToast('footer.offline'); // Tampilkan "Anda sedang offline"
-                // Setelah 2 detik, tampilkan pesan username
+                showToast('footer.offline');
                 footerMessageTimeout = setTimeout(() => {
                     showToast('footer.account', currentUser);
                 }, 2000);
             } else {
-                // Untuk kejadian offline berikutnya, cukup tampilkan status offline
                 showToast('footer.offline');
             }
         } else {
-            // Logika fallback untuk footer non-toast
             if (connectionStatus.offlineMessage) connectionStatus.offlineMessage.classList.add("show");
             if (connectionStatus.loadingMessage) connectionStatus.loadingMessage.classList.remove("show");
             if (elements.accountMessage) elements.accountMessage.style.display = "none";
@@ -161,10 +157,8 @@ export async function updateOfflineStatus() {
     };
 
     if (!navigator.onLine) {
-        // --- OFFLINE (Browser yakin sedang offline) ---
         showOfflineState(isInitialCheck);
     } else {
-        // --- ONLINE (Browser mengira online, perlu verifikasi) ---
         if (useToast) {
             showToast('footer.checking');
         } else {
@@ -176,14 +170,11 @@ export async function updateOfflineStatus() {
         const isTrulyOnline = await checkRealInternetConnection();
         
         if (isTrulyOnline) {
-            // Koneksi terkonfirmasi, tampilkan status online
             showOnlineState();
         } else {
-            // Gagal verifikasi, berarti sebenarnya offline
             showOfflineState(isInitialCheck);
         }
     }
 
-    // Tandai bahwa pengecekan awal sudah selesai
     isInitialCheck = false;
 }

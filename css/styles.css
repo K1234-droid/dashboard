@@ -1017,11 +1017,7 @@ body.dark-theme .switch input:checked + .slider:before {
   width: 100%;
   height: 100%;
   object-fit: cover; 
-  transition: transform 0.3s ease;
-}
-
-.prompt-item:hover .prompt-item-img {
-  transform: scale(1.1);
+  transition: transform 0.3s ease, opacity 0.4s ease-in-out;
 }
 
 .advanced-prompt-item {
@@ -1091,6 +1087,12 @@ body.dark-theme .switch input:checked + .slider:before {
 }
 
 /* Status Drag-and-Drop dari SortableJS */
+.sortable-fallback .advanced-prompt-item-chars img,
+
+.sortable-fallback .prompt-item-img {
+  visibility: hidden !important;
+}
+
 .prompt-item.sortable-ghost, .advanced-prompt-item.sortable-ghost {
   opacity: 0.4;
   background-color: var(--select-hover-bg);
@@ -1287,6 +1289,10 @@ body.dark-theme .modal-input-file::file-selector-button {
   display: block;
   max-width: 48%;
   margin: 1.5rem auto 0 auto;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid var(--select-bg); 
+  box-sizing: border-box;
 }
 
 .viewer-character-thumbnail {
@@ -1295,7 +1301,6 @@ body.dark-theme .modal-input-file::file-selector-button {
   height: auto;
   border-radius: 8px;
   margin: 0;
-  border: 2px solid var(--select-bg);
 }
 
 .viewer-character-image-wrapper:hover .prompt-item-menu-btn {
@@ -1559,7 +1564,7 @@ body.dark-theme .modal-input-file::file-selector-button {
 .modal-content.manage-mode .advanced-prompt-item.selected {
     outline-color: var(--accent-color);
 }
-.modal-content.manage-mode .prompt-item:hover .prompt-item-img {
+.modal-content.manage-mode {
     transform: scale(1); /* Disable zoom on hover in manage mode */
 }
 .modal-content.manage-mode .prompt-item-menu-btn,
@@ -1596,7 +1601,7 @@ body.dark-theme .modal-input-file::file-selector-button {
 }
 .character-selection-grid .prompt-item .prompt-item-img {
   filter: brightness(0.5);
-  transition: filter 0.2s ease;
+  transition: filter 0.2s ease, opacity 0.4s ease-in-out;
 }
 .character-selection-grid .prompt-item.selected {
   border-color: var(--accent-color);
@@ -1604,7 +1609,7 @@ body.dark-theme .modal-input-file::file-selector-button {
 .character-selection-grid .prompt-item.selected .prompt-item-img {
   filter: brightness(1);
 }
-.character-selection-grid .prompt-item:hover .prompt-item-img {
+.character-selection-grid {
   transform: none;
 }
 .character-selection-grid .prompt-item-menu-btn {
@@ -1813,69 +1818,6 @@ pointer-events: all;
   left: 4px;
 }
 
-/* ==================== MODAL FOOTER & INDIKATOR PENYIMPANAN ==================== */
-.modal-footer {
-  padding: 0.75rem 1.5rem;
-  border-top: 1px solid rgba(128, 128, 128, 0.2);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-}
-
-.storage-label {
-  font-size: 0.85rem;
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-.storage-indicator {
-  width: 100%;
-  max-width: 180px;
-  text-align: center;
-}
-
-.storage-bar-container {
-  width: 100%;
-  height: 8px;
-  background-color: var(--select-bg);
-  border-radius: 4px;
-  overflow: hidden;
-  margin-bottom: 4px;
-}
-
-.storage-bar {
-  height: 100%;
-  width: 0%; /* Diatur oleh JavaScript */
-  background-color: #28a745; /* Hijau */
-  border-radius: 4px;
-  transition: width 0.5s ease, background-color 0.5s ease;
-}
-
-.storage-bar.warning {
-  background-color: #ffc107; /* Kuning */
-}
-
-.storage-bar.danger {
-  background-color: #dc3545; /* Merah */
-}
-
-.storage-text {
-  font-size: 0.75rem;
-  font-weight: 500;
-  opacity: 0.8;
-}
-
-#prompt-modal-overlay .modal-body,
-#advanced-prompt-modal-overlay .modal-body {
-    max-height: calc(60vh - 50px);
-}
-
-#add-edit-prompt-modal-overlay .modal-body,
-#add-edit-advanced-prompt-modal-overlay .modal-body {
-    max-height: calc(70vh - 50px);
-}
-
 #prompt-modal-overlay .modal-content,
 #advanced-prompt-modal-overlay .modal-content,
 #add-edit-advanced-prompt-modal-overlay .modal-content {
@@ -2057,4 +1999,110 @@ textarea.modal-input::-webkit-scrollbar-thumb:hover,
   position: fixed;
   z-index: 106;
   flex-direction: column;
+}
+
+/* ==================== LOADING MODAL ==================== */
+#loading-modal-overlay .modal-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem;
+  gap: 1.5rem;
+  text-align: center;
+}
+
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 5px solid var(--select-bg);
+  border-bottom-color: var(--accent-color);
+  border-radius: 50%;
+  display: inline-block;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ==================== PROGRESS MODAL ==================== */
+#progress-modal-overlay .modal-content {
+  max-width: 380px;
+}
+
+.progress-bar-container {
+  width: 100%;
+  background-color: var(--select-bg);
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 1.5rem 0 0.5rem 0;
+}
+
+.progress-bar {
+  width: 0%;
+  height: 16px;
+  background-color: var(--accent-color);
+  border-radius: 8px;
+  transition: width 0.3s ease-in-out;
+}
+
+.progress-percentage-text {
+  text-align: center;
+  font-weight: 500;
+  font-size: 1rem;
+  color: var(--text-color);
+}
+
+/* ==================== IMAGE LOADING ANIMATION ==================== */
+/* Wadah yang akan memiliki background gelap saat gambar dimuat */
+.img-container-loading {
+  position: relative;
+  background-color: var(--select-bg);
+  transition: background-color 0.4s ease;
+}
+
+/* Setelah gambar dimuat, buat background menjadi transparan */
+.img-container-loading.loaded {
+  background-color: transparent;
+}
+
+/* Gambar yang akan muncul dengan efek fade-in */
+.img-lazy-load {
+  opacity: 0;
+  transition: opacity 0.4s ease-in-out;
+}
+
+/* State ketika gambar telah berhasil dimuat */
+.img-lazy-load.loaded {
+  opacity: 1;
+}
+
+/* Style tambahan untuk wrapper ikon karakter */
+.advanced-prompt-item-chars .char-icon-wrapper {
+width: 24px;
+height: 24px;
+border-radius: 50%;
+border: 1px solid rgba(128, 128, 128, 0.5);
+flex-shrink: 0;
+overflow: hidden;
+}
+
+.advanced-prompt-item-chars .char-icon-wrapper img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+}
+
+/* ==================== GLOBAL ANIMATION OFF SWITCH ==================== */
+/* Matikan semua animasi dan transisi saat kelas ini ada di body */
+.animations-disabled *,
+.animations-disabled *::before,
+.animations-disabled *::after {
+    transition-duration: 0s !important;
+    animation-duration: 0s !important;
+    transition-delay: 0s !important;
+    animation-delay: 0s !important;
 }

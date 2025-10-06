@@ -8,8 +8,8 @@ import {
     confirmationModalPurpose, setCurrentImageNavList
 } from './config.js';
 import { openModal, closeModal, showInfoModal } from './ui.js';
-import { showToast } from './utils.js';
-import { saveSetting } from './storage.js';
+import { showToast, blobToDataURL } from './utils.js';
+import { saveSetting, getPromptBlob } from './storage.js';
 import { showPromptContextMenu, showFullImage } from './promptManager.js';
 
 let selectionOrder = [];
@@ -37,7 +37,6 @@ function updateSelectionVisuals() {
         }
     });
 
-    // Show or hide the comma switch based on selection count
     const switchContainer = addEditAdvancedPromptModal.addCommaSwitchContainer;
     if (selectionOrder.length > 1) {
         switchContainer.classList.remove('hidden');
@@ -48,6 +47,13 @@ function updateSelectionVisuals() {
 
 function renderCharacterSelection(promptsToRender = prompts) {
     const grid = addEditAdvancedPromptModal.characterGrid;
+
+    grid.querySelectorAll('.prompt-item-img').forEach(img => {
+        if (img.src.startsWith('blob:')) {
+            URL.revokeObjectURL(img.src);
+        }
+    });
+
     grid.innerHTML = '';
     const lang = languageSettings.ui;
 
@@ -67,9 +73,28 @@ function renderCharacterSelection(promptsToRender = prompts) {
     } else {
         promptsToRender.forEach(p => {
             const item = document.createElement('div');
-            item.className = 'prompt-item';
+            item.className = 'prompt-item img-container-loading';
             item.dataset.id = p.id;
-            item.innerHTML = `<img src="${p.imageUrl}" alt="Character" class="prompt-item-img" loading="lazy">`;
+            
+            const img = document.createElement('img');
+            img.alt = "Character";
+            img.className = "prompt-item-img img-lazy-load";
+            img.loading = "lazy";
+            
+            item.appendChild(img);
+
+            (async () => {
+                const iconBlob = await getPromptBlob(p.id, 'imageBlobIcon');
+                if (iconBlob) {
+                    img.onload = () => {
+                        item.classList.add('loaded');
+                        img.classList.add('loaded');
+                    };
+                    img.src = URL.createObjectURL(iconBlob);
+                } else {
+                    item.classList.remove('img-container-loading');
+                }
+            })();
             
             item.addEventListener('click', () => {
                 const id = parseInt(item.dataset.id, 10);
@@ -99,13 +124,12 @@ export function renderAdvancedPrompts(promptsToRender = advancedPrompts) {
     advancedPromptModal.grid.innerHTML = '';
     advancedPromptModal.noResultsMessage.classList.add('hidden');
     const lang = languageSettings.ui;
-  
+
     promptsToRender.forEach(p => {
         const item = document.createElement('div');
         item.className = 'advanced-prompt-item';
         item.dataset.id = p.id;
 
-        // Enhanced Text Preview with Comma logic
         const text = document.createElement('p');
         const characterTexts = (p.characterIds && p.characterIds.length > 0)
             ? p.characterIds.map(charId => {
@@ -124,7 +148,6 @@ export function renderAdvancedPrompts(promptsToRender = advancedPrompts) {
         text.textContent = combinedText;
         item.appendChild(text);
 
-        // Character Icons with Overflow
         const charsContainer = document.createElement('div');
         charsContainer.className = 'advanced-prompt-item-chars';
         const maxVisibleIcons = 4;
@@ -132,16 +155,35 @@ export function renderAdvancedPrompts(promptsToRender = advancedPrompts) {
             const idsToShow = p.characterIds.slice(0, maxVisibleIcons);
             
             if(p.characterIds.length > maxVisibleIcons) {
-                idsToShow.pop(); // Remove last item to make space for overflow indicator
+                idsToShow.pop();
             }
 
             idsToShow.forEach(charId => {
                 const character = prompts.find(c => c.id === charId);
                 if (character) {
+                    const iconWrapper = document.createElement('div');
+                    iconWrapper.className = 'char-icon-wrapper img-container-loading';
+
                     const img = document.createElement('img');
-                    img.src = character.imageUrl;
                     img.alt = 'Character Icon';
-                    charsContainer.appendChild(img);
+                    img.className = 'img-lazy-load';
+                    img.dataset.charId = character.id;
+                    
+                    iconWrapper.appendChild(img);
+                    charsContainer.appendChild(iconWrapper);
+
+                    (async () => {
+                        const iconBlob = await getPromptBlob(character.id, 'imageBlobIcon');
+                        if (iconBlob) {
+                            img.onload = () => {
+                                iconWrapper.classList.add('loaded');
+                                img.classList.add('loaded');
+                            };
+                            img.src = URL.createObjectURL(iconBlob);
+                        } else {
+                            iconWrapper.classList.remove('img-container-loading');
+                        }
+                    })();
                 }
             });
 
@@ -179,10 +221,7 @@ export function renderAdvancedPrompts(promptsToRender = advancedPrompts) {
                 }
                 return;
             }
-
-            if (e.target.closest('.prompt-item-menu-btn')) {
-                return;
-            }
+            if (e.target.closest('.prompt-item-menu-btn')) { return; }
             showAdvancedPromptViewer(p);
         });
   
@@ -200,51 +239,63 @@ export function renderAdvancedPrompts(promptsToRender = advancedPrompts) {
 export function showAdvancedPromptViewer(prompt) {
     setCurrentAdvancedPromptId(prompt.id);
     const viewerBody = advancedPromptViewerModal.body;
-    viewerBody.innerHTML = ''; // Hapus konten sebelumnya
 
-    // Teks prompt utama
+    viewerBody.querySelectorAll('.viewer-character-thumbnail').forEach(img => {
+        if (img.src.startsWith('blob:')) {
+            URL.revokeObjectURL(img.src);
+        }
+    });
+
+    viewerBody.innerHTML = '';
+
     const mainPromptText = document.createElement('p');
     mainPromptText.className = 'viewer-prompt-text';
     mainPromptText.textContent = prompt.text;
     viewerBody.appendChild(mainPromptText);
 
-    // Prompt karakter
     if (prompt.characterIds && prompt.characterIds.length > 0) {
         const lang = languageSettings.ui;
         prompt.characterIds.forEach(charId => {
             const character = prompts.find(c => c.id === charId);
             if (character) {
-                // BARU: Buat sebuah div sebagai wadah (wrapper)
                 const imageWrapper = document.createElement('div');
-                imageWrapper.className = 'viewer-character-image-wrapper';
+                imageWrapper.className = 'viewer-character-image-wrapper img-container-loading';
 
-                // Gambar thumbnail karakter (sekarang di dalam wrapper)
                 const thumb = document.createElement('img');
-                thumb.src = character.imageUrl;
-                thumb.className = 'viewer-character-thumbnail';
+                thumb.className = 'viewer-character-thumbnail img-lazy-load';
+
                 imageWrapper.appendChild(thumb);
 
-                // Tombol menu tiga titik (juga di dalam wrapper)
                 const menuBtn = document.createElement('button');
                 menuBtn.className = 'prompt-item-menu-btn';
                 menuBtn.innerHTML = '&#8942;';
                 menuBtn.onclick = showPromptContextMenu;
                 imageWrapper.appendChild(menuBtn);
 
-                // Kontainer menu pop-up (juga di dalam wrapper)
                 const menuContainer = document.createElement('div');
                 menuContainer.className = 'prompt-item-menu';
                 menuContainer.dataset.id = character.id;
                 menuContainer.innerHTML = `
-                    <button class="prompt-menu-option" data-action="view-image">${i18nData["prompt.menu.view"][lang]}</button>
                     <button class="prompt-menu-option" data-action="copy">${i18nData["prompt.menu.copyCharText"][lang]}</button>
+                    <button class="prompt-menu-option" data-action="save-image">${i18nData["prompt.menu.saveImage"][lang] || i18nData["prompt.menu.saveImage"]["id"]}</button>
                 `;
                 imageWrapper.appendChild(menuContainer);
                 
-                // Tambahkan wrapper ke body modal, bukan gambar secara langsung
                 viewerBody.appendChild(imageWrapper);
 
-                // Teks prompt karakter tetap seperti biasa
+                (async () => {
+                    const thumbnailBlob = await getPromptBlob(character.id, 'imageBlobThumbnail');
+                    if (thumbnailBlob) {
+                        thumb.onload = () => {
+                            imageWrapper.classList.add('loaded');
+                            thumb.classList.add('loaded');
+                        };
+                        thumb.src = URL.createObjectURL(thumbnailBlob);
+                    } else {
+                        imageWrapper.classList.remove('img-container-loading');
+                    }
+                })();
+
                 const charText = document.createElement('p');
                 charText.className = 'viewer-prompt-text';
                 charText.textContent = character.text;
@@ -418,7 +469,6 @@ export async function confirmAdvancedDelete() {
         showInfoModal("info.attention.title", "An error occurred while deleting the prompt.");
     }
 }
-
 
 // --- Manage & Search Mode ---
 export function updateAdvancedManageModeUI() {
@@ -610,4 +660,7 @@ export function handleAdvancedSearchInput() {
     if (filteredPrompts.length === 0 && searchTerm.length > 0) {
         advancedPromptModal.noResultsMessage.classList.remove('hidden');
     }
+}
+
+export function cleanupAdvancedPromptBlobs() {
 }

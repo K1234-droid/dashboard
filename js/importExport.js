@@ -1,20 +1,25 @@
-import { saveSetting, getAllSettings } from './storage.js';
-import { showToast } from './utils.js';
+import {
+    saveSetting,
+    getAllSettings,
+    getAllPromptMetadata,
+    getFullPrompt,
+    getPromptBlob,
+    savePrompt,
+    deletePromptDB
+} from './storage.js';
+import { showToast, resizeImage } from './utils.js';
 import {
     userPIN, advancedPIN, setPinModalPurpose, languageSettings,
-    i18nData, pinEnterModal, infoModal, confirmationMergeReplaceModal,
-    setTempImportData, tempImportData, prompts, advancedPrompts,
-    setPrompts, setAdvancedPrompts, setUserPIN, setAdvancedPIN,
+    i18nData, pinEnterModal, confirmationMergeReplaceModal,
+    setTempImportData, tempImportData, advancedPrompts,
     currentUser
 } from './config.js';
-import { openModal, closeModal, showInfoModal, updateSecurityFeaturesUI } from './ui.js';
-import { renderPrompts } from './promptManager.js';
-import { renderAdvancedPrompts } from './promptBuilder.js';
+import { openModal, closeModal, showInfoModal, showProgressModal, updateProgress, hideProgressModal, showLoadingModal, hideLoadingModal } from './ui.js';
 
-// Fungsi untuk membuat dan mengunduh file
-function downloadJSON(data, filename) {
+// =================== FUNGSI UTILITAS LOKAL ===================
+
+function downloadBlob(blob, filename) {
     try {
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -25,28 +30,23 @@ function downloadJSON(data, filename) {
         URL.revokeObjectURL(url);
         showToast('export.success');
     } catch (error) {
-        console.error('Export failed:', error);
+        console.error('Download failed:', error);
         showToast('export.failed');
     }
 }
 
-// Fungsi untuk memicu dialog pembukaan file
-function triggerImport(callback) {
+function triggerImport(callback, acceptedTypes) {
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = '.json';
-    input.onchange = async (event) => {
+    input.accept = acceptedTypes;
+    input.onchange = (event) => {
         const file = event.target.files[0];
-        if (file) {
-            try {
-                const text = await file.text();
-                const data = JSON.parse(text);
-                callback(data);
-            } catch (error) {
-                console.error('Import failed:', error);
-                showInfoModal('info.attention.title', 'import.failed');
-            }
-        }
+        if (!file) return;
+
+        showLoadingModal();
+        setTimeout(() => {
+            callback(file);
+        }, 50); 
     };
     input.click();
 }
@@ -57,23 +57,47 @@ export async function exportUserData() {
     const settingsToExport = await getAllSettings([
         'username', 'theme', 'showSeconds', 'menuBlur', 'footerBlur',
         'avatarFullShow', 'avatarAnimation', 'detectMouseStillness',
-        'languageSettings', 'showCredit', 'showFooterInfo', 'showFooter'
+        'languageSettings', 'showCredit', 'showFooterInfo', 'showFooter',
+        'enableAnimation'
     ]);
-    
-    // Membuat format tanggal YYYY-MM-DD
     const now = new Date();
     const dateString = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-    
-    // Menggabungkan semua bagian menjadi nama file
     const filename = `${currentUser}_${dateString}_user-settings.json`;
-    
-    downloadJSON({ type: 'userData', data: settingsToExport }, filename);
+    const blob = new Blob([JSON.stringify({ type: 'userData', data: settingsToExport }, null, 2)], { type: 'application/json' });
+    downloadBlob(blob, filename);
+}
+
+export function importUserData() {
+    triggerImport(async (file) => {
+        if (!file.name.endsWith('.json')) {
+            hideLoadingModal();
+            showInfoModal('info.attention.title', 'import.failed');
+            return;
+        }
+
+        try {
+            const text = await file.text();
+            const imported = JSON.parse(text);
+
+            if (imported.type !== 'userData' || !imported.data) {
+                throw new Error("Invalid file format");
+            }
+            for (const key in imported.data) {
+                await saveSetting(key, imported.data[key]);
+            }
+            hideLoadingModal();
+            showToast('import.success');
+            setTimeout(() => window.location.reload(), 1000);
+        } catch (error) {
+            // console.error('Import user data failed:', error);
+            hideLoadingModal();
+            showInfoModal('info.attention.title', 'import.failed');
+        }
+    }, '.json');
 }
 
 export function exportHiddenData() {
-    // Memerlukan konfirmasi PIN sebelum melanjutkan
     if (!userPIN) {
-        // Jika tidak ada PIN utama, tidak ada yang bisa diekspor
         showInfoModal('info.attention.title', 'settings.hidden.disabled');
         return;
     }
@@ -87,113 +111,182 @@ export function exportHiddenData() {
     pinEnterModal.input.focus();
 }
 
-// Dipanggil dari pinManager setelah PIN benar
 export async function proceedWithHiddenDataExport() {
-    const settingsToExport = await getAllSettings(['userPIN', 'advancedPIN', 'prompts', 'advancedPrompts', 'enablePopupFinder']);
-    
-    // Membuat format tanggal YYYY-MM-DD
-    const now = new Date();
-    const dateString = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    showProgressModal('progress.export.title', 'progress.message');
+    try {
+        const zipWriter = new zip.ZipWriter(new zip.BlobWriter("application/zip"));
 
-    // Menggabungkan semua bagian menjadi nama file
-    const filename = `${currentUser}_${dateString}_hidden-features-backup.json`;
-    
-    downloadJSON({ type: 'hiddenData', data: settingsToExport }, filename);
+        const settings = await getAllSettings(['userPIN', 'advancedPIN', 'advancedPrompts', 'enablePopupFinder', 'promptOrder']);
+        const promptMetadataList = await getAllPromptMetadata();
+
+        const metadata = {
+            userPIN: settings.userPIN,
+            advancedPIN: settings.advancedPIN,
+            enablePopupFinder: settings.enablePopupFinder,
+            promptOrder: settings.promptOrder || [],
+            prompts: [],
+            advancedPrompts: settings.advancedPrompts
+        };
+
+        const totalPrompts = promptMetadataList.length;
+        let index = 0;
+
+        for (const meta of promptMetadataList) {
+            const imageBlobOriginal = await getPromptBlob(meta.id, 'imageBlobOriginal');
+
+            if (imageBlobOriginal instanceof Blob) {
+                const extension = imageBlobOriginal.type.split('/')[1] || 'png';
+                const filename = `prompt_${meta.id}.${extension}`;
+
+                await zipWriter.add(`images/${filename}`, new zip.BlobReader(imageBlobOriginal));
+                
+                metadata.prompts.push({ ...meta, imageFilename: filename });
+            }
+            index++;
+            updateProgress((index / totalPrompts) * 80);
+        }
+
+        const metadataString = JSON.stringify(metadata, null, 2);
+        await zipWriter.add("data.json", new zip.TextReader(metadataString));
+        updateProgress(90);
+
+        const zipBlob = await zipWriter.close();
+        updateProgress(100);
+
+        const now = new Date();
+        const dateString = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        const filename = `${currentUser}_${dateString}_hidden-features-backup.zip`;
+        
+        downloadBlob(zipBlob, filename);
+
+    } catch (error) {
+        console.error("Export hidden data failed:", error);
+        showToast('export.failed');
+    } finally {
+        setTimeout(hideProgressModal, 500);
+    }
 }
 
 // =================== LOGIKA IMPOR ===================
 
-export function importUserData() {
-    triggerImport(async (imported) => {
-        if (imported.type !== 'userData' || !imported.data) {
-            showInfoModal('info.attention.title', 'import.failed');
-            return;
-        }
-        for (const key in imported.data) {
-            await saveSetting(key, imported.data[key]);
-        }
-        showToast('import.success');
-        // Reload halaman untuk menerapkan semua pengaturan
-        setTimeout(() => window.location.reload(), 1000);
-    });
-}
-
 export function importHiddenData() {
-    triggerImport((imported) => {
-        if (imported.type !== 'hiddenData' || !imported.data) {
+    triggerImport(async (file) => {
+        if (!file.name.endsWith('.zip')) {
+            hideLoadingModal();
             showInfoModal('info.attention.title', 'import.failed');
             return;
         }
-        // Simpan data impor sementara dan buka modal konfirmasi
-        setTempImportData(imported.data);
-        openModal(confirmationMergeReplaceModal.overlay);
-    });
+
+        try {
+            setTempImportData({ zipBlob: file });
+            hideLoadingModal();
+            openModal(confirmationMergeReplaceModal.overlay);
+        } catch (error) {
+            console.error('Import failed at initial stage:', error);
+            hideLoadingModal();
+            showInfoModal('info.attention.title', 'import.failed');
+        }
+    }, '.zip');
 }
 
-async function applyImportedData(data, replace = false) {
-    let finalPrompts = replace ? data.prompts || [] : [...prompts];
-    let finalAdvancedPrompts = replace ? data.advancedPrompts || [] : [...advancedPrompts];
+async function applyImportedData(importData, replace = false) {
+    showProgressModal('progress.import.title', 'progress.message');
+    try {
+        const zipReader = new zip.ZipReader(new zip.BlobReader(importData.zipBlob));
+        const entries = await zipReader.getEntries();
 
-    if (!replace) {
-        // Logika penggabungan (merge)
-        if (data.prompts) {
-            const existingPromptIds = new Set(prompts.map(p => p.id));
-            const newPrompts = data.prompts.filter(p => !existingPromptIds.has(p.id));
-            finalPrompts.push(...newPrompts);
+        const dataFileEntry = entries.find(entry => entry.filename === "data.json");
+        if (!dataFileEntry) throw new Error("ZIP file is missing data.json");
+
+        const metadataString = await dataFileEntry.getData(new zip.TextWriter());
+        const data = JSON.parse(metadataString);
+
+        const existingSettings = await getAllSettings(['promptOrder']);
+        let finalPromptOrder = existingSettings.promptOrder || [];
+
+        if (replace) {
+            const oldMetadata = await getAllPromptMetadata();
+            for (const p of oldMetadata) {
+                await deletePromptDB(p.id);
+            }
+            finalPromptOrder = [];
         }
-        if (data.advancedPrompts) {
-            const existingAdvancedIds = new Set(advancedPrompts.map(p => p.id));
-            const newAdvanced = data.advancedPrompts.filter(p => !existingAdvancedIds.has(p.id));
-            finalAdvancedPrompts.push(...newAdvanced);
+
+        const importedPrompts = data.prompts || [];
+        const existingPromptIds = new Set(finalPromptOrder);
+        const newPromptIds = [];
+
+        if (importedPrompts.length > 0) {
+            const importOrder = data.promptOrder || [];
+            let index = 0;
+            for (const promptId of importOrder) {
+                const p = importedPrompts.find(prompt => prompt.id === promptId);
+                if (p && (replace || !existingPromptIds.has(p.id))) {
+                    
+                    const imageFileEntry = entries.find(entry => entry.filename === `images/${p.imageFilename}`);
+                    
+                    if (imageFileEntry) {
+                        const imageBlobOriginal = await imageFileEntry.getData(new zip.BlobWriter());
+                        
+                        const [imageBlobViewer, imageBlobThumbnail, imageBlobIcon] = await Promise.all([
+                            resizeImage(imageBlobOriginal, 1080, 1920),
+                            resizeImage(imageBlobOriginal, 500, 500),
+                            resizeImage(imageBlobOriginal, 200, 200)
+                        ]);
+
+                        const reconstructedPrompt = {
+                            ...p,
+                            imageBlobOriginal, imageBlobViewer, imageBlobThumbnail, imageBlobIcon
+                        };
+                        delete reconstructedPrompt.imageFilename;
+
+                        await savePrompt(reconstructedPrompt);
+                        
+                        if (!existingPromptIds.has(p.id)) {
+                            newPromptIds.push(p.id);
+                        }
+                    }
+                }
+                index++;
+                updateProgress((index / importOrder.length) * 100);
+            }
+        } else {
+            updateProgress(100);
         }
+
+        if (replace) {
+            finalPromptOrder = data.promptOrder || [];
+        } else {
+            finalPromptOrder.push(...newPromptIds);
+        }
+        await saveSetting('promptOrder', finalPromptOrder);
+        await saveSetting('userPIN', data.userPIN || userPIN);
+        await saveSetting('advancedPIN', data.advancedPIN || advancedPIN);
+        await saveSetting('advancedPrompts', data.advancedPrompts || []);
+        if (typeof data.enablePopupFinder !== 'undefined') {
+            await saveSetting('enablePopupFinder', data.enablePopupFinder);
+        }
+
+        await zipReader.close();
+
+        showToast(replace ? 'import.replaced' : 'import.merged');
+        return true;
+
+    } catch (error) {
+        console.error("Apply imported data failed:", error);
+        showInfoModal("info.attention.title", "import.failed");
+        return false;
+    } finally {
+        setTimeout(hideProgressModal, 500);
     }
-
-    // Periksa kuota penyimpanan sebelum menyimpan (dengan perhitungan yang lebih akurat)
-    const QUOTA_BYTES = 5 * 1024 * 1024;
-    const dataToEstimate = {
-        userPIN: data.userPIN || userPIN,
-        advancedPIN: data.advancedPIN || advancedPIN,
-        prompts: finalPrompts,
-        advancedPrompts: finalAdvancedPrompts
-    };
-    const finalSize = new Blob([JSON.stringify(dataToEstimate)]).size;
-
-    if (finalSize > QUOTA_BYTES) {
-        showInfoModal("info.attention.title", "prompt.save.storageError");
-        return false; // Kembalikan status gagal
-    }
-    
-    // Terapkan dan simpan data
-    setUserPIN(data.userPIN || userPIN);
-    setAdvancedPIN(data.advancedPIN || advancedPIN);
-    setPrompts(finalPrompts);
-    setAdvancedPrompts(finalAdvancedPrompts);
-
-    if (typeof data.enablePopupFinder !== 'undefined') {
-        await saveSetting('enablePopupFinder', data.enablePopupFinder);
-    }
-
-    await saveSetting('userPIN', data.userPIN || userPIN);
-    await saveSetting('advancedPIN', data.advancedPIN || advancedPIN);
-    await saveSetting('prompts', finalPrompts);
-    await saveSetting('advancedPrompts', finalAdvancedPrompts);
-
-    renderPrompts();
-    renderAdvancedPrompts();
-    updateSecurityFeaturesUI();
-
-    showToast(replace ? 'import.replaced' : 'import.merged');
-    return true; // Kembalikan status sukses
 }
-
 
 export async function handleMerge() {
     if (tempImportData) {
+        closeModal(confirmationMergeReplaceModal.overlay);
         const success = await applyImportedData(tempImportData, false);
         if (success) {
-            closeModal(confirmationMergeReplaceModal.overlay);
             setTempImportData(null);
-            // Tambahkan baris ini untuk memuat ulang halaman
             setTimeout(() => window.location.reload(), 1000);
         }
     }
@@ -201,11 +294,10 @@ export async function handleMerge() {
 
 export async function handleReplace() {
     if (tempImportData) {
+        closeModal(confirmationMergeReplaceModal.overlay);
         const success = await applyImportedData(tempImportData, true);
         if (success) {
-            closeModal(confirmationMergeReplaceModal.overlay);
             setTempImportData(null);
-            // Tambahkan baris ini juga di sini
             setTimeout(() => window.location.reload(), 1000);
         }
     }

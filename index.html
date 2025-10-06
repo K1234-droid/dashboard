@@ -188,6 +188,13 @@
     
                     <h4 class="sub-judul" data-i18n-key="settings.other.visual">Visual</h4>
                     <div class="switch-container">
+                        <label for="enable-animation-switch" data-i18n-key="settings.other.enableAnimation">Aktifkan Animasi</label>
+                        <label class="switch">
+                            <input type="checkbox" id="enable-animation-switch">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="switch-container">
                         <label for="blur-menu-switch" class="switch-label" data-i18n-key="settings.other.blurMenu">Aktifkan Efek Blur Background Menu</label>
                         <label class="switch">
                             <input type="checkbox" id="blur-menu-switch">
@@ -353,7 +360,7 @@
                     <li data-i18n-key="about.d4">Danny Bungai</li>
                 </ul>
                 <h4 class="sub-judul" data-i18n-key="about.versionTitle">Versi Website</h4>
-                <p>3.7.0</p>
+                <p>V3.10.0</p>
             </div>
         </div>
     </div>
@@ -425,15 +432,6 @@
                 </div>
                 <p id="prompt-no-results" class="prompt-no-results hidden" data-i18n-key="prompt.search.noResults">Tidak ditemukan hasil</p>
             </div>
-            <div class="modal-footer">
-                <span class="storage-label" data-i18n-key="prompt.storage.label">Penyimpanan Lokal</span>
-                <div id="storage-indicator" class="storage-indicator">
-                    <div class="storage-bar-container">
-                        <div id="storage-bar" class="storage-bar"></div>
-                    </div>
-                    <span id="storage-text" class="storage-text" data-i18n-key="prompt.storage.loading">Memuat...</span>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -484,15 +482,6 @@
                     <textarea id="prompt-text-input" class="modal-input" rows="5"></textarea>
                 </div>
                 <button id="save-prompt-btn" class="modal-save-btn">Simpan Prompt</button>
-            </div>
-            <div class="modal-footer">
-                <span class="storage-label" data-i18n-key="prompt.storage.label">Penyimpanan Lokal</span>
-                <div id="storage-indicator-edit" class="storage-indicator">
-                    <div class="storage-bar-container">
-                        <div id="storage-bar-edit" class="storage-bar"></div>
-                    </div>
-                    <span id="storage-text-edit" class="storage-text" data-i18n-key="prompt.storage.loading">Memuat...</span>
-                </div>
             </div>
         </div>
     </div>
@@ -690,11 +679,39 @@
         <button class="prompt-menu-option" data-action="delete" data-i18n-key="prompt.menu.delete">Hapus</button>
     </div>
 
+    <div id="loading-modal-overlay" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="loading-modal-title"></h3>
+                </div>
+            <div class="modal-body">
+                <div class="loading-spinner"></div>
+                <p id="loading-modal-text"></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="progress-modal-overlay" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="progress-modal-title"></h3>
+                </div>
+            <div class="modal-body">
+                <p id="progress-modal-text"></p>
+                <div class="progress-bar-container">
+                    <div id="progress-bar" class="progress-bar"></div>
+                </div>
+                <p id="progress-percentage" class="progress-percentage-text"></p>
+            </div>
+        </div>
+    </div>
+
     <div class="hover-dead-zone"></div>
 
     <script src="js/sortable.min.js"></script>
     <script src="js/protocolCheck.js"></script>
 
+    <script src="js/zip.min.js"></script>
     <script type="module" src="js/main.js"></script>
     
     <div id="toast-notification" class="toast-notification"></div>

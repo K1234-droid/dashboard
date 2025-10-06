@@ -1,4 +1,4 @@
-import { loadSettings } from './storage.js';
+import { loadSettings, getAllPromptMetadata } from './storage.js';
 import { i18nData } from './config.js';
 
 let currentLanguage = 'en';
@@ -26,7 +26,6 @@ function applyTranslations() {
  * @param {string} theme - Nama tema ('light', 'dark', atau 'system').
  */
 function applyPopupTheme(theme) {
-    // Hapus kelas tema yang mungkin sudah ada sebelumnya
     document.body.classList.remove("dark-theme", "light-theme");
 
     if (theme === "dark") {
@@ -36,8 +35,17 @@ function applyPopupTheme(theme) {
     }
 }
 
+/**
+ * Menerapkan atau menonaktifkan animasi di popup berdasarkan pengaturan.
+ * @param {boolean} show - Status dari pengaturan enableAnimation.
+ */
+function applyPopupAnimations(show) {
+    // Default ke true jika pengaturan belum ada (undefined)
+    const animationsEnabled = show !== false;
+    document.body.classList.toggle("animations-disabled", !animationsEnabled);
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
-    // Ambil elemen UI dari popup
     const searchInput = document.getElementById('search-input');
     const searchResultsContainer = document.getElementById('search-results'); 
     const resultsListContainer = document.querySelector('.results-list');
@@ -45,37 +53,36 @@ document.addEventListener('DOMContentLoaded', async () => {
     const searchContainer = document.querySelector('.modal-button-group-column');
     const disabledMessage = document.getElementById('popup-disabled-message');
 
-    const settings = await loadSettings(['enablePopupFinder', 'languageSettings', 'theme']);
+    const settings = await loadSettings(['enablePopupFinder', 'languageSettings', 'theme', 'enableAnimation']);
     currentLanguage = settings.languageSettings?.ui || 'id';
 
     applyPopupTheme(settings.theme);
+    applyPopupAnimations(settings.enableAnimation);
 
     applyTranslations(); 
 
-    // Jika switch 'enablePopupFinder' tidak true (false atau undefined)
     if (settings.enablePopupFinder !== true) {
-        // Sembunyikan konten utama pop-up dengan menambahkan class 'hidden'
         if(searchContainer) searchContainer.classList.add('hidden');
         if(searchResultsContainer) searchResultsContainer.classList.add('hidden');
         
-        // Tampilkan pesan bahwa fitur dinonaktifkan dengan menghapus class 'hidden'
         if(disabledMessage) disabledMessage.classList.remove('hidden');
 
-        // Hentikan eksekusi sisa skrip
         return; 
     }
 
-    // Jika switch aktif, lanjutkan dengan logika pencarian yang sudah ada
     let searchableData = [];
     let selectedIndex = -1;
 
     async function initializeData() {
         try {
-            const dataSettings = await loadSettings(['prompts', 'advancedPrompts']);
-            const characterPrompts = dataSettings.prompts || [];
-            const builderPrompts = dataSettings.advancedPrompts || [];
+            const [characterPrompts, settingsData] = await Promise.all([
+                getAllPromptMetadata(),
+                loadSettings(['advancedPrompts'])
+            ]);
 
-            const characterData = characterPrompts.map(p => ({
+            const builderPrompts = settingsData.advancedPrompts || [];
+
+            const characterData = (characterPrompts || []).map(p => ({
                 id: `char-${p.id}`, 
                 text: p.text, 
                 type: getTranslation('popup.type.character'), 
@@ -108,7 +115,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             searchableData = [...characterData, ...builderData];
 
         } catch (error) {
-            resultsListContainer.innerHTML = `<div class="no-results">${getTranslation('popup.error.noResults')}</div>`;
+            console.error("Gagal menginisialisasi data pop-up:", error); // Log error untuk debugging
+            resultsListContainer.innerHTML = `<div class="no-results">${getTranslation('popup.error.loadFailed')}</div>`;
         }
     }
 

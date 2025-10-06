@@ -8,8 +8,8 @@ import {
     uiHideTimeout, setUiHideTimeout, imageViewerSource, currentImageViewerId, currentImageNavList
 } from './config.js';
 import { openModal, closeModal, showInfoModal } from './ui.js';
-import { showToast, readFileAsDataURL } from './utils.js';
-import { saveSetting, updateStorageIndicator, updateEditStorageIndicator, updateStorageIndicatorForDeletion } from './storage.js';
+import { showToast, resizeImage, blobToDataURL } from './utils.js';
+import { saveSetting, getPromptBlob, savePrompt as savePromptToDB, deletePromptDB, getFullPrompt } from './storage.js';
 
 // --- Context Menu ---
 export function showPromptContextMenu(event) {
@@ -63,23 +63,45 @@ export function closeAllPromptMenus() {
 }
 
 // --- Rendering and Displaying Prompts ---
-export function renderPrompts(promptsToRender = prompts) {
-    promptModal.grid.innerHTML = '';
-    promptModal.noResultsMessage.classList.add('hidden');
+export function cleanupPromptBlobs() {
+    if (promptModal.grid) {
+        promptModal.grid.querySelectorAll('.prompt-item-img').forEach(img => {
+            if (img.src.startsWith('blob:')) {
+                URL.revokeObjectURL(img.src);
+            }
+        });
+    }
+}
+
+export async function renderPrompts(promptsToRender = prompts) {
+    cleanupPromptBlobs();
     const lang = languageSettings.ui;
-  
-    promptsToRender.forEach(p => {
+    
+    const fragment = document.createDocumentFragment();
+
+    const itemPromises = promptsToRender.map(async (p) => {
         const item = document.createElement('div');
-        item.className = 'prompt-item';
+        item.className = 'prompt-item img-container-loading';
         item.dataset.id = p.id;
-  
+
         const img = document.createElement('img');
-        img.src = p.imageUrl;
         img.alt = 'Prompt Image';
-        img.className = 'prompt-item-img';
+        img.className = 'prompt-item-img img-lazy-load';
         img.loading = 'lazy';
+
         item.appendChild(img);
-  
+
+        const thumbnailBlob = await getPromptBlob(p.id, 'imageBlobThumbnail');
+        if (thumbnailBlob) {
+            img.onload = () => {
+                item.classList.add('loaded');
+                img.classList.add('loaded');
+            };
+            img.src = URL.createObjectURL(thumbnailBlob);
+        } else {
+            item.classList.remove('img-container-loading');
+        }
+
         const menuBtn = document.createElement('button');
         menuBtn.className = 'prompt-item-menu-btn';
         menuBtn.innerHTML = '&#8942;';
@@ -112,16 +134,23 @@ export function renderPrompts(promptsToRender = prompts) {
             }
             showPromptViewer(p);
         });
-  
-        promptModal.grid.appendChild(item);
+        
+        return item;
     });
-  
+
+    const items = await Promise.all(itemPromises);
+
+    promptModal.grid.innerHTML = '';
+    items.forEach(item => fragment.appendChild(item));
+
     const addBtn = document.createElement('button');
     addBtn.id = 'add-prompt-btn';
     addBtn.className = 'prompt-item add-prompt-item';
     addBtn.innerHTML = '<span>+</span>';
     addBtn.onclick = handleOpenAddPromptModal;
-    promptModal.grid.appendChild(addBtn);
+    fragment.appendChild(addBtn);
+
+    promptModal.grid.appendChild(fragment);
 }
 
 export function showPromptViewer(prompt) {
@@ -148,12 +177,21 @@ export function navigateImageViewer(direction) {
     showFullImage(newPromptId, imageViewerSource); 
 }
 
-export function showFullImage(promptId, source = 'grid') {
+export async function showFullImage(promptId, source = 'grid') {
     const prompt = prompts.find(p => p.id === promptId);
-    if (prompt) {
+    const viewerBlob = await getPromptBlob(promptId, 'imageBlobViewer');
+
+    if (prompt && viewerBlob) {
         setCurrentImageViewerId(promptId);
         setImageViewerSource(source);
-        imageViewerModal.image.src = prompt.imageUrl;
+
+        const oldUrl = imageViewerModal.image.src;
+        if (oldUrl.startsWith('blob:')) {
+            URL.revokeObjectURL(oldUrl);
+        }
+        
+        imageViewerModal.image.src = URL.createObjectURL(viewerBlob);
+        
         openModal(imageViewerModal.overlay);
 
         const controls = imageViewerModal.controls;
@@ -168,6 +206,24 @@ export function showFullImage(promptId, source = 'grid') {
             }, 3000);
             setUiHideTimeout(newTimeout);
         }
+    } else if (prompt && prompt.imageBlobOriginal) {
+        console.warn(`imageBlobViewer tidak ditemukan untuk prompt ${promptId}, mengubah ukuran gambar asli secara langsung.`);
+
+        (async () => {
+            try {
+                const viewerBlob = await resizeImage(prompt.imageBlobOriginal, 1080, 1920);
+                setCurrentImageViewerId(promptId);
+                setImageViewerSource(source);
+                const oldUrl = imageViewerModal.image.src;
+                if (oldUrl.startsWith('blob:')) {
+                    URL.revokeObjectURL(oldUrl);
+                }
+                imageViewerModal.image.src = URL.createObjectURL(viewerBlob);
+                openModal(imageViewerModal.overlay);
+            } catch (error) {
+                console.error("Gagal membuat gambar viewer (fallback):", error);
+            }
+        })();
     }
 }
 
@@ -188,21 +244,25 @@ export async function copyPromptTextFromItem(promptId) {
  * Membuat dan memicu unduhan untuk gambar dari prompt yang dipilih.
  * @param {number} promptId - ID dari prompt yang gambarnya akan disimpan.
  */
-export function savePromptImage(promptId) {
+export async function savePromptImage(promptId) {
     const prompt = prompts.find(p => p.id === promptId);
-    if (prompt && prompt.imageUrl) {
-        const link = document.createElement('a');
-        link.href = prompt.imageUrl;
+    const imageBlobOriginal = await getPromptBlob(promptId, 'imageBlobOriginal');
 
-        const extension = prompt.imageUrl.split(';')[0].split('/')[1] || 'png';
+    if (prompt && imageBlobOriginal) {
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(imageBlobOriginal);
+
+        const extension = imageBlobOriginal.type.split('/')[1] || 'png';
         
         link.download = `prompt_${prompt.id}.${extension}`;
 
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        
+        URL.revokeObjectURL(link.href);
     } else {
-        console.error('Prompt atau URL gambar tidak ditemukan untuk ID:', promptId);
+        console.error('Prompt atau blob gambar original tidak ditemukan untuk ID:', promptId);
     }
 }
 
@@ -227,14 +287,12 @@ export function handleOpenAddPromptModal() {
     
     addEditPromptModal.previewsContainer.classList.add('hidden');
     addEditPromptModal.imagePreviewSingle.classList.add('hidden');
-    addEditPromptModal.imagePreviewSingle.src = '';
     addEditPromptModal.imageHelpText.style.display = 'none';
 
     openModal(addEditPromptModal.overlay);
-    updateEditStorageIndicator();
 }
 
-export function handleEditPrompt(promptId) {
+export async function handleEditPrompt(promptId) {
     const promptToEdit = prompts.find(p => p.id === promptId);
     if (!promptToEdit) return;
     setCurrentPromptId(promptId);
@@ -248,13 +306,25 @@ export function handleEditPrompt(promptId) {
     addEditPromptModal.textInput.scrollTop = 0;
 
     addEditPromptModal.previewsContainer.classList.remove('hidden');
-    addEditPromptModal.imagePreviewOld.src = promptToEdit.imageUrl;
-    addEditPromptModal.imagePreviewNew.src = promptToEdit.imageUrl;
+
+    if (addEditPromptModal.imagePreviewOld.src.startsWith('blob:')) {
+        URL.revokeObjectURL(addEditPromptModal.imagePreviewOld.src);
+    }
+    if (addEditPromptModal.imagePreviewNew.src.startsWith('blob:')) {
+        URL.revokeObjectURL(addEditPromptModal.imagePreviewNew.src);
+    }
+
+    const thumbnailBlob = await getPromptBlob(promptId, 'imageBlobThumbnail');
+    if (thumbnailBlob) {
+        const imageUrl = URL.createObjectURL(thumbnailBlob);
+        addEditPromptModal.imagePreviewOld.src = imageUrl;
+        addEditPromptModal.imagePreviewNew.src = imageUrl;
+    }
+
     addEditPromptModal.imagePreviewSingle.classList.add('hidden');
     addEditPromptModal.imageHelpText.style.display = 'block';
     
     openModal(addEditPromptModal.overlay);
-    updateEditStorageIndicator();
 }
 
 export async function handleSavePrompt() {
@@ -269,54 +339,81 @@ export async function handleSavePrompt() {
     try {
         const file = addEditPromptModal.imageFileInput.files[0];
         const text = addEditPromptModal.textInput.value.trim();
-        
-        if (isEditing) {
-            if (!text) {
-                showInfoModal("info.attention.title", "prompt.edit.textRequired");
-                return;
-            }
-        } else {
-            if (!file || !text) {
-                showInfoModal("info.attention.title", "prompt.add.fieldsRequired");
-                return;
-            }
+
+        if (!isEditing && (!file || text === '')) {
+            showInfoModal("info.attention.title", "prompt.add.fieldsRequired");
+            return;
         }
 
-        const tempPrompts = JSON.parse(JSON.stringify(prompts));
-        let newImageUrl = null;
-        if (file) {
-            try {
-                newImageUrl = await readFileAsDataURL(file);
-            } catch (fileError) {
-                console.error("Error reading file:", fileError);
-                showInfoModal("info.attention.title", "prompt.save.fileError");
-                return;
-            }
-        }
-
-        if (isEditing) {
-            const promptIndex = tempPrompts.findIndex(p => p.id === currentPromptId);
-            if (promptIndex === -1) return;
-            
-            tempPrompts[promptIndex].text = text;
-            if (newImageUrl) {
-                tempPrompts[promptIndex].imageUrl = newImageUrl;
-            }
-        } else {
-            const newPromptData = { id: Date.now(), imageUrl: newImageUrl, text };
-            tempPrompts.push(newPromptData);
-        }
-
-        const QUOTA_BYTES = 5 * 1024 * 1024;
-        const finalSize = new Blob([JSON.stringify(tempPrompts)]).size;
-
-        if (finalSize > QUOTA_BYTES) {
-            showInfoModal("info.attention.title", "prompt.save.storageError");
+        if (isEditing && text === '') {
+            showInfoModal("info.attention.title", "prompt.edit.textRequired");
             return;
         }
         
-        await saveSetting('prompts', tempPrompts);
-        setPrompts(tempPrompts);
+        let promptData;
+        const tempPromptsMetadata = [...prompts];
+
+        if (isEditing) {
+            const promptIndex = tempPromptsMetadata.findIndex(p => p.id === currentPromptId);
+            if (promptIndex === -1) return;
+
+            const fullOldPrompt = await getFullPrompt(currentPromptId);
+
+            if (!fullOldPrompt) return;
+
+            promptData = {
+                ...tempPromptsMetadata[promptIndex],
+                text: text
+            };
+
+            if (file) {
+                promptData.imageBlobOriginal = file;
+
+                const [viewer, thumbnail, icon] = await Promise.all([
+                    resizeImage(file, 1080, 1920),
+                    resizeImage(file, 500, 500),
+                    resizeImage(file, 200, 200)
+                ]);
+
+                promptData.imageBlobViewer = viewer;
+                promptData.imageBlobThumbnail = thumbnail;
+                promptData.imageBlobIcon = icon;
+            } else {
+                promptData.imageBlobOriginal = fullOldPrompt.imageBlobOriginal;
+                promptData.imageBlobViewer = fullOldPrompt.imageBlobViewer;
+                promptData.imageBlobThumbnail = fullOldPrompt.imageBlobThumbnail;
+                promptData.imageBlobIcon = fullOldPrompt.imageBlobIcon;
+            }
+            
+            await savePromptToDB(promptData);
+
+            const { imageBlobOriginal, imageBlobViewer, imageBlobThumbnail, imageBlobIcon, ...metadata } = promptData;
+            tempPromptsMetadata[promptIndex] = metadata;
+
+        } else {
+            const imageBlobOriginal = file;
+            const [imageBlobViewer, imageBlobThumbnail, imageBlobIcon] = await Promise.all([
+                resizeImage(imageBlobOriginal, 1080, 1920),
+                resizeImage(imageBlobOriginal, 500, 500),
+                resizeImage(imageBlobOriginal, 200, 200)
+            ]);
+            
+            promptData = { 
+                id: Date.now(), 
+                imageBlobOriginal, 
+                imageBlobViewer,
+                imageBlobThumbnail,
+                imageBlobIcon,
+                text 
+            };
+
+            await savePromptToDB(promptData);
+
+            const { imageBlobOriginal: _, imageBlobViewer: _1, imageBlobThumbnail: _2, imageBlobIcon: _3, ...metadata } = promptData;
+            tempPromptsMetadata.push(metadata);
+        }
+
+        setPrompts(tempPromptsMetadata);
         
         closeModal(addEditPromptModal.overlay);
         const promptModalBody = promptModal.overlay.querySelector('.modal-body');
@@ -324,10 +421,8 @@ export async function handleSavePrompt() {
         renderPrompts();
         promptModalBody.scrollTop = scrollPosition;
 
-        updateStorageIndicator();
         showToast(isEditing ? "prompt.edit.success" : "prompt.save.success");
         
-        // Memicu pembaruan UI untuk Prompt Builder
         document.dispatchEvent(new CustomEvent('characterPromptsUpdated'));
         
         setCurrentPromptId(null);
@@ -362,15 +457,23 @@ export async function confirmDelete() {
         const promptModalBody = promptModal.overlay.querySelector('.modal-body');
         const scrollPosition = promptModalBody.scrollTop;
 
-        let newPrompts;
+        let idsToDelete;
+        let newPromptsMetadata;
+
         if (confirmationModalPurpose === 'deleteSelectedPrompts') {
-            newPrompts = prompts.filter(p => !selectedPromptIds.includes(p.id));
+            idsToDelete = [...selectedPromptIds];
+            newPromptsMetadata = prompts.filter(p => !selectedPromptIds.includes(p.id));
         } else {
-            newPrompts = prompts.filter(p => p.id !== currentPromptId);
+            idsToDelete = [currentPromptId];
+            newPromptsMetadata = prompts.filter(p => p.id !== currentPromptId);
         }
-        setPrompts(newPrompts);
+
+        for (const id of idsToDelete) {
+            await deletePromptDB(id);
+        }
+
+        setPrompts(newPromptsMetadata);
         
-        await saveSetting('prompts', prompts);
         renderPrompts();
         promptModalBody.scrollTop = scrollPosition;
 
@@ -378,7 +481,6 @@ export async function confirmDelete() {
             toggleManageMode(false);
         }
 
-        updateStorageIndicator();
         closeModal(confirmationModal.overlay);
 
         if(!imageViewerModal.overlay.classList.contains('hidden')) {
@@ -395,7 +497,6 @@ export async function confirmDelete() {
     }
 }
 
-
 // --- Manage & Search Mode ---
 export function updateManageModeUI() {
     const lang = languageSettings.ui;
@@ -409,7 +510,6 @@ export function updateManageModeUI() {
     }
 
     promptModal.deleteSelectedBtn.disabled = selectedPromptIds.length === 0;
-    updateStorageIndicatorForDeletion();
 }
 
 export function togglePromptSelection(promptId) {
@@ -443,32 +543,29 @@ export function handleSelectAll() {
 }
 
 function handleDirectBarSwap(outgoingContent, incomingContent, onComplete) {
-    outgoingContent.style.opacity = '0'; // Mulai fade-out konten yang keluar
+    outgoingContent.style.opacity = '0';
 
     setTimeout(() => {
         outgoingContent.classList.add('hidden');
-        outgoingContent.style.opacity = '1'; // Reset untuk penggunaan selanjutnya
+        outgoingContent.style.opacity = '1';
 
         incomingContent.classList.remove('hidden');
-        incomingContent.style.opacity = '0'; // Buat konten baru tak terlihat sebelum fade-in
+        incomingContent.style.opacity = '0';
 
-        // Memicu reflow agar transisi fade-in berjalan dengan benar
         void incomingContent.offsetWidth; 
 
-        incomingContent.style.opacity = '1'; // Mulai fade-in konten baru
+        incomingContent.style.opacity = '1';
 
         if (onComplete) {
             onComplete();
         }
-    }, 200); // Sesuaikan durasi dengan transisi di CSS
+    }, 200);
 }
 
 export function toggleManageMode(forceState = null) {
     const newManageState = forceState !== null ? forceState : !isManageModeActive;
 
-    // Menangani kasus khusus: beralih langsung dari mode Cari ke Kelola
     if (newManageState && isSearchModeActive) {
-        // BARIS BARU: Membersihkan status pencarian sebelumnya
         promptModal.searchInput.value = '';
         renderPrompts();
 
@@ -481,10 +578,9 @@ export function toggleManageMode(forceState = null) {
             if (sortableInstance) sortableInstance.option('disabled', true);
             updateManageModeUI();
         });
-        return; // Keluar dari fungsi lebih awal
+        return;
     }
 
-    // Logika normal untuk masuk/keluar mode Kelola
     setIsManageModeActive(newManageState);
     promptModal.content.classList.toggle('manage-mode', newManageState);
     if (sortableInstance) sortableInstance.option('disabled', newManageState);
@@ -495,7 +591,6 @@ export function toggleManageMode(forceState = null) {
         promptModal.actionBar.classList.remove('hidden');
         updateManageModeUI();
     } else {
-        // BARIS BARU: Memastikan pencarian juga bersih saat membatalkan mode Kelola
         promptModal.searchInput.value = '';
         renderPrompts();
         
@@ -509,7 +604,6 @@ export function toggleManageMode(forceState = null) {
             item.classList.remove('selected');
         });
         updateManageModeUI();
-        updateStorageIndicator();
     }
 }
 
@@ -536,14 +630,11 @@ export function handleDeleteSelected() {
 export function toggleSearchMode(forceState = null) {
     const newSearchState = forceState !== null ? forceState : !isSearchModeActive;
 
-    // Menangani kasus khusus: beralih langsung dari mode Kelola ke Cari
     if (newSearchState && isManageModeActive) {
-        // BARIS BARU: Membersihkan status pengelolaan (item yang dipilih)
         setSelectedPromptIds([]);
         promptModal.grid.querySelectorAll('.prompt-item.selected').forEach(item => {
             item.classList.remove('selected');
         });
-        updateStorageIndicator();
 
         setIsManageModeActive(false);
         setIsSearchModeActive(true);
@@ -554,10 +645,9 @@ export function toggleSearchMode(forceState = null) {
             if (sortableInstance) sortableInstance.option('disabled', true);
             promptModal.searchInput.focus();
         });
-        return; // Keluar dari fungsi lebih awal
+        return;
     }
 
-    // Logika normal untuk masuk/keluar mode Cari
     setIsSearchModeActive(newSearchState);
     promptModal.content.classList.toggle('search-mode', newSearchState);
     if (sortableInstance) sortableInstance.option('disabled', newSearchState);
@@ -593,5 +683,7 @@ export function handleSearchInput() {
 
     if (filteredPrompts.length === 0 && searchTerm.length > 0) {
         promptModal.noResultsMessage.classList.remove('hidden');
+    } else {
+        promptModal.noResultsMessage.classList.add('hidden');
     }
 }

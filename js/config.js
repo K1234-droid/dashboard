@@ -135,8 +135,6 @@ export const promptModal = {
     overlay: document.getElementById('prompt-modal-overlay'),
     closeBtn: document.getElementById('close-prompt-modal-btn'),
     grid: document.getElementById('prompt-grid'),
-    storageBar: document.getElementById('storage-bar'),
-    storageText: document.getElementById('storage-text'),
     content: document.querySelector('#prompt-modal-overlay .modal-content'),
     manageBtn: document.getElementById('prompt-manage-btn'),
     selectCount: document.getElementById('prompt-select-count'),
@@ -201,9 +199,6 @@ export const addEditPromptModal = {
     textInput: document.getElementById('prompt-text-input'),
     saveBtn: document.getElementById('save-prompt-btn'),
     imageHelpText: document.getElementById('prompt-image-help-text'),
-    storageBar: document.getElementById('storage-bar-edit'),
-    storageText: document.getElementById('storage-text-edit'),
-    storageIndicator: document.getElementById('storage-indicator-edit'),
 };
 
 export const addEditAdvancedPromptModal = {
@@ -252,6 +247,7 @@ export const imageViewerModal = {
   
 // Elemen-elemen untuk switch pengaturan.
 export const settingSwitches = {
+    enableAnimation: document.getElementById("enable-animation-switch"),
     showSeconds: document.getElementById("show-seconds-switch"),
     menuBlur: document.getElementById("blur-menu-switch"),
     footerBlur: document.getElementById("blur-footer-switch"),
@@ -272,6 +268,20 @@ export const avatarStatus = {
     text: document.getElementById("avatar-status-text"),
     helpText: document.getElementById("avatar-help-text"),
 };
+
+export const loadingModal = {
+    overlay: document.getElementById('loading-modal-overlay'),
+    title: document.getElementById('loading-modal-title'),
+    text: document.getElementById('loading-modal-text'),
+};
+
+export const progressModal = {
+    overlay: document.getElementById('progress-modal-overlay'),
+    title: document.getElementById('progress-modal-title'),
+    text: document.getElementById('progress-modal-text'),
+    bar: document.getElementById('progress-bar'),
+    percentage: document.getElementById('progress-percentage'),
+};
   
 // --- State & Data ---
 export let currentUser = "K1234";
@@ -285,9 +295,9 @@ export let imageViewerSource = 'grid';
 export let currentAdvancedPromptId = null;
 export let activePromptMenu = null;
 export let activeModalStack = []; 
-export let pinModalPurpose = 'login'; // 'loginHidden', 'loginAdvanced', 'loginChoice', 'updateConfirmHidden', 'updateConfirmAdvanced', 'disableConfirmHidden', 'disableConfirmAdvanced', 'confirmEnablePopupFinder', 'confirmDisablePopupFinder'
+export let pinModalPurpose = 'login';
 export let tempNewPIN = null;
-export let confirmationModalPurpose = 'deletePrompt'; // 'deletePrompt', 'disableHiddenFeature', 'disableContinueFeature', 'deleteSelectedPrompts', 'deleteAdvancedPrompt', 'deleteSelectedAdvancedPrompts'
+export let confirmationModalPurpose = 'deletePrompt';
 export let tempImportData = null;
 export let toastTimeout;
 export let isManageModeActive = false;
@@ -298,6 +308,7 @@ export let isAdvancedSearchModeActive = false;
 export let selectedAdvancedPromptIds = [];
 export let sortableInstance = null;
 export let advancedSortableInstance = null;
+export let isBlockingModalActive = false;
 
 export let currentImageNavList = [];
 export let uiHideTimeout = null;
@@ -342,6 +353,7 @@ export function setIsAdvancedSearchModeActive(value) { isAdvancedSearchModeActiv
 export function setSelectedAdvancedPromptIds(value) { selectedAdvancedPromptIds = value; }
 export function setSortableInstance(value) { sortableInstance = value; }
 export function setAdvancedSortableInstance(value) { advancedSortableInstance = value; }
+export function setIsBlockingModalActive(value) { isBlockingModalActive = value; }
 export function setLanguageSettings(value) { languageSettings = value; }
 export function setAnimationFrameId(value) { animationFrameId = value; }
 export function setLastUpdatedHour(value) { lastUpdatedHour = value; }
@@ -352,7 +364,6 @@ export const supportedLangs = ['id', 'en', 'ja'];
 export const localeMap = { id: 'id-ID', en: 'en-US', ja: 'ja-JP' };
   
 export const i18nData = {
-    // ... (Your entire i18nData object remains here, unchanged) ...
     "greeting.morning": { id: "Selamat Pagi!", en: "Good Morning!", ja: "おはようございます!" },
     "greeting.afternoon": { id: "Selamat Siang!", en: "Good Afternoon!", ja: "こんにちは!" },
     "greeting.evening": { id: "Selamat Sore!", en: "Good Evening!", ja: "こんばんは!" },
@@ -360,12 +371,12 @@ export const i18nData = {
     "description.day": { id: "Teruslah menjelajahi untuk menemukan hal-hal baru dimasa depan. Tetap semangat.", en: "Keep exploring to find new things in the future. Stay spirited.", ja: "未来に新しいものを見つけるために探検を続けてください。元気でね。" },
     "description.night": { id: "Jangan lupa istirahat karena sudah malam :)", en: "It's late, don't forget to rest :)", ja: "夜遅いですので、休むことを忘れないでください :)" },
     "page.title": { id: "Tab Baru", en: "New Tab", ja: "新しいタブ" },
-    "page.unsupportedRes": { id: "Maaf, halaman dashboard belum mendukung resolusi rendah", en: "Sorry, the dashboard page doesn't support low resolutions yet", ja: "申し訳ありませんが、ダッシュボードはまだ低解像度をサポートしていません" },
     "footer.account": { id: "Anda sebagai {value}", en: "You are logged in as {value}", ja: "{value} としてログイン中" },
     "footer.offline": { id: "Anda sedang offline", en: "You are offline", ja: "オフラインです" },
     "footer.checking": { id: "Memeriksa koneksi", en: "Checking connection", ja: "接続を確認しています" },
     "footer.credit": { id: "Ilustrasi karakter dibuat menggunakan Google Imagen 4", en: "Character illustration created using Google Imagen 4", ja: "キャラクターイラストはGoogle Imagen 4を使用して作成" },
     "footer.tooltip.settings": { id: "Pengaturan Dashboard", en: "Dashboard Settings", ja: "ダッシュボード設定" },
+    "animation.enableRequired": { id: "Anda harus mengaktifkan animasi terlebih dahulu.", en: "You must enable animation first.", ja: "まずアニメーションを有効にしてください。" },
     "footer.enableRequired": { id: "Anda harus mengaktifkan footer terlebih dahulu.", en: "You must enable the footer first.", ja: "まずフッターを有効にする必要があります。" },
     "menu.changeUsername": { id: "Ubah Username", en: "Change Username", ja: "ユーザー名を変更" },
     "menu.adjustTheme": { id: "Sesuaikan Tema", en: "Adjust Theme", ja: "テーマを調整" },
@@ -391,6 +402,7 @@ export const i18nData = {
     "settings.other.clock": { id: "Jam", en: "Clock", ja: "時間" },
     "settings.other.showSeconds": { id: "Tampilkan Detik", en: "Show Seconds", ja: "秒を表示" },
     "settings.other.visual": { id: "Visual", en: "Visuals", ja: "ビジュアル" },
+    "settings.other.enableAnimation": { id: "Aktifkan Animasi", en: "Enable Animation", ja: "アニメーションを有効にする" },
     "settings.other.blurMenu": { id: "Aktifkan Efek Blur Background Menu", en: "Enable Menu Background Blur Effect", ja: "メニュー背景のぼかし効果を有効にする" },
     "settings.other.blurFooter": { id: "Aktifkan Efek Blur Footer", en: "Enable Footer Blur Effect", ja: "フッターのぼかし効果を有効にする" },
     "settings.other.interactiveChar": { id: "Gambar Karakter Interaktif", en: "Interactive Character Image", ja: "インタラクティブキャラクター画像" },
@@ -478,14 +490,9 @@ export const i18nData = {
     "prompt.edit.textRequired": { id: "Teks prompt tidak boleh kosong.", en: "Prompt text cannot be empty.", ja: "プロンプトテキストは空にできません。" },
     "prompt.save.fileError": { id: "Terjadi kesalahan saat memproses file.", en: "An error occurred while processing the file.", ja: "ファイルの処理中にエラーが発生しました。" },
     "prompt.save.storageError": { id: "Gagal menyimpan. Penyimpanan browser penuh. Coba gunakan gambar yang lebih kecil atau hapus prompt lama.", en: "Save failed. Browser storage is full. Try using smaller images or deleting old prompts.", ja: "保存に失敗しました。ブラウザのストレージがいっぱいです。小さい画像を使用するか、古いプロンプトを削除してください。" },
-    "prompt.storage.label": { id: "Penyimpanan Lokal", en: "Local Storage", ja: "ローカルストレージ" },
-    "prompt.storage.loading": { id: "Memuat...", en: "Loading...", ja: "読み込み中..." },
-    "prompt.storage.status": { id: "{current} / {total}", en: "{current} / {total}", ja: "{current} / {total}" },
-    "prompt.storage.error": { id: "Gagal memuat info", en: "Failed to load info", ja: "情報の読み込みに失敗しました" },
-    "prompt.storage.preview": { id: "{current} &rarr; {after} / {total}", en: "{current} &rarr; {after} / {total}", ja: "{current} &rarr; {after} / {total}" },
     "settings.hidden.title": { id: "Fitur Tersembunyi", en: "Hidden Feature", ja: "隠し機能" },
     "settings.hidden.enable": { id: "Aktifkan Fitur Tersembunyi", en: "Enable Hidden Feature", ja: "隠し機能を有効にする" },
-    "settings.continue.enable": { id: "Aktifkan Fitur Lanjutkan", en: "Enable Continue Feature", ja: "続行機能を有効にする" },
+    "settings.continue.enable": { id: "Aktifkan Fitur Lanjutan", en: "Enable Advanced Feature", ja: "高度な機能を有効にする" },
     "settings.hidden.updatePin": { id: "Perbarui PIN", en: "Update PIN", ja: "PINを更新" },
     "settings.hidden.createPin": { id: "Buat PIN", en: "Create PIN", ja: "PINを作成" },
     "hiddenFeature.howItWorks.title": { id: "Cara Kerja Fitur Tersembunyi", en: "How the Hidden Feature Works", ja: "隠し機能の仕組み" },
@@ -495,7 +502,7 @@ export const i18nData = {
     "settings.hidden.disableWarningTitle": { id: "Nonaktifkan Fitur Tersembunyi?", en: "Disable Hidden Feature?", ja: "隠し機能を無効にしますか？" },
     "settings.hidden.disableWarningText": { id: "Menonaktifkan fitur ini akan menghapus PIN dan semua prompt karakter Anda secara permanen. Apakah Anda yakin?", en: "Disabling this feature will permanently delete your PIN and all character prompts. Are you sure?", ja: "この機能を無効にすると、PINとすべてのキャラクタープロンプトが完全に削除されます。よろしいですか？" },
     "settings.hidden.disableWarningText_extended": { id: "Menonaktifkan fitur ini akan menghapus PIN dan semua data (Prompt Karakter & Pembuat Prompt) secara permanen. Apakah Anda yakin?", en: "Disabling this feature will permanently delete your PIN and all data (Character & Builder Prompts). Are you sure?", ja: "この機能を無効にすると、PINとすべてのデータ（キャラクタープロンプトとビルダープロンプト）が完全に削除されます。よろしいですか？" },
-    "settings.continue.disableWarningTitle": { id: "Nonaktifkan Fitur Lanjutkan?", en: "Disable Continue Feature?", ja: "続行機能を無効にしますか？" },
+    "settings.continue.disableWarningTitle": { id: "Nonaktifkan Fitur Lanjutan?", en: "Disable Advanced Feature?", ja: "高度な機能を無効にする？" },
     "settings.continue.disableWarningText": { id: "Ini akan menghapus PIN dan semua data Pembuat Prompt AI Lengkap secara permanen. Yakin?", en: "This will permanently delete the PIN and all Complete AI Prompt Builder data. Are you sure?", ja: "これにより、PINとすべての完全なAIプロンプトビルダーデータが完全に削除されます。よろしいですか？" },
     "settings.hidden.pinUpdated": { id: "PIN berhasil diperbarui!", en: "PIN updated successfully!", ja: "PINが正常に更新されました！" },
     "settings.hidden.disabled": { id: "Fitur dinonaktifkan dan semua data telah dihapus.", en: "Feature disabled and all data has been deleted.", ja: "機能が無効になり、すべてのデータが削除されました。" },
@@ -541,16 +548,21 @@ export const i18nData = {
     "pin.enter.confirmExportLabel": { id: "Masukkan PIN Fitur Tersembunyi untuk melanjutkan", en: "Enter Hidden Feature PIN to continue", ja: "続行するには隠し機能のPINを入力してください" },
     "export.success": { id: "Data berhasil diekspor!", en: "Data exported successfully!", ja: "データが正常にエクスポートされました！" },
     "export.failed": { id: "Gagal mengekspor data.", en: "Failed to export data.", ja: "データのエクスポートに失敗しました。" },
-    "import.success": { id: "Data berhasil diimpor!", en: "Data imported successfully!", ja: "データが正常にインポートされました！" },
+    "import.success": { id: "Data berhasil diimpor! Memuat ulang halaman.", en: "Data imported successfully! Reload the page.", ja: "データが正常にインポートされました！ ページを再読み込みしてください。" },
     "import.failed": { id: "Gagal mengimpor data. File mungkin rusak atau tidak valid.", en: "Failed to import data. The file may be corrupt or invalid.", ja: "データのインポートに失敗しました。ファイルが破損しているか、無効な可能性があります。" },
     "import.noData": { id: "Tidak ada data yang ditemukan untuk diimpor.", en: "No data found to import.", ja: "インポートするデータが見つかりません。" },
     "confirm.import.mergeTitle": { id: "Impor Data Fitur Tersembunyi", en: "Import Hidden Feature Data", ja: "隠し機能データをインポート" },
     "confirm.import.mergeText": { id: "File cadangan terdeteksi. Apa yang ingin Anda lakukan dengan data yang ada saat ini?", en: "Backup file detected. What would you like to do with the current data?", ja: "バックアップファイルが検出されました。現在のデータをどうしますか？" },
     "confirm.import.mergeBtn": { id: "Gabungkan", en: "Merge", ja: "マージ" },
     "confirm.import.replaceBtn": { id: "Gantikan Semua", en: "Replace All", ja: "すべて置き換える" },
-    "import.merged": { id: "Data berhasil digabungkan!", en: "Data merged successfully!", ja: "データが正常にマージされました！" },
-    "import.replaced": { id: "Data berhasil digantikan!", en: "Data replaced successfully!", ja: "データが正常に置き換えられました！" },
+    "import.merged": { id: "Data berhasil digabungkan! Memuat ulang halaman.", en: "Data merged successfully! Reload the page.", ja: "データが正常にマージされました！ ページを再読み込みしてください。" },
+    "import.replaced": { id: "Data berhasil digantikan! Memuat ulang halaman.", en: "Data replaced successfully! Reload the page.", ja: "データが正常に置き換えられました！ ページを再読み込みしてください。" },
     "confirm.import.pinWarning": { id: "Jika memilih salah satu opsi ini, PIN dari file cadangan akan digunakan dan menggantikan PIN yang sekarang.", en: "By selecting either option, the PINs from the backup file will be used and will replace your current PINs.", ja: "いずれかのオプションを選択すると、バックアップファイルのPINが使用され、現在のPINが置き換えられます。" },
+    "loading.title": { id: "Proses Membaca Data", en: "Reading Data", ja: "データ読み込み中" },
+    "loading.message": { id: "Proses membaca data sedang dilakukan, mohon tunggu...", en: "Reading data, please wait...", ja: "データを読み込んでいます。しばらくお待ちください..." },
+    "progress.import.title": { id: "Proses Impor Data", en: "Importing Data", ja: "データインポート処理" },
+    "progress.export.title": { id: "Proses Ekspor Data", en: "Exporting Data", ja: "データエクスポート処理" },
+    "progress.message": { id: "Proses perpindahan data sedang dilakukan, mohon tunggu...", en: "Data transfer is in progress, please wait...", ja: "データ転送処理中です。しばらくお待ちください..." },
     // Pop-up Feature
     "pin.enter.confirmFeatureTitle": { id: "Konfirmasi Fitur", en: "Feature Confirmation", ja: "機能の確認" },
     "pin.enter.confirmFeatureLabel": { id: "Masukkan PIN Fitur Tersembunyi untuk melanjutkan", en: "Enter Hidden Feature PIN to continue", ja: "続行するには隠し機能のPINを入力してください" },
@@ -565,5 +577,5 @@ export const i18nData = {
     "popup.error.noResults": { id: "Tidak ditemukan hasil", en: "No results found", ja: "結果が見つかりません" },
     "popup.copy.success": { id: "Teks berhasil disalin!", en: "Text copied successfully!", ja: "テキストをコピーしました！" },
     "popup.copy.errorVerbose": { id: "Gagal menyalin teks (detail teknis):", en: "Failed to copy text (technical detail):", ja: "テキストのコピーに失敗しました（技術的な詳細）：" },
-    "popup.copy.error": { id: "Gagal menyalin teks!", en: "Failed to copy text!", ja: "テキストのコピーに失敗しました！" }
+    "popup.copy.error": { id: "Gagal menyalin teks!", en: "Failed to copy text!", ja: "テキストのコピーに失敗しました！" },
 };
