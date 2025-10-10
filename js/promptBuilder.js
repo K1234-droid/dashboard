@@ -224,6 +224,19 @@ export function renderAdvancedPrompts(promptsToRender = advancedPrompts) {
             if (e.target.closest('.prompt-item-menu-btn')) { return; }
             showAdvancedPromptViewer(p);
         });
+
+        item.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+        
+            if (isAdvancedManageModeActive) {
+                toggleAdvancedPromptSelection(p.id);
+            } else {
+                const menuBtn = item.querySelector('.prompt-item-menu-btn');
+                if (menuBtn) {
+                    menuBtn.click();
+                }
+            }
+        });
   
         advancedPromptModal.grid.appendChild(item);
     });

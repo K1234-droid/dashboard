@@ -95,6 +95,8 @@ function initializeDragAndDrop() {
             chosenClass: 'sortable-chosen',
             filter: '.add-prompt-item',
             preventOnFilter: true,
+            delay: 200,
+            delayOnTouchOnly: true,
             onMove: function (evt) {
                 return !evt.related.classList.contains('add-prompt-item');
             },
@@ -118,6 +120,8 @@ function initializeDragAndDrop() {
             fallbackOnBody: true,
             filter: '.add-prompt-item',
             preventOnFilter: true,
+            delay: 200,
+            delayOnTouchOnly: true,
             onMove: function (evt) {
                 return !evt.related.classList.contains('add-prompt-item');
             },

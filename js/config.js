@@ -498,7 +498,6 @@ export const i18nData = {
     "hiddenFeature.howItWorks.title": { id: "Cara Kerja Fitur Tersembunyi", en: "How the Hidden Feature Works", ja: "隠し機能の仕組み" },
     "hiddenFeature.howItWorks.button": { id: "Cara Kerja", en: "How it Works", ja: "仕組み" },
     "hiddenFeature.howItWorks.p1": { id: "Tekan dua kali pada avatar pojok kanan bawah.", en: "Double-click the avatar in the bottom right corner.", ja: "右下の角にあるアバターをダブルクリックします。" },
-    "hiddenFeature.howItWorks.p2": { id: "Perhatikan bahwa fitur ini akan menggunakan penyimpanan bawaan browser maksimal 5 MB.", en: "Note that this feature will use the browser's built-in storage up to a maximum of 5 MB.", ja: "この機能は、ブラウザの組み込みストレージを最大5MBまで使用することにご注意ください。" },
     "settings.hidden.disableWarningTitle": { id: "Nonaktifkan Fitur Tersembunyi?", en: "Disable Hidden Feature?", ja: "隠し機能を無効にしますか？" },
     "settings.hidden.disableWarningText": { id: "Menonaktifkan fitur ini akan menghapus PIN dan semua prompt karakter Anda secara permanen. Apakah Anda yakin?", en: "Disabling this feature will permanently delete your PIN and all character prompts. Are you sure?", ja: "この機能を無効にすると、PINとすべてのキャラクタープロンプトが完全に削除されます。よろしいですか？" },
     "settings.hidden.disableWarningText_extended": { id: "Menonaktifkan fitur ini akan menghapus PIN dan semua data (Prompt Karakter & Pembuat Prompt) secara permanen. Apakah Anda yakin?", en: "Disabling this feature will permanently delete your PIN and all data (Character & Builder Prompts). Are you sure?", ja: "この機能を無効にすると、PINとすべてのデータ（キャラクタープロンプトとビルダープロンプト）が完全に削除されます。よろしいですか？" },

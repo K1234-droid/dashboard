@@ -134,6 +134,19 @@ export async function renderPrompts(promptsToRender = prompts) {
             }
             showPromptViewer(p);
         });
+
+        item.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+        
+            if (isManageModeActive) {
+                togglePromptSelection(p.id);
+            } else {
+                const menuBtn = item.querySelector('.prompt-item-menu-btn');
+                if (menuBtn) {
+                    menuBtn.click();
+                }
+            }
+        });
         
         return item;
     });

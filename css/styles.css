@@ -558,6 +558,12 @@ body.menu-blur-disabled .modal-overlay {
 .modal-header h3 {
   margin: 0;
   font-size: 1.2rem;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .close-btn {
   background: none;
@@ -998,8 +1004,9 @@ body.dark-theme .switch input:checked + .slider:before {
 
 .prompt-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 174px));
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 1rem;
+  justify-content: center;
 }
 
 .prompt-item {
@@ -1048,7 +1055,7 @@ body.dark-theme .switch input:checked + .slider:before {
   margin: 0;
   font-size: 0.9rem;
   line-height: 1.5;
-  max-height: 6.75rem; /* 0.9rem * 1.5 * 5 lines */
+  max-height: 6.75rem;
   color: var(--text-color);
   opacity: 0.9;
   overflow: hidden;
@@ -1507,10 +1514,17 @@ body.dark-theme .modal-input-file::file-selector-button {
   align-items: center;
   gap: 0.75rem;
   transition: opacity 0.2s ease-in-out;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -ms-overflow-style: none;
 }
 .action-bar-content:not(.hidden) {
   display: flex;
 }
+.action-bar-content::-webkit-scrollbar {
+  display: none;
+}
+
 .prompt-action-bar .modal-input {
     flex-grow: 1;
     min-width: 0;
@@ -1530,10 +1544,12 @@ body.dark-theme .modal-input-file::file-selector-button {
     font-weight: 500;
     font-size: 0.9rem;
     padding: 6px 0;
+    white-space: nowrap;
 }
 .prompt-manage-actions {
     display: flex;
     gap: 0.5rem;
+    white-space: nowrap;
 }
 .prompt-action-bar .modal-secondary-btn,
 .prompt-action-bar .modal-danger-btn {
@@ -1806,6 +1822,14 @@ pointer-events: all;
     max-width: 400px;
     transform: translateX(150px);
   }
+  .prompt-grid {
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  }
+  .advanced-prompt-item p {
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    max-height: 4.05rem; 
+  }
 }
 @media (max-width: 540px) {
   .description, .separator {
@@ -1814,6 +1838,9 @@ pointer-events: all;
   .avatar-full {
     width: 140%;
     transform: translateX(200px);
+  }
+  .character-selection-grid {
+    grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
   }
 }
 
@@ -1841,7 +1868,7 @@ pointer-events: all;
 
 /* 2. Atur pratinjau tunggal (mode Tambah) agar pas dan tidak terdistorsi */
 #prompt-image-preview-single {
-  max-width: 48%; /* Ubah nilai ini dari 100% */
+  max-width: 48%;
   max-height: 250px;
   align-self: center;
 }
@@ -1854,9 +1881,9 @@ pointer-events: all;
 }
 
 #prompt-image-previews-container .image-preview {
-  flex: 1;          /* Membuat kedua gambar membesar secara fleksibel */
-  min-width: 0;     /* Mencegah gambar meluap dari wadahnya */
-  max-width: 100%;  /* Menimpa aturan max-width: 100px yang lama */
+  flex: 1;
+  min-width: 0;
+  max-width: 100%;
 }
 
 #info-modal-text {
@@ -1866,8 +1893,8 @@ pointer-events: all;
 
 /* Aturan khusus saat tombol tambah adalah satu-satunya item */
 .add-prompt-item:only-child {
-  width: 174px; /* Disesuaikan dengan minmax grid */
-  height: 174px; /* Disesuaikan dengan minmax grid */
+  width: 174px;
+  height: 174px;
   justify-self: center;
 }
 
@@ -1954,7 +1981,7 @@ textarea.modal-input::-webkit-scrollbar-thumb:hover,
   font-weight: 500;
   font-size: 0.9rem;
   transition: border-color 0.2s ease, color 0.2s ease;
-  flex-shrink: 0; /* Mencegah tab menyusut */
+  flex-shrink: 0;
   white-space: nowrap;
 }
 .nav-tab-btn:first-child {
@@ -2110,4 +2137,50 @@ object-fit: cover;
     animation-duration: 0s !important;
     transition-delay: 0s !important;
     animation-delay: 0s !important;
+}
+
+/* ==================== PERBAIKAN UNTUK TAMPILAN PONSEL ==================== */
+@media (max-width: 490px) {
+  .avatar-full {
+    display: block;
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    top: 10%;
+    z-index: -1;
+    width: 95%;
+    max-width: 380px;
+    max-height: 90vh;
+    width: auto;
+    transform: translateX(45%);
+  }
+  .prompt-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+}
+@media (max-width: 410px) {
+  .character-selection-grid {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  }
+}
+@media (max-width: 355px) {
+  .prompt-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  }
+}
+@media (max-width: 345px) {
+  .avatar-full {
+    width: auto;
+    transform: translateX(50%);
+  }
+}
+@media (max-width: 330px) {
+  .character-selection-grid {
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+  }
+}
+@media (max-width: 275px) {
+  .character-selection-grid {
+    grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+  }
 }
