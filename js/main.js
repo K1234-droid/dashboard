@@ -97,6 +97,9 @@ function initializeDragAndDrop() {
             preventOnFilter: true,
             delay: 200,
             delayOnTouchOnly: true,
+            onStart: function() {
+                closeAllPromptMenus();
+            },
             onMove: function (evt) {
                 return !evt.related.classList.contains('add-prompt-item');
             },
@@ -122,6 +125,9 @@ function initializeDragAndDrop() {
             preventOnFilter: true,
             delay: 200,
             delayOnTouchOnly: true,
+            onStart: function() {
+                closeAllPromptMenus();
+            },
             onMove: function (evt) {
                 return !evt.related.classList.contains('add-prompt-item');
             },
