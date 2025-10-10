@@ -48,10 +48,11 @@ The light and dark themes automatically follow your browser's settings. You can 
 ## Requirements
 * An internet connection is required to check the online status (uses `google.com`).
 
-**For testing, please click the following link: [https://k1234dashboard.free.nf/](https://k1234dashboard.free.nf/) (desktop/laptop version only).**
+**For testing, please click the following link: [https://k1234dashboard.free.nf/](https://k1234dashboard.free.nf/) (for a better experience, this page currently supports desktop and laptop versions only.).**
 
 ## Additional Notes
 * Character illustration created using **Google Imagen 4**.
 
 Best regards,
 **K1234**
+
