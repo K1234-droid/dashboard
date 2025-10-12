@@ -688,6 +688,10 @@ window.addEventListener("keydown", (event) => {
         navigateImageViewer(-1);
     } else if (event.key === "ArrowRight" && isImageViewerOpen) {
         navigateImageViewer(1);
+    } else if (event.key === "PageUp" && isImageViewerOpen) {
+        navigateImageViewer(-1);
+    } else if (event.key === "PageDown" && isImageViewerOpen) {
+        navigateImageViewer(1);
     }
 });
 
