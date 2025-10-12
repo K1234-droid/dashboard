@@ -87,14 +87,12 @@
 
   <script>
     (function() {
-        // --- DEKLARASI ELEMEN DOM (BAGIAN YANG DIPERBAIKI) ---
         const blocker = document.getElementById('file-protocol-blocker');
         const showBtn = document.getElementById('show-tutorial-btn');
         const tutorialModal = document.getElementById('tutorial-modal-overlay');
         const closeBtn = document.getElementById('close-tutorial-modal-btn');
         const body = document.body;
 
-        // --- FUNGSI PENGELOLA MODAL ---
         function openTutorialModal() {
             tutorialModal.classList.remove('hidden');
         }
@@ -103,30 +101,24 @@
             tutorialModal.classList.add('hidden');
         }
 
-        // Deteksi bahasa browser
         const userLang = (navigator.language || navigator.userLanguage).split('-')[0];
         const supportedLangs = ['id', 'en', 'ja'];
-        const langToShow = supportedLangs.includes(userLang) ? userLang : 'en'; // Default ke English
-        
-        // Atur bahasa utama dokumen
+        const langToShow = supportedLangs.includes(userLang) ? userLang : 'en';
+
         document.documentElement.lang = langToShow;
 
-        // --- BARIS BARU: TERJEMAHKAN JUDUL HALAMAN ---
         const pageTitles = {
             id: "Tab Baru",
             en: "New Tab",
             ja: "新しいタブ"
         };
         document.title = pageTitles[langToShow];
-        
-        // Tambahkan kelas bahasa ke body untuk di-styling oleh CSS
+
         body.classList.add('lang-' + langToShow);
 
-        // Tambahkan event listener untuk tombol
         showBtn.addEventListener('click', openTutorialModal);
         closeBtn.addEventListener('click', closeTutorialModal);
 
-        // Tutup modal dengan tombol 'Escape'
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && !tutorialModal.classList.contains('hidden')) {
                 closeTutorialModal();

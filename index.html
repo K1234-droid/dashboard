@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-i18n-key="page.title">Tab Baru</title>
 
+    <link rel="preload" as="image" href="assets/images/avatar-logo-small.webp">
+    <link rel="preload" as="image" href="assets/images/avatar-fullbody.webp">
     <link rel="stylesheet" href="css/styles.css">
     
     <link rel="icon" href="favicon.ico">
@@ -26,7 +28,7 @@
     </div>
 
     <div class="container mx-auto p-4">
-        <img src="assets/images/avatar-fullbody.webp" alt="Avatar Assistant" class="avatar-full hidden" loading="lazy">
+        <img src="assets/images/avatar-fullbody.webp" alt="Avatar Assistant" class="avatar-full hidden">
     </div>
 
     <footer class="footer p-4">
@@ -43,7 +45,7 @@
             </span>
 
             <div id="avatar-menu-container" class="avatar-menu-container" data-tooltip="Pengaturan Dashboard" data-i18n-key="footer.tooltip.settings">
-                <img id="avatar-logo-btn" src="assets/images/avatar-logo.webp" alt="Avatar Logo" class="avatar-logo">
+                <img id="avatar-logo-btn" src="assets/images/avatar-logo-small.webp" alt="Avatar Logo" class="avatar-logo">
                 <div id="menu-popup" class="menu-popup">
                     <button id="open-username-modal-btn" class="menu-btn" data-i18n-key="menu.changeUsername">Ubah Username</button>
                     <button id="open-theme-modal-btn" class="menu-btn" data-i18n-key="menu.adjustTheme">Sesuaikan Tema</button>
@@ -82,7 +84,7 @@
                 <div class="theme-options">
                     <button id="theme-light-btn" class="theme-btn" data-i18n-key="settings.theme.light">Terang</button>
                     <button id="theme-dark-btn" class="theme-btn" data-i18n-key="settings.theme.dark">Gelap</button>
-                    <button id="theme-system-btn" class="theme-btn active" data-i18n-key="settings.theme.system">Default Perangkat</button>
+                    <button id="theme-system-btn" class="theme-btn active" data-i18n-key="settings.theme.system">Sistem</button>
                 </div>
                 
                 <div class="switch-container">
@@ -337,7 +339,10 @@
                     <li data-i18n-key="about.f3">Ilustrasi karakter</li>
                     <li data-i18n-key="about.f4">Status koneksi internet jika sedang offline</li>
                 </ul>
-                <p data-i18n-key="about.p2">Untuk info selengkapnya, silahkan download dan kunjungi halaman <a href="readme.md" class="readme-link">readme.md</a>.</p>
+                <p data-i18n-key="about.p2">Untuk info selengkapnya, silahkan kunjungi halaman readme.</p>
+                <div class="modal-button-group readme-button-container">
+                    <a href="https://k1234dashboard.free.nf/readme" target="_blank" rel="noopener noreferrer" class="modal-save-btn" data-i18n-key="about.readmeButton">Lihat readme</a>
+                </div>
                 <h4 class="sub-judul" data-i18n-key="about.notesTitle">Catatan</h4>
                 <p data-i18n-key="about.n1">Penerapan fitur tema terang dan gelap hanya berlaku untuk halaman dashboard ini.</p>
                 <p data-i18n-key="about.n2">Pada resolusi layar di atas 930px, arahkan mouse ke karakter untuk melihat lebih dekat.
@@ -360,7 +365,7 @@
                     <li data-i18n-key="about.d4">Danny Bungai</li>
                 </ul>
                 <h4 class="sub-judul" data-i18n-key="about.versionTitle">Versi Website</h4>
-                <p>V3.11.1</p>
+                <p>V3.11.2</p>
             </div>
         </div>
     </div>
@@ -551,7 +556,7 @@
             </div>
             <div class="modal-body how-it-works-body">
                 <p data-i18n-key="hiddenFeature.howItWorks.p1">Tekan dua kali pada avatar pojok kanan bawah.</p>
-                <img src="assets/images/avatar-logo.webp" alt="Avatar Logo" class="avatar-logo">
+                <img src="assets/images/avatar-logo-small.webp" alt="Avatar Logo" class="avatar-logo">
             </div>
         </div>
     </div>

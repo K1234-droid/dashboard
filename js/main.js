@@ -10,7 +10,7 @@ import {
     currentPromptId, setAnimationFrameId, setSortableInstance, setAdvancedSortableInstance, setPinModalPurpose, currentAdvancedPromptId,
     pinModalPurpose, dataManagement, confirmationMergeReplaceModal, currentImageViewerId, imageViewerSource,
     uiHideTimeout, setUiHideTimeout, setCurrentImageNavList, setIsAdvancedManageModeActive, setIsAdvancedSearchModeActive,
-    isBlockingModalActive
+    isBlockingModalActive, setActiveModalStack
 } from './config.js';
 
 import { debounce, getBrowserLanguage, showToast } from './utils.js';
@@ -21,7 +21,7 @@ import {
     handleSaveUsername, applyTheme, applyShowSeconds, applyMenuBlur, applyFooterBlur,
     applyAvatarFullShow, applyAvatarAnimation, updateAvatarStatus, updateUsernameDisplay,
     updateSecurityFeaturesUI, checkResolutionAndToggleMessage, setupAvatarHoverListeners, showFeedback,
-    applyShowCredit, applyShowFooter, applyShowFooterInfo, applyEnableAnimation
+    applyShowCredit, applyShowFooter, applyShowFooterInfo, applyEnableAnimation, handleFooterInfoSwitchState
 } from './ui.js';
 import { startPinUpdate, handleSaveInitialPin, handleSaveInitialAdvancedPin, handleDisableFeature, handlePinSubmit } from './pinManager.js';
 import {
@@ -421,6 +421,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     applyShowCredit(shouldShowCredit);
     applyShowFooter(shouldShowFooter);
     applyShowFooterInfo(shouldShowFooterInfo);
+    handleFooterInfoSwitchState();
 
     translateUI(languageSettings.ui);
     updateUsernameDisplay();
@@ -616,6 +617,7 @@ window.addEventListener("offline", updateOfflineStatus);
 window.addEventListener("resize", () => {
     updateAvatarStatus();
     checkResolutionAndToggleMessage();
+    handleFooterInfoSwitchState();
 });
 
 window.addEventListener("keydown", (event) => {
@@ -702,6 +704,7 @@ if (usernameModal.openBtn) usernameModal.openBtn.addEventListener("click", () =>
     usernameModal.input.value = currentUser;
     usernameModal.feedbackText.classList.remove('show');
     openModal(usernameModal.overlay);
+    usernameModal.input.focus();
 });
 if (usernameModal.closeBtn) usernameModal.closeBtn.addEventListener("click", () => closeModal(usernameModal.overlay));
 if (usernameModal.saveBtn) usernameModal.saveBtn.addEventListener("click", handleSaveUsername);
@@ -741,6 +744,7 @@ if (aboutModal.closeBtn) aboutModal.closeBtn.addEventListener("click", () => clo
 
 const handleUpdatePinClick = () => {
     const newPin = pinSettings.input.value;
+    pinSettings.input.blur();
     if (!/^\d{4}$/.test(newPin)) {
         showFeedback(pinSettings.feedbackText, "settings.pin.feedback.error", true);
         return;
@@ -967,10 +971,6 @@ if (settingSwitches.showFooter) {
         const isChecked = e.target.checked;
         applyShowFooter(isChecked);
         await saveSetting("showFooter", isChecked);
-        
-        if (settingSwitches.showFooterInfo) {
-            applyShowFooterInfo(settingSwitches.showFooterInfo.checked);
-        }
         updateOfflineStatus();
     });
 }

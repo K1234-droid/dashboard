@@ -129,6 +129,7 @@ export function updateUsernameDisplay() {
 }
 
 export async function handleSaveUsername() {
+    usernameModal.input.blur();
     let newUsername = usernameModal.input.value.trim();
     if (newUsername.length === 0) { newUsername = "K1234"; }
     
@@ -145,10 +146,7 @@ export async function handleSaveUsername() {
 
 export function applyShowFooter(show) {
     elements.body.classList.toggle("footer-hidden", !show);
-    
-    if (settingSwitches.showFooterInfo) {
-        settingSwitches.showFooterInfo.disabled = !show;
-    }
+    handleFooterInfoSwitchState();
     updateAvatarStatus();
 }
 
@@ -280,6 +278,18 @@ export function updateAvatarStatus() {
 }
 
 export function checkResolutionAndToggleMessage() {
+}
+
+export function handleFooterInfoSwitchState() {
+    if (!settingSwitches.showFooterInfo || !settingSwitches.showFooter) return;
+
+    const isMobileView = window.innerWidth <= 410;
+    const isFooterHidden = !settingSwitches.showFooter.checked;
+    const shouldBeDisabled = isMobileView || isFooterHidden;
+    settingSwitches.showFooterInfo.disabled = shouldBeDisabled;
+    const effectiveState = shouldBeDisabled ? false : settingSwitches.showFooterInfo.checked;
+
+    applyShowFooterInfo(effectiveState);
 }
 
 export function updateSecurityFeaturesUI() {
