@@ -678,6 +678,8 @@ export function toggleSearchMode(forceState = null) {
         
         promptModal.searchInput.value = '';
         renderPrompts();
+
+        promptModal.noResultsMessage.classList.add('hidden');
     }
 }
 
