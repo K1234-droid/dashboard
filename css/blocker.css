@@ -1,3 +1,25 @@
+/* ==================== CSS VARIABLES & THEMES ==================== */
+:root {
+    /* Light Mode (Default) */
+    --bg-gradient-start: rgba(255, 255, 255, 0.3);
+    --bg-gradient-end: #f57a7e;
+    --modal-bg-color: #ffffff;
+    --text-color: #242426;
+    --border-color: rgba(128, 128, 128, 0.2);
+    --code-bg-color: rgba(128,128,128,0.15);
+    --scrollbar-color: rgba(128, 128, 128, 0.4);
+    --scrollbar-hover-color: rgba(128, 128, 128, 0.6);
+}
+
+body.dark-theme {
+    /* Dark Mode (Manual Override from JS) */
+    --bg-gradient-start: #513430;
+    --bg-gradient-end: #92272b;
+    --modal-bg-color: #513430;
+    --text-color: #ffffff;
+    --code-bg-color: rgba(0,0,0,0.2);
+}
+
 /* ==================== FILE PROTOCOL BLOCKER STYLES ==================== */
 #file-protocol-blocker {
     display: flex;
@@ -6,9 +28,6 @@
     left: 0;
     width: 100%;
     height: 100%;
-    /* Light Mode Fallback Colors (Opaque) */
-    background: linear-gradient(to left, #f57a7e, #bfbfcb);
-    color: #242426;
     font-family: "Poppins", "Noto Sans JP", Arial, sans-serif;
     justify-content: center;
     align-items: center;
