@@ -10,12 +10,12 @@ import {
     currentPromptId, setAnimationFrameId, setSortableInstance, setAdvancedSortableInstance, setPinModalPurpose, currentAdvancedPromptId,
     pinModalPurpose, dataManagement, confirmationMergeReplaceModal, currentImageViewerId, imageViewerSource,
     uiHideTimeout, setUiHideTimeout, setCurrentImageNavList, setIsAdvancedManageModeActive, setIsAdvancedSearchModeActive,
-    isBlockingModalActive, setActiveModalStack
+    isBlockingModalActive, setActiveModalStack, updateModal, CURRENT_VERSION
 } from './config.js';
 
 import { debounce, getBrowserLanguage, showToast } from './utils.js';
 import { loadSettings, saveSetting, getAllPromptMetadata } from './storage.js';
-import { translateUI, updateClock, updateInfrequentElements, animationLoop, handleVisibilityChange, updateOfflineStatus } from './core.js';
+import { translateUI, updateClock, updateInfrequentElements, animationLoop, handleVisibilityChange, updateOfflineStatus, checkForUpdates } from './core.js';
 import {
     toggleMenu, closeMenuOnClickOutside, openModal, closeModal, closeThemeModal, showInfoModal,
     handleSaveUsername, applyTheme, applyShowSeconds, applyMenuBlur, applyFooterBlur,
@@ -243,6 +243,11 @@ function handleAvatarDoubleClick() {
 document.addEventListener("DOMContentLoaded", async () => {
     const keysToLoad = ["username", "theme", "showSeconds", "menuBlur", "footerBlur", "avatarFullShow", "avatarAnimation", "detectMouseStillness", "languageSettings", "userPIN", "advancedPIN", "advancedPrompts", "showCredit", "showFooter", "showFooterInfo", "enablePopupFinder", "promptOrder", "enableAnimation"];
     const settings = await loadSettings(keysToLoad);
+
+    const appVersionElement = document.getElementById('app-version');
+    if (appVersionElement) {
+        appVersionElement.textContent = CURRENT_VERSION;
+    }
     
     setCurrentUser(settings.username || "K1234");
     setUserPIN(settings.userPIN || null);
@@ -598,6 +603,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (confirmationMergeReplaceModal.replaceBtn) confirmationMergeReplaceModal.replaceBtn.addEventListener('click', handleReplace);
 
     document.querySelector('.footer').classList.add('footer-visible');
+
+    checkForUpdates(false);
 });
 
 window.addEventListener("click", (e) => {
@@ -1043,4 +1050,12 @@ if (settingSwitches.continueFeature) {
             openModal(confirmationModal.overlay);
         }
     });
+}
+
+const checkForUpdateBtn = document.getElementById('check-for-update-btn');
+if (checkForUpdateBtn) {
+    checkForUpdateBtn.addEventListener('click', () => checkForUpdates(true));
+}
+if (updateModal.closeBtn) {
+    updateModal.closeBtn.addEventListener("click", () => closeModal(updateModal.overlay));
 }

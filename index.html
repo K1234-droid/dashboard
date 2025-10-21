@@ -365,7 +365,10 @@
                     <li data-i18n-key="about.d4">Danny Bungai</li>
                 </ul>
                 <h4 class="sub-judul" data-i18n-key="about.versionTitle">Versi Website</h4>
-                <p>V3.11.4</p>
+                <p id="app-version"></p>
+                <div class="modal-button-group update-container">
+                    <button id="check-for-update-btn" class="modal-save-btn" data-i18n-key="update.checkBtn">Cek Pembaruan</button>
+                </div>
             </div>
         </div>
     </div>
@@ -706,6 +709,23 @@
                     <div id="progress-bar" class="progress-bar"></div>
                 </div>
                 <p id="progress-percentage" class="progress-percentage-text"></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="update-modal-overlay" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="update-modal-title" data-i18n-key="update.availableTitle">Pembaruan Tersedia</h3>
+                <button id="close-update-modal-btn" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="update-version-info"></p>
+                <h4 class="sub-judul" data-i18n-key="update.releaseNotes">Catatan Rilis:</h4>
+                <div id="update-release-notes"></div>
+                <div class="modal-button-group">
+                    <a id="update-download-btn" href="#" target="_blank" rel="noopener noreferrer" class="modal-save-btn" data-i18n-key="update.downloadBtn">Buka Halaman Unduh</a>
+                </div>
             </div>
         </div>
     </div>

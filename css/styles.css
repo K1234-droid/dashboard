@@ -2082,30 +2082,25 @@ textarea.modal-input::-webkit-scrollbar-thumb:hover,
 }
 
 /* ==================== IMAGE LOADING ANIMATION ==================== */
-/* Wadah yang akan memiliki background gelap saat gambar dimuat */
 .img-container-loading {
   position: relative;
   background-color: var(--select-bg);
   transition: background-color 0.4s ease;
 }
 
-/* Setelah gambar dimuat, buat background menjadi transparan */
 .img-container-loading.loaded {
   background-color: transparent;
 }
 
-/* Gambar yang akan muncul dengan efek fade-in */
 .img-lazy-load {
   opacity: 0;
   transition: opacity 0.4s ease-in-out;
 }
 
-/* State ketika gambar telah berhasil dimuat */
 .img-lazy-load.loaded {
   opacity: 1;
 }
 
-/* Style tambahan untuk wrapper ikon karakter */
 .advanced-prompt-item-chars .char-icon-wrapper {
 width: 24px;
 height: 24px;
@@ -2122,7 +2117,6 @@ object-fit: cover;
 }
 
 /* ==================== GLOBAL ANIMATION OFF SWITCH ==================== */
-/* Matikan semua animasi dan transisi saat kelas ini ada di body */
 .animations-disabled *,
 .animations-disabled *::before,
 .animations-disabled *::after {
@@ -2130,6 +2124,28 @@ object-fit: cover;
     animation-duration: 0s !important;
     transition-delay: 0s !important;
     animation-delay: 0s !important;
+}
+
+/* ==================== UPDATE RELEASE ==================== */
+#update-modal-overlay .modal-button-group {
+  margin-top: 1.5rem;
+}
+
+#update-release-notes p {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+#update-release-notes ul {
+  font-size: 1rem;
+  list-style-type: disc;
+  padding-left: 20px;
+  margin-bottom: 1rem;
+}
+
+#update-release-notes ul li {
+  margin-bottom: 0.5rem;
 }
 
 /* ==================== PERBAIKAN UNTUK TAMPILAN PONSEL ==================== */

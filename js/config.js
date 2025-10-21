@@ -4,6 +4,12 @@
  * ===================================================================
  */
 
+// ==================== PENGATURAN PEMBARUAN ====================
+export const CURRENT_VERSION = 'v3.11.3';
+export const GITHUB_OWNER = 'K1234-droid';
+export const GITHUB_REPO = 'dashboard';
+// ==============================================================
+
 // Objek untuk menampung elemen-elemen UI utama.
 export const elements = {
     greeting: document.getElementById("greeting"),
@@ -72,6 +78,16 @@ export const aboutModal = {
     overlay: document.getElementById("about-modal-overlay"),
     openBtn: document.getElementById("open-about-modal-btn"),
     closeBtn: document.getElementById("close-about-modal-btn"),
+};
+
+// Elemen terkait Modal Pembaruan.
+export const updateModal = {
+    overlay: document.getElementById('update-modal-overlay'),
+    closeBtn: document.getElementById('close-update-modal-btn'),
+    title: document.getElementById('update-modal-title'),
+    versionInfo: document.getElementById('update-version-info'),
+    releaseNotes: document.getElementById('update-release-notes'),
+    downloadBtn: document.getElementById('update-download-btn'),
 };
 
 export const dataManagement = {
@@ -578,4 +594,14 @@ export const i18nData = {
     "popup.copy.success": { id: "Teks berhasil disalin!", en: "Text copied successfully!", ja: "テキストをコピーしました！" },
     "popup.copy.errorVerbose": { id: "Gagal menyalin teks (detail teknis):", en: "Failed to copy text (technical detail):", ja: "テキストのコピーに失敗しました（技術的な詳細）：" },
     "popup.copy.error": { id: "Gagal menyalin teks!", en: "Failed to copy text!", ja: "テキストのコピーに失敗しました！" },
+    // Update Checker
+    "update.checkBtn": { id: "Cek Pembaruan", en: "Check for Updates", ja: "アップデートを確認" },
+    "update.checking": { id: "Mengecek pembaruan...", en: "Checking for updates...", ja: "アップデートを確認中..." },
+    "update.uptodate": { id: "Anda sudah menggunakan versi terbaru!", en: "You are already on the latest version!", ja: "あなたはすでに最新バージョンです！" },
+    "update.availableTitle": { id: "Pembaruan Tersedia", en: "Update Available", ja: "アップデートがあります" },
+    "update.versionInfo": { id: "Versi {version} sekarang tersedia.", en: "Version {version} is now available.", ja: "バージョン{version}が利用可能です。" },
+    "update.releaseNotes": { id: "Catatan Rilis:", en: "Release Notes:", ja: "リリースノート：" },
+    "update.downloadBtn": { id: "Buka Halaman Unduh", en: "Go to Download Page", ja: "ダウンロードページへ" },
+    "update.error": { id: "Tidak dapat memeriksa pembaruan. Silakan coba lagi nanti.", en: "Could not check for updates. Please try again later.", ja: "アップデートを確認できませんでした。後でもう一度お試しください。" },
+    "update.noReleaseNotes": { id: "Tidak ada catatan rilis.", en: "No release notes available.", ja: "リリースノートはありません。" }
 };

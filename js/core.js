@@ -1,6 +1,6 @@
 import { showToast } from './utils.js';
-import { elements, connectionStatus, languageSettings, i18nData, localeMap, currentUser, lastUpdatedHour, animationFrameId, setAnimationFrameId, setLastUpdatedHour } from './config.js';
-import { updateUsernameDisplay, updateAvatarStatus } from './ui.js';
+import { elements, connectionStatus, languageSettings, i18nData, localeMap, currentUser, lastUpdatedHour, animationFrameId, setAnimationFrameId, setLastUpdatedHour, CURRENT_VERSION, GITHUB_OWNER, GITHUB_REPO, updateModal } from './config.js';
+import { updateUsernameDisplay, updateAvatarStatus, openModal } from './ui.js';
 import { renderPrompts } from './promptManager.js';
 import { renderAdvancedPrompts } from './promptBuilder.js';
 
@@ -177,4 +177,81 @@ export async function updateOfflineStatus() {
     }
 
     isInitialCheck = false;
+}
+
+/**
+ * Mengonversi string teks dengan Markdown sederhana (bold, list) menjadi HTML.
+ * @param {string} text - Teks mentah dari catatan rilis.
+ * @returns {string} - String yang sudah diformat sebagai HTML.
+ */
+function parseReleaseNotes(text) {
+    if (!text) {
+        const lang = languageSettings.ui;
+        const message = i18nData['update.noReleaseNotes']?.[lang] || i18nData['update.noReleaseNotes']?.['id'];
+        return `<p>${message}</p>`;
+    }
+
+    const lines = text.trim().split('\n');
+    let html = '';
+    let inList = false;
+
+    lines.forEach(line => {
+        line = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+        if (line.trim().startsWith('* ')) {
+            if (!inList) {
+                html += '<ul>';
+                inList = true;
+            }
+            html += `<li>${line.trim().substring(2)}</li>`;
+        } else {
+            if (inList) {
+                html += '</ul>';
+                inList = false;
+            }
+            if (line.trim()) {
+                html += `<p>${line}</p>`;
+            }
+        }
+    });
+
+    if (inList) {
+        html += '</ul>';
+    }
+
+    return html;
+}
+
+/**
+ * Memeriksa rilis terbaru dari GitHub dan menampilkan modal jika ada pembaruan.
+ * @param {boolean} isManual - True jika pemeriksaan dipicu oleh pengguna secara manual.
+ */
+export async function checkForUpdates(isManual = false) {
+    if (isManual) {
+        showToast('update.checking');
+    }
+
+    try {
+        const response = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/releases/latest`);
+        if (!response.ok) {
+            throw new Error(`GitHub API returned status ${response.status}`);
+        }
+        const data = await response.json();
+        const latestVersion = data.tag_name;
+
+        if (latestVersion && latestVersion !== CURRENT_VERSION) {
+            const lang = languageSettings.ui;
+            updateModal.versionInfo.textContent = (i18nData['update.versionInfo']?.[lang] || '').replace('{version}', latestVersion);
+            updateModal.releaseNotes.innerHTML = parseReleaseNotes(data.body);
+            updateModal.downloadBtn.href = data.html_url;
+            openModal(updateModal.overlay);
+        } else if (isManual) {
+            showToast('update.uptodate');
+        }
+    } catch (error) {
+        console.error('Update check failed:', error);
+        if (isManual) {
+            showToast('update.error');
+        }
+    }
 }
