@@ -5,7 +5,7 @@
  */
 
 // ==================== PENGATURAN PEMBARUAN ====================
-export const CURRENT_VERSION = 'v3.11.3';
+export const CURRENT_VERSION = 'v3.11.5';
 export const GITHUB_OWNER = 'K1234-droid';
 export const GITHUB_REPO = 'dashboard';
 // ==============================================================
