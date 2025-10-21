@@ -22,7 +22,8 @@ import {
     dataManagement,
     progressModal,
     loadingModal,
-    setIsBlockingModalActive
+    setIsBlockingModalActive,
+    updateModal
 } from './config.js';
 import { saveSetting } from './storage.js';
 import { showToast } from './utils.js';
@@ -79,7 +80,7 @@ export function closeThemeModal() {
         setActiveModalStack(newStack);
 
         if (themeModal.previewCheckbox) themeModal.previewCheckbox.checked = false;
-        [usernameModal.openBtn, themeModal.openBtn, aboutModal.openBtn, otherSettingsModal.openBtn].forEach((btn) => {
+        [usernameModal.openBtn, themeModal.openBtn, aboutModal.openBtn, otherSettingsModal.openBtn, updateModal.checkBtn].forEach((btn) => {
             if (btn) btn.disabled = false;
         });
     }

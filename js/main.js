@@ -603,8 +603,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (confirmationMergeReplaceModal.replaceBtn) confirmationMergeReplaceModal.replaceBtn.addEventListener('click', handleReplace);
 
     document.querySelector('.footer').classList.add('footer-visible');
-
-    checkForUpdates(false);
 });
 
 window.addEventListener("click", (e) => {
@@ -924,7 +922,7 @@ if (themeModal.previewCheckbox) themeModal.previewCheckbox.addEventListener("cha
     const isPreviewing = themeModal.previewCheckbox.checked;
     elements.body.classList.toggle("modal-open", !isPreviewing);
     themeModal.overlay.classList.toggle("preview-mode", isPreviewing);
-    [usernameModal.openBtn, themeModal.openBtn, aboutModal.openBtn, otherSettingsModal.openBtn,].forEach((btn) => { if (btn) btn.disabled = isPreviewing; });
+    [usernameModal.openBtn, themeModal.openBtn, aboutModal.openBtn, otherSettingsModal.openBtn,updateModal.checkBtn,].forEach((btn) => { if (btn) btn.disabled = isPreviewing; });
 });
 
 if (settingSwitches.applyToAll) { settingSwitches.applyToAll.addEventListener('change', async (e) => { const isChecked = e.target.checked; const newLangSettings = { ...languageSettings, applyToAll: isChecked }; setLanguageSettings(newLangSettings); updateApplyAllState(isChecked); await saveSetting('languageSettings', languageSettings); }); }
@@ -1054,7 +1052,10 @@ if (settingSwitches.continueFeature) {
 
 const checkForUpdateBtn = document.getElementById('check-for-update-btn');
 if (checkForUpdateBtn) {
-    checkForUpdateBtn.addEventListener('click', () => checkForUpdates(true));
+    checkForUpdateBtn.addEventListener('click', () => {
+        menu.container.classList.remove("show-menu");
+        checkForUpdates(true);
+    });
 }
 if (updateModal.closeBtn) {
     updateModal.closeBtn.addEventListener("click", () => closeModal(updateModal.overlay));

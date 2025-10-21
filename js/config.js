@@ -88,6 +88,7 @@ export const updateModal = {
     versionInfo: document.getElementById('update-version-info'),
     releaseNotes: document.getElementById('update-release-notes'),
     downloadBtn: document.getElementById('update-download-btn'),
+    checkBtn: document.getElementById('check-for-update-btn'),
 };
 
 export const dataManagement = {
@@ -603,5 +604,6 @@ export const i18nData = {
     "update.releaseNotes": { id: "Catatan Rilis:", en: "Release Notes:", ja: "リリースノート：" },
     "update.downloadBtn": { id: "Buka Halaman Unduh", en: "Go to Download Page", ja: "ダウンロードページへ" },
     "update.error": { id: "Tidak dapat memeriksa pembaruan. Silakan coba lagi nanti.", en: "Could not check for updates. Please try again later.", ja: "アップデートを確認できませんでした。後でもう一度お試しください。" },
-    "update.noReleaseNotes": { id: "Tidak ada catatan rilis.", en: "No release notes available.", ja: "リリースノートはありません。" }
+    "update.noReleaseNotes": { id: "Tidak ada catatan rilis.", en: "No release notes available.", ja: "リリースノートはありません。" },
+    "update.offlineError": { id: "Periksa koneksi internet Anda dan coba lagi.", en: "Check your internet connection and try again.", ja: "インターネット接続を確認して、もう一度お試しください。" }
 };

@@ -104,13 +104,35 @@ export function handleVisibilityChange() {
     }
 }
 
-async function checkRealInternetConnection() {
-    try {
-        await fetch(`https://www.google.com/favicon.ico?_=${new Date().getTime()}`, { method: "HEAD", mode: "no-cors", cache: "no-store" });
-        return true;
-    } catch (error) {
-        return false;
+/**
+ * Checks for a real internet connection by fetching a resource.
+ * Includes retry logic to handle temporary network fluctuations.
+ * @param {number} retries - The number of times to try before failing.
+ * @param {number} delay - The delay in milliseconds between retries.
+ * @returns {Promise<boolean>} - True if a connection is established, false otherwise.
+ */
+async function checkRealInternetConnection(retries = 2, delay = 500) {
+    for (let i = 0; i < retries; i++) {
+        if (!navigator.onLine) {
+            return false;
+        }
+
+        try {
+            await fetch(`https://www.google.com/favicon.ico?_=${new Date().getTime()}`, {
+                method: "HEAD",
+                mode: "no-cors",
+                cache: "no-store",
+                signal: AbortSignal.timeout(2500)
+            });
+            return true;
+        } catch (error) {
+            console.log(`Connection check attempt ${i + 1} failed.`, error.name);
+            if (i < retries - 1) {
+                await new Promise(res => setTimeout(res, delay));
+            }
+        }
     }
+    return false;
 }
 
 let isInitialCheck = true;
@@ -228,6 +250,10 @@ function parseReleaseNotes(text) {
  */
 export async function checkForUpdates(isManual = false) {
     if (isManual) {
+        if (!navigator.onLine) {
+            showToast('update.offlineError');
+            return;
+        }
         showToast('update.checking');
     }
 
