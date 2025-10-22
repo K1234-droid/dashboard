@@ -424,6 +424,7 @@ body.footer-hidden .container {
   content: attr(data-tooltip);
   bottom: calc(100% + 19.878px);
   background-color: rgba(30, 30, 30, 0.9);
+  z-index: 1;
   color: #fff;
   padding: 6px 12px;
   border-radius: 6px;
@@ -431,12 +432,16 @@ body.footer-hidden .container {
   white-space: nowrap;
   font-weight: 500;
 }
-.avatar-menu-container:hover::before {
-  opacity: 1;
-  transform: translateY(-5px);
+@media (hover: hover) {
+  .avatar-menu-container:hover::before {
+    opacity: 1;
+    transform: translateY(-5px);
+  }
 }
-.avatar-menu-container.show-menu:hover::before {
+.avatar-menu-container.show-menu::before {
   opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 .menu-popup {
   position: absolute;
@@ -1426,7 +1431,10 @@ body.dark-theme .modal-input-file::file-selector-button {
   z-index: 200;
   font-size: 0.85rem;
   font-weight: 500;
-  white-space: nowrap;
+  white-space: normal;
+  text-align: center;
+  max-width: calc(100vw - 4rem);
+  box-sizing: border-box;
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
