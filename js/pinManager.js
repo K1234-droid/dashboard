@@ -4,13 +4,14 @@ import {
     pinEnterModal, i18nData, prompts, advancedPrompts,
     setTempNewPIN, setPinModalPurpose, setUserPIN, setAdvancedPIN, setPrompts,
     setAdvancedPrompts, languageSettings, settingSwitches, confirmationModal,
-    promptModal, advancedPromptModal, tempNewPIN, pinModalPurpose
+    promptModal, advancedPromptModal, tempNewPIN, pinModalPurpose, setIsPromptSearchEnabled
 } from './config.js';
 import { showFeedback, openModal, closeModal, updateSecurityFeaturesUI } from './ui.js';
 import { saveSetting, deleteAllPrompts } from './storage.js';
 import { showToast } from './utils.js';
 import { renderPrompts } from './promptManager.js';
 import { renderAdvancedPrompts } from './promptBuilder.js';
+import { initializeData as reinitializeSearchData } from './search.js';
 
 export function startPinUpdate(type) {
     const newPin = pinSettings.input.value;
@@ -175,16 +176,20 @@ export async function handlePinSubmit() {
                     saveSetting('advancedPIN', null),
                     saveSetting('promptOrder', []),
                     saveSetting('advancedPrompts', []),
-                    saveSetting('enablePopupFinder', false)
+                    saveSetting('enablePopupFinder', false),
+                    saveSetting('enablePromptSearch', false)
                 ]);
 
                 setUserPIN(null);
                 setAdvancedPIN(null);
                 setPrompts([]);
                 setAdvancedPrompts([]);
+
+                setIsPromptSearchEnabled(false);
                 
                 renderPrompts();
                 renderAdvancedPrompts();
+                reinitializeSearchData();
                 resetModal();
                 showToast("settings.hidden.disabled");
                 updateSecurityFeaturesUI();
@@ -201,6 +206,7 @@ export async function handlePinSubmit() {
                     saveSetting('advancedPrompts', [])
                 ]);
                 renderAdvancedPrompts();
+                reinitializeSearchData();
                 resetModal();
                 showToast("settings.hidden.disabled");
                 updateSecurityFeaturesUI();
@@ -234,6 +240,34 @@ export async function handlePinSubmit() {
                 await saveSetting("enablePopupFinder", false);
                 resetModal();
                 showToast("popup.success.disabled");
+            } else { 
+                showError(); 
+            }
+            break;
+
+            case 'confirmEnablePromptSearch':
+            if (enteredPin === userPIN) {
+                pinEnterModal.input.blur();
+                settingSwitches.enablePromptSearch.checked = true;
+                await saveSetting("enablePromptSearch", true);
+                setIsPromptSearchEnabled(true);
+                resetModal();
+                showToast("prompt.search.success.enabled");
+                reinitializeSearchData();
+            } else { 
+                showError(); 
+            }
+            break;
+
+        case 'confirmDisablePromptSearch':
+            if (enteredPin === userPIN) {
+                pinEnterModal.input.blur();
+                settingSwitches.enablePromptSearch.checked = false;
+                await saveSetting("enablePromptSearch", false);
+                setIsPromptSearchEnabled(false);
+                resetModal();
+                showToast("prompt.search.success.disabled");
+                reinitializeSearchData();
             } else { 
                 showError(); 
             }

@@ -11,6 +11,7 @@ import { openModal, closeModal, showInfoModal } from './ui.js';
 import { showToast, blobToDataURL } from './utils.js';
 import { saveSetting, getPromptBlob } from './storage.js';
 import { showPromptContextMenu, showFullImage } from './promptManager.js';
+import { markSearchDataAsStale } from './search.js';
 
 let selectionOrder = [];
 
@@ -150,15 +151,10 @@ export function renderAdvancedPrompts(promptsToRender = advancedPrompts) {
 
         const charsContainer = document.createElement('div');
         charsContainer.className = 'advanced-prompt-item-chars';
-        const maxVisibleIcons = 4;
+        
         if (p.characterIds && p.characterIds.length > 0) {
-            const idsToShow = p.characterIds.slice(0, maxVisibleIcons);
             
-            if(p.characterIds.length > maxVisibleIcons) {
-                idsToShow.pop();
-            }
-
-            idsToShow.forEach(charId => {
+            p.characterIds.forEach(charId => {
                 const character = prompts.find(c => c.id === charId);
                 if (character) {
                     const iconWrapper = document.createElement('div');
@@ -187,13 +183,26 @@ export function renderAdvancedPrompts(promptsToRender = advancedPrompts) {
                 }
             });
 
-            if (p.characterIds.length > maxVisibleIcons) {
+            const maxVisibleIcons = window.matchMedia("(max-width: 640px)").matches ? 3 : 4;
+            const totalIcons = p.characterIds.length;
+            const allIconWrappers = charsContainer.querySelectorAll('.char-icon-wrapper');
+
+            if (totalIcons > maxVisibleIcons) {
+                const numToShow = maxVisibleIcons - 1;
+
+                allIconWrappers.forEach((wrapper, index) => {
+                    if (index >= numToShow) {
+                        wrapper.style.display = 'none';
+                    }
+                });
+
                 const overflowEl = document.createElement('div');
                 overflowEl.className = 'char-overflow-indicator';
-                overflowEl.textContent = `+${p.characterIds.length - idsToShow.length}`;
+                overflowEl.textContent = `+${totalIcons - numToShow}`;
                 charsContainer.appendChild(overflowEl);
             }
         }
+        
         item.appendChild(charsContainer);
   
         const menuBtn = document.createElement('button');
@@ -247,6 +256,43 @@ export function renderAdvancedPrompts(promptsToRender = advancedPrompts) {
     addBtn.innerHTML = '<span>+</span>';
     addBtn.onclick = handleOpenAddAdvancedPromptModal;
     advancedPromptModal.grid.appendChild(addBtn);
+}
+
+export function adjustVisibleIcons() {
+    const gridItems = advancedPromptModal.grid.querySelectorAll('.advanced-prompt-item:not(.add-prompt-item)');
+    if (gridItems.length === 0) return;
+
+    const maxVisibleIcons = window.matchMedia("(max-width: 640px)").matches ? 3 : 4;
+
+    gridItems.forEach(item => {
+        const promptId = parseInt(item.dataset.id, 10);
+        const promptData = advancedPrompts.find(p => p.id === promptId);
+        if (!promptData || !promptData.characterIds || promptData.characterIds.length === 0) {
+            return;
+        }
+
+        const totalIcons = promptData.characterIds.length;
+        const iconWrappers = item.querySelectorAll('.char-icon-wrapper');
+        const overflowEl = item.querySelector('.char-overflow-indicator');
+
+        let numToShow = totalIcons;
+        if (totalIcons > maxVisibleIcons) {
+            numToShow = maxVisibleIcons - 1;
+        }
+
+        iconWrappers.forEach((wrapper, index) => {
+            wrapper.style.display = index < numToShow ? '' : 'none';
+        });
+
+        if (overflowEl) {
+            if (totalIcons > maxVisibleIcons) {
+                overflowEl.textContent = `+${totalIcons - numToShow}`;
+                overflowEl.style.display = '';
+            } else {
+                overflowEl.style.display = 'none';
+            }
+        }
+    });
 }
 
 export function showAdvancedPromptViewer(prompt) {
@@ -443,6 +489,7 @@ export async function handleSaveAdvancedPrompt() {
     closeModal(addEditAdvancedPromptModal.overlay);
     renderAdvancedPrompts();
     showToast(isEditing ? "prompt.edit.success" : "prompt.save.success");
+    markSearchDataAsStale();
     setCurrentAdvancedPromptId(null);
 }
 
@@ -474,6 +521,7 @@ export async function confirmAdvancedDelete() {
 
         closeModal(confirmationModal.overlay);
         showToast("prompt.delete.success");
+        markSearchDataAsStale();
         if(!advancedPromptViewerModal.overlay.classList.contains('hidden')) {
             closeModal(advancedPromptViewerModal.overlay);
         }

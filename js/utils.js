@@ -130,3 +130,20 @@ export function resizeImage(file, maxWidth, maxHeight) {
         reader.readAsDataURL(file);
     });
 }
+
+export function isValidURL(string) {
+    try {
+        new URL(string);
+        const url = new URL(string);
+        return url.protocol === "http:" || url.protocol === "https:" || url.protocol === "ftp:";
+    } catch (_) {
+        try {
+            const urlWithProtocol = `https://${string}`;
+            new URL(urlWithProtocol);
+            const url = new URL(urlWithProtocol);
+            return url.hostname.includes('.');
+        } catch (e) {
+            return false;
+        }
+    }
+}

@@ -1,6 +1,6 @@
 import { showToast } from './utils.js';
 import { elements, connectionStatus, languageSettings, i18nData, localeMap, currentUser, lastUpdatedHour, animationFrameId, setAnimationFrameId, setLastUpdatedHour, CURRENT_VERSION, GITHUB_OWNER, GITHUB_REPO, updateModal } from './config.js';
-import { updateUsernameDisplay, updateAvatarStatus, openModal } from './ui.js';
+import { updateUsernameDisplay, openModal } from './ui.js';
 import { renderPrompts } from './promptManager.js';
 import { renderAdvancedPrompts } from './promptBuilder.js';
 
@@ -13,6 +13,9 @@ export function translateUI(lang) {
             if (el.hasAttribute('data-i18n-value')) {
                 const value = el.getAttribute('data-i18n-value');
                 translation = translation.replace('{value}', value);
+            }
+            if (el.tagName === 'INPUT' && el.hasAttribute('placeholder')) {
+                el.placeholder = translation;
             }
             if (el.hasAttribute('data-tooltip')) {
                 el.setAttribute('data-tooltip', translation);
@@ -28,7 +31,7 @@ export function translateUI(lang) {
     }
     
     const placeholderText = i18nData["prompt.search.placeholder"]?.[lang] || i18nData["prompt.search.placeholder"]?.['id'] || '';
-    
+
     const searchInput = document.getElementById('prompt-search-input');
     if (searchInput) {
         searchInput.placeholder = placeholderText;
@@ -37,6 +40,11 @@ export function translateUI(lang) {
     const advancedSearchInput = document.getElementById('advanced-prompt-search-input');
     if (advancedSearchInput) {
         advancedSearchInput.placeholder = placeholderText;
+    }
+
+    const bookmarkSearchInput = document.getElementById('bookmark-search-input');
+    if (bookmarkSearchInput) {
+        bookmarkSearchInput.placeholder = placeholderText;
     }
 
     const charSearchInput = document.getElementById('character-search-input');
@@ -67,8 +75,8 @@ export function updateInfrequentElements() {
     else if (hour >= 11 && hour < 15) greetingKey = "greeting.afternoon";
     else if (hour >= 15 && hour < 18) greetingKey = "greeting.evening";
     else greetingKey = "greeting.night";
-    if (elements.greeting) {
-        elements.greeting.textContent = i18nData[greetingKey]?.[greetingLang] || i18nData[greetingKey]?.['id'];
+    if (elements.greetingText) {
+        elements.greetingText.textContent = i18nData[greetingKey]?.[greetingLang] || i18nData[greetingKey]?.['id'];
     }
     
     const descLang = languageSettings.description;
@@ -140,53 +148,27 @@ let footerMessageTimeout;
 
 export async function updateOfflineStatus() {
     clearTimeout(footerMessageTimeout);
-    const useToast = document.body.classList.contains('footer-info-as-toast');
-
-    if (connectionStatus.offlineMessage) connectionStatus.offlineMessage.classList.remove("show");
-    if (connectionStatus.loadingMessage) connectionStatus.loadingMessage.classList.remove("show");
-    if (elements.accountMessage) elements.accountMessage.classList.remove("show");
 
     const showOfflineState = (isInitial = false) => {
-        if (useToast) {
-            if (isInitial) {
-                showToast('footer.offline');
-                footerMessageTimeout = setTimeout(() => {
-                    showToast('footer.account', currentUser);
-                }, 2000);
-            } else {
-                showToast('footer.offline');
-            }
-        } else {
-            if (connectionStatus.offlineMessage) connectionStatus.offlineMessage.classList.add("show");
-            if (connectionStatus.loadingMessage) connectionStatus.loadingMessage.classList.remove("show");
-            if (elements.accountMessage) elements.accountMessage.style.display = "none";
-
+        if (isInitial) {
+            showToast('footer.offline');
             footerMessageTimeout = setTimeout(() => {
-                if (connectionStatus.offlineMessage) connectionStatus.offlineMessage.classList.remove("show");
-                if (elements.accountMessage) elements.accountMessage.style.display = "inline";
+                showToast('footer.account', currentUser);
             }, 2000);
+        } else {
+            showToast('footer.offline');
         }
     };
-    
+
     const showOnlineState = () => {
-        if (useToast) {
-            showToast('footer.account', currentUser);
-        } else {
-            if (connectionStatus.offlineMessage) connectionStatus.offlineMessage.classList.remove("show");
-            if (connectionStatus.loadingMessage) connectionStatus.loadingMessage.classList.remove("show");
-            if (elements.accountMessage) elements.accountMessage.style.display = "inline";
-        }
+        showToast('footer.account', currentUser);
     };
 
     if (!navigator.onLine) {
         showOfflineState(isInitialCheck);
     } else {
-        if (useToast) {
+        if (isInitialCheck) {
             showToast('footer.checking');
-        } else {
-            if (connectionStatus.loadingMessage) connectionStatus.loadingMessage.classList.add("show");
-            if (connectionStatus.offlineMessage) connectionStatus.offlineMessage.classList.remove("show");
-            if (elements.accountMessage) elements.accountMessage.style.display = "none";
         }
         
         const isTrulyOnline = await checkRealInternetConnection();

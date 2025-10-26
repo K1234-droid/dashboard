@@ -57,8 +57,10 @@ export async function exportUserData() {
     const settingsToExport = await getAllSettings([
         'username', 'theme', 'showSeconds', 'menuBlur', 'footerBlur',
         'avatarFullShow', 'avatarAnimation', 'detectMouseStillness',
-        'languageSettings', 'showCredit', 'showFooterInfo', 'showFooter',
-        'enableAnimation'
+        'languageSettings', 'enableAnimation', 'showContent', 'showGreeting',
+        'showDescription', 'showDate', 'showTime', 'bookmarks', 'enableBookmarkSearch',
+        'showBookmark', 'bookmarkOpenAction', 'bookmarkBlur', 'enableSearchBar',
+        'searchEngine', 'searchOpenAction'
     ]);
     const now = new Date();
     const dateString = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
@@ -116,7 +118,7 @@ export async function proceedWithHiddenDataExport() {
     try {
         const zipWriter = new zip.ZipWriter(new zip.BlobWriter("application/zip"));
 
-        const settings = await getAllSettings(['userPIN', 'advancedPIN', 'advancedPrompts', 'enablePopupFinder', 'promptOrder']);
+        const settings = await getAllSettings(['userPIN', 'advancedPIN', 'advancedPrompts', 'enablePopupFinder', 'promptOrder', 'enablePromptSearch']); 
         const promptMetadataList = await getAllPromptMetadata();
 
         const metadata = {
@@ -125,7 +127,8 @@ export async function proceedWithHiddenDataExport() {
             enablePopupFinder: settings.enablePopupFinder,
             promptOrder: settings.promptOrder || [],
             prompts: [],
-            advancedPrompts: settings.advancedPrompts
+            advancedPrompts: settings.advancedPrompts,
+            enablePromptSearch: settings.enablePromptSearch
         };
 
         const totalPrompts = promptMetadataList.length;
@@ -265,6 +268,9 @@ async function applyImportedData(importData, replace = false) {
         await saveSetting('advancedPrompts', data.advancedPrompts || []);
         if (typeof data.enablePopupFinder !== 'undefined') {
             await saveSetting('enablePopupFinder', data.enablePopupFinder);
+        }
+        if (typeof data.enablePromptSearch !== 'undefined') {
+            await saveSetting('enablePromptSearch', data.enablePromptSearch);
         }
 
         await zipReader.close();

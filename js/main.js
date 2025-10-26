@@ -10,7 +10,10 @@ import {
     currentPromptId, setAnimationFrameId, setSortableInstance, setAdvancedSortableInstance, setPinModalPurpose, currentAdvancedPromptId,
     pinModalPurpose, dataManagement, confirmationMergeReplaceModal, currentImageViewerId, imageViewerSource,
     uiHideTimeout, setUiHideTimeout, setCurrentImageNavList, setIsAdvancedManageModeActive, setIsAdvancedSearchModeActive,
-    isBlockingModalActive, setActiveModalStack, updateModal, CURRENT_VERSION
+    isBlockingModalActive, setActiveModalStack, updateModal, CURRENT_VERSION, bookmarks, setBookmarks, bookmarkListModal,
+    activeBookmarkMenu, setBookmarkSortableInstance, isBookmarkSearchModeActive, isBookmarkManageModeActive,
+    bookmarkOpenAction, setBookmarkOpenAction, footerSearch, searchEngine, setSearchEngine, initFooterSearch,
+    searchOpenAction, setSearchOpenAction, isPromptSearchEnabled, setIsPromptSearchEnabled
 } from './config.js';
 
 import { debounce, getBrowserLanguage, showToast } from './utils.js';
@@ -18,18 +21,35 @@ import { loadSettings, saveSetting, getAllPromptMetadata } from './storage.js';
 import { translateUI, updateClock, updateInfrequentElements, animationLoop, handleVisibilityChange, updateOfflineStatus, checkForUpdates } from './core.js';
 import {
     toggleMenu, closeMenuOnClickOutside, openModal, closeModal, closeThemeModal, showInfoModal,
-    handleSaveUsername, applyTheme, applyShowSeconds, applyMenuBlur, applyFooterBlur,
-    applyAvatarFullShow, applyAvatarAnimation, updateAvatarStatus, updateUsernameDisplay,
-    updateSecurityFeaturesUI, checkResolutionAndToggleMessage, setupAvatarHoverListeners, showFeedback,
-    applyShowCredit, applyShowFooter, applyShowFooterInfo, applyEnableAnimation, handleFooterInfoSwitchState
+    handleSaveUsername, applyTheme, updateMainPageSwitchesState, adjustSeparatorWidth, applyShowGreeting, applyShowDescription, applyShowDate, applyShowTime, applyShowSeconds,
+    updateClockSwitchesState, updateSeparatorVisibility, applyMenuBlur, applyFooterBlur,
+    updateUsernameDisplay, updateSecurityFeaturesUI,
+    showFeedback, applyEnableAnimation, applyShowContent, applyShowBookmark, applyBookmarkBlur, applyShowSearchBar, updateBookmarkDropdownState,
+    updateLanguageControlsState, updateSearchEngineDisplay
 } from './ui.js';
+import {
+    initializeBookmarks,
+    confirmDeleteBookmark,
+    closeAllBookmarkMenus as closeAllBookmarkMenus_bookmark,
+    renderMainPageBookmarks,
+    renderBookmarkModalGrid,
+    toggleManageMode as toggleBookmarkManageMode,
+    toggleSearchMode as toggleBookmarkSearchMode,
+    closeAllMainBookmarkMenus_main, closeAllContainerBookmarkMenus_main
+} from './bookmark.js';
+import { initializeSearch, closeSearch, initializeData as reinitializeSearchData } from './search.js';
 import { startPinUpdate, handleSaveInitialPin, handleSaveInitialAdvancedPin, handleDisableFeature, handlePinSubmit } from './pinManager.js';
 import {
     renderPrompts, handleOpenAddPromptModal, handleEditPrompt, handleDeletePrompt,
     copyPromptTextFromViewer, showFullImage, copyPromptTextFromItem,
-    handleSavePrompt, confirmDelete, closeAllPromptMenus, toggleManageMode,
-    handleSelectAll, handleDeleteSelected, updateManageModeUI,
-    toggleSearchMode, handleSearchInput, savePromptImage, navigateImageViewer, cleanupPromptBlobs
+    handleSavePrompt, confirmDelete, closeAllPromptMenus,
+    toggleManageMode as togglePromptManageMode,
+    handleSelectAll as handlePromptSelectAll,
+    handleDeleteSelected as handlePromptDeleteSelected,
+    updateManageModeUI as updatePromptManageModeUI,
+    toggleSearchMode as togglePromptSearchMode,
+    handleSearchInput as handlePromptSearchInput,
+    savePromptImage, navigateImageViewer, cleanupPromptBlobs
 } from './promptManager.js';
 import {
     renderAdvancedPrompts, toggleAdvancedManageMode, handleAdvancedSelectAll, 
@@ -37,12 +57,15 @@ import {
     updateAdvancedManageModeUI, handleOpenAddAdvancedPromptModal, handleSaveAdvancedPrompt,
     copyAdvancedPromptText, handleDeleteAdvancedPrompt, handleEditAdvancedPrompt,
     copyAdvancedPromptTextFromViewer, confirmAdvancedDelete, handleCharacterSearchInput,
-    copyAdvancedCharacterText, cleanupAdvancedPromptBlobs
+    copyAdvancedCharacterText, cleanupAdvancedPromptBlobs, adjustVisibleIcons
 } from './promptBuilder.js';
 import {
     exportUserData, exportHiddenData, importUserData, importHiddenData,
     handleMerge, handleReplace
 } from './importExport.js';
+
+let updateBookmarkActionDropdownDisplay = () => {};
+let updateSearchActionDropdownDisplay = () => {};
 
 // ===================================================================
 // D. INISIALISASI & EVENT LISTENERS
@@ -141,6 +164,32 @@ function initializeDragAndDrop() {
         });
         setAdvancedSortableInstance(advancedSortable);
     }
+    if (bookmarkListModal.grid) {
+        const bookmarkSortable = new Sortable(bookmarkListModal.grid, {
+            animation: 150,
+            ghostClass: 'sortable-ghost',
+            chosenClass: 'sortable-chosen',
+            filter: '.add-bookmark-item',
+            preventOnFilter: true,
+            delay: 200,
+            delayOnTouchOnly: true,
+            onStart: function() {
+                closeAllBookmarkMenus_bookmark();
+            },
+            onMove: function (evt) {
+                return !evt.related.classList.contains('add-bookmark-item');
+            },
+            onEnd: async function(evt) {
+                const newBookmarks = [...bookmarks];
+                const movedItem = newBookmarks.splice(evt.oldIndex, 1)[0];
+                newBookmarks.splice(evt.newIndex, 0, movedItem);
+                setBookmarks(newBookmarks);
+                await saveSetting('bookmarks', newBookmarks);
+                renderMainPageBookmarks();
+            },
+        });
+        setBookmarkSortableInstance(bookmarkSortable);
+    }
 }
 
 const langDropdowns = ['greeting', 'description', 'date'];
@@ -148,7 +197,6 @@ function updateApplyAllState(isApplied) {
     langDropdowns.forEach(type => {
         const container = document.getElementById(`lang-container-${type}`);
         if (container) {
-            container.classList.toggle('disabled', isApplied);
             if (isApplied) {
                 const newLangSettings = { ...languageSettings, [type]: languageSettings.ui };
                 setLanguageSettings(newLangSettings);
@@ -164,6 +212,35 @@ function updateDropdownDisplay(type) {
     const optionsContainer = trigger.nextElementSibling; const selectedTextSpan = trigger.querySelector('span:first-child');
     const currentLang = languageSettings[type]; const selectedOption = optionsContainer.querySelector(`[data-value="${currentLang}"]`);
     if (selectedOption) { selectedTextSpan.textContent = selectedOption.textContent; optionsContainer.querySelectorAll('.custom-option').forEach(opt => opt.classList.remove('selected')); selectedOption.classList.add('selected'); }
+}
+
+function setupSearchEngineDropdown() {
+    const trigger = document.getElementById('search-engine-select');
+    if (!trigger) return;
+    const optionsContainer = trigger.nextElementSibling;
+    trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (trigger.closest('.switch-container.disabled')) return;
+        document.querySelectorAll('.custom-select-options.show').forEach(openOption => {
+            if (openOption !== optionsContainer) {
+                openOption.classList.remove('show');
+                openOption.previousElementSibling.classList.remove('open');
+            }
+        });
+        const isShown = optionsContainer.classList.toggle('show');
+        trigger.classList.toggle('open', isShown);
+    });
+    optionsContainer.addEventListener('click', async (e) => {
+        const option = e.target.closest('.custom-option');
+        if (option) {
+            const newEngine = option.getAttribute('data-value');
+            setSearchEngine(newEngine);
+            await saveSetting('searchEngine', newEngine);
+            updateSearchEngineDisplay();
+            optionsContainer.classList.remove('show');
+            trigger.classList.remove('open');
+        }
+    });
 }
 
 function setupDropdown(type) {
@@ -183,13 +260,18 @@ function setupDropdown(type) {
 
             if (type === 'ui') {
                 translateUI(newLang);
+                updateBookmarkActionDropdownDisplay();
+                updateSearchActionDropdownDisplay();
                 updateUsernameDisplay();
                 updateAvatarStatus();
                 updateSecurityFeaturesUI();
                 renderPrompts();
                 renderAdvancedPrompts();
+                renderMainPageBookmarks();
+                renderBookmarkModalGrid();
+                reinitializeSearchData();
                 if (isManageModeActive) {
-                    updateManageModeUI();
+                    updatePromptManageModeUI();
                 }
                 if (isAdvancedManageModeActive) {
                     updateAdvancedManageModeUI();
@@ -241,8 +323,15 @@ function handleAvatarDoubleClick() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-    const keysToLoad = ["username", "theme", "showSeconds", "menuBlur", "footerBlur", "avatarFullShow", "avatarAnimation", "detectMouseStillness", "languageSettings", "userPIN", "advancedPIN", "advancedPrompts", "showCredit", "showFooter", "showFooterInfo", "enablePopupFinder", "promptOrder", "enableAnimation"];
+    initFooterSearch();
+    const keysToLoad = ["username", "theme", "showSeconds", "menuBlur", "footerBlur",
+        "languageSettings", "userPIN", "advancedPIN", "advancedPrompts", "enablePopupFinder",
+        "promptOrder", "enableAnimation", "showContent", "showGreeting", "showDescription", "showDate", "showTime",
+        "bookmarks", "showBookmark", "bookmarkBlur", "enableSearchBar", "bookmarkOpenAction", "searchEngine", "searchOpenAction",
+        "enableHistorySearch", "enableBookmarkSearch", "enablePromptSearch"];
     const settings = await loadSettings(keysToLoad);
+    const shouldShowContent = settings.showContent !== false;
+    settingSwitches.showContent.checked = shouldShowContent;
 
     const appVersionElement = document.getElementById('app-version');
     if (appVersionElement) {
@@ -253,6 +342,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     setUserPIN(settings.userPIN || null);
     setAdvancedPIN(settings.advancedPIN || null);
     setAdvancedPrompts(settings.advancedPrompts || []);
+    setBookmarks(settings.bookmarks || []);
     
     if (settings.languageSettings) {
         setLanguageSettings({ ...languageSettings, ...settings.languageSettings });
@@ -266,18 +356,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     ['ui', ...langDropdowns].forEach(setupDropdown);
 
     const shouldEnableAnimation = settings.enableAnimation !== false;
+    const shouldShowGreeting = settings.showGreeting !== false; settingSwitches.showGreeting.checked = shouldShowGreeting;
+    const shouldShowDescription = settings.showDescription !== false; settingSwitches.showDescription.checked = shouldShowDescription;
+    const shouldShowDate = settings.showDate !== false; settingSwitches.showDate.checked = shouldShowDate;
+    const shouldShowTime = settings.showTime !== false; settingSwitches.showTime.checked = shouldShowTime;
     const shouldShowSeconds = settings.showSeconds !== false; settingSwitches.showSeconds.checked = shouldShowSeconds;
     const shouldUseMenuBlur = settings.menuBlur !== false; settingSwitches.menuBlur.checked = shouldUseMenuBlur;
+    const shouldUseBookmarkBlur = settings.bookmarkBlur !== false; settingSwitches.bookmarkBlur.checked = shouldUseBookmarkBlur;
+    const shouldShowBookmark = settings.showBookmark !== false; settingSwitches.showBookmark.checked = shouldShowBookmark;
     const shouldUseFooterBlur = settings.footerBlur !== false; settingSwitches.footerBlur.checked = shouldUseFooterBlur;
-    const shouldShowAvatar = settings.avatarFullShow !== false; settingSwitches.avatarFullShow.checked = shouldShowAvatar;
-    const shouldAnimateAvatar = settings.avatarAnimation !== false; settingSwitches.avatarAnimation.checked = shouldAnimateAvatar;
-    const shouldDetectStillness = settings.detectMouseStillness !== false; settingSwitches.detectMouseStillness.checked = shouldDetectStillness;
-    const shouldShowCredit = settings.showCredit !== false; settingSwitches.showCredit.checked = shouldShowCredit;
-    const shouldShowFooter = settings.showFooter !== false; settingSwitches.showFooter.checked = shouldShowFooter;
-    const shouldShowFooterInfo = settings.showFooterInfo !== false;
+    const shouldShowSearchBar = settings.enableSearchBar !== false; settingSwitches.enableSearchBar.checked = shouldShowSearchBar;
     settingSwitches.enableAnimation.checked = shouldEnableAnimation;
     settingSwitches.applyToAll.checked = languageSettings.applyToAll;
-    settingSwitches.showFooterInfo.checked = shouldShowFooterInfo;
 
     let promptMetadata = await getAllPromptMetadata();
 
@@ -291,7 +381,117 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     setPrompts(promptMetadata || []);
+    setSearchEngine(settings.searchEngine || 'google');
+
+    setBookmarkOpenAction(settings.bookmarkOpenAction || 'newTab');
+    setSearchOpenAction(settings.searchOpenAction || 'newTab');
+
+    function setupBookmarkActionDropdown() {
+        const trigger = document.getElementById('bookmark-open-action-select');
+        if (!trigger) return;
+        
+        const optionsContainer = trigger.nextElementSibling;
+        const selectedTextSpan = trigger.querySelector('span:first-child');
+
+        const updateDisplay = () => {
+            const selectedOption = optionsContainer.querySelector(`[data-value="${bookmarkOpenAction}"]`);
+            if (selectedOption) {
+                selectedTextSpan.textContent = selectedOption.textContent;
+                optionsContainer.querySelectorAll('.custom-option').forEach(opt => opt.classList.remove('selected'));
+                selectedOption.classList.add('selected');
+            }
+        };
+
+        updateBookmarkActionDropdownDisplay = updateDisplay;
+
+        trigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+
+            if (trigger.closest('.switch-container.disabled')) return;
+
+            document.querySelectorAll('.custom-select-options.show').forEach(openOption => {
+                if (openOption !== optionsContainer) {
+                    openOption.classList.remove('show');
+                    openOption.previousElementSibling.classList.remove('open');
+                }
+            });
+            const isShown = optionsContainer.classList.toggle('show');
+            trigger.classList.toggle('open', isShown);
+        });
+
+        optionsContainer.addEventListener('click', async (e) => {
+            const option = e.target.closest('.custom-option');
+            if (option) {
+                const newValue = option.getAttribute('data-value');
+                setBookmarkOpenAction(newValue);
+                await saveSetting('bookmarkOpenAction', newValue);
+                updateDisplay();
+                renderMainPageBookmarks();
+                renderBookmarkModalGrid();
+                optionsContainer.classList.remove('show');
+                trigger.classList.remove('open');
+            }
+        });
+
+        updateDisplay();
+    }
+
+    function setupSearchActionDropdown() {
+        const trigger = document.getElementById('search-open-action-select');
+        if (!trigger) return;
+        
+        const optionsContainer = trigger.nextElementSibling;
+        
+        const updateDisplay = () => {
+            const selectedTextSpan = trigger.querySelector('span:first-child');
+            const selectedOption = optionsContainer.querySelector(`[data-value="${searchOpenAction}"]`);
+            if (selectedOption) {
+                const i18nKey = selectedOption.getAttribute('data-i18n-key');
+                const lang = languageSettings.ui;
+                const translatedText = i18nData[i18nKey]?.[lang] || selectedOption.textContent;
+                
+                selectedTextSpan.textContent = translatedText;
+                optionsContainer.querySelectorAll('.custom-option').forEach(opt => opt.classList.remove('selected'));
+                selectedOption.classList.add('selected');
+            }
+        };
+
+        updateSearchActionDropdownDisplay = updateDisplay;
+
+        trigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (trigger.closest('.switch-container.disabled')) return;
+            document.querySelectorAll('.custom-select-options.show').forEach(openOption => {
+                if (openOption !== optionsContainer) {
+                    openOption.classList.remove('show');
+                    openOption.previousElementSibling.classList.remove('open');
+                }
+            });
+            const isShown = optionsContainer.classList.toggle('show');
+            trigger.classList.toggle('open', isShown);
+        });
+
+        optionsContainer.addEventListener('click', async (e) => {
+            const option = e.target.closest('.custom-option');
+            if (option) {
+                const newValue = option.getAttribute('data-value');
+                setSearchOpenAction(newValue);
+                await saveSetting('searchOpenAction', newValue);
+                updateDisplay();
+                optionsContainer.classList.remove('show');
+                trigger.classList.remove('open');
+            }
+        });
+
+        updateDisplay();
+    }
+    
+    setupBookmarkActionDropdown();
+    setupSearchActionDropdown();
+    setupSearchEngineDropdown();
     await renderPrompts();
+    initializeBookmarks();
+    initializeSearch();
     initializeDragAndDrop();
 
     const fullImageViewer = imageViewerModal.image;
@@ -411,24 +611,53 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
+    window.addEventListener('resize', () => {
+        if (!advancedPromptModal.overlay.classList.contains('hidden')) {
+            adjustVisibleIcons();
+        }
+    });
+
+    const shouldEnablePromptSearch = settings.enablePromptSearch === true;
+    setIsPromptSearchEnabled(shouldEnablePromptSearch);
+    if (settingSwitches.enablePromptSearch) {
+        settingSwitches.enablePromptSearch.checked = shouldEnablePromptSearch;
+    }
+
+    const shouldEnableBookmarkSearch = settings.enableBookmarkSearch !== false;
+    if (settingSwitches.enableBookmarkSearch) {
+        settingSwitches.enableBookmarkSearch.checked = shouldEnableBookmarkSearch;
+    }
+
     const shouldEnablePopupFinder = settings.enablePopupFinder === true;
     if (settingSwitches.enablePopupFinder) {
         settingSwitches.enablePopupFinder.checked = shouldEnablePopupFinder;
     }
 
+    if (settingSwitches.enableHistorySearch) {
+        settingSwitches.enableHistorySearch.checked = settings.enableHistorySearch === true;
+    }
+
     applyTheme(settings.theme || "system");
     applyEnableAnimation(shouldEnableAnimation);
+    applyShowGreeting(shouldShowGreeting);
+    applyShowDescription(shouldShowDescription);
+    applyShowDate(shouldShowDate);
+    applyShowTime(shouldShowTime);
     applyShowSeconds(shouldShowSeconds);
     applyMenuBlur(shouldUseMenuBlur);
+    applyBookmarkBlur(shouldUseBookmarkBlur);
     applyFooterBlur(shouldUseFooterBlur);
-    applyAvatarFullShow(shouldShowAvatar);
-    applyAvatarAnimation(shouldAnimateAvatar);
-    applyShowCredit(shouldShowCredit);
-    applyShowFooter(shouldShowFooter);
-    applyShowFooterInfo(shouldShowFooterInfo);
-    handleFooterInfoSwitchState();
+    applyShowContent(shouldShowContent);
+    applyShowBookmark(shouldShowBookmark);
+    applyShowSearchBar(shouldShowSearchBar);
+
+    adjustSeparatorWidth();
+    setTimeout(() => updateMainPageSwitchesState(), 0);
+    updateSeparatorVisibility();
 
     translateUI(languageSettings.ui);
+    updateSearchEngineDisplay();
+    updateBookmarkActionDropdownDisplay();
     updateUsernameDisplay();
     updateApplyAllState(languageSettings.applyToAll);
     updateSecurityFeaturesUI();
@@ -602,7 +831,48 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (confirmationMergeReplaceModal.mergeBtn) confirmationMergeReplaceModal.mergeBtn.addEventListener('click', handleMerge);
     if (confirmationMergeReplaceModal.replaceBtn) confirmationMergeReplaceModal.replaceBtn.addEventListener('click', handleReplace);
 
+    const advancedModalObserver = new MutationObserver((mutationsList) => {
+        for (const mutation of mutationsList) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                const targetElement = mutation.target;
+                const isNowVisible = !targetElement.classList.contains('hidden');
+                const wasPreviouslyHidden = mutation.oldValue && mutation.oldValue.includes('hidden');
+
+                if (isNowVisible && wasPreviouslyHidden) {
+                    adjustVisibleIcons();
+                }
+            }
+        }
+    });
+
+    if (advancedPromptModal.overlay) {
+        advancedModalObserver.observe(advancedPromptModal.overlay, {
+            attributes: true,
+            attributeOldValue: true,
+            attributeFilter: ['class']
+        });
+    }
+
+    if (elements.mainPageBookmarkContainer) {
+        elements.mainPageBookmarkContainer.addEventListener('wheel', (event) => {
+            const container = elements.mainPageBookmarkContainer;
+            const { scrollTop, scrollHeight, clientHeight } = container;
+            const scrollAmount = event.deltaY;
+
+            const isAtBottom = Math.ceil(scrollTop + clientHeight) >= scrollHeight;
+            if (isAtBottom && scrollAmount > 0) {
+                event.preventDefault();
+            }
+
+            const isAtTop = scrollTop === 0;
+            if (isAtTop && scrollAmount < 0) {
+                event.preventDefault();
+            }
+        });
+    }
+
     document.querySelector('.footer').classList.add('footer-visible');
+    document.getElementById('bottom-search-bar').classList.add('footer-visible');
 });
 
 window.addEventListener("click", (e) => {
@@ -614,15 +884,20 @@ window.addEventListener("click", (e) => {
     if (activePromptMenu && !activePromptMenu.contains(e.target) && !e.target.closest('.prompt-item-menu-btn')) {
         closeAllPromptMenus();
     }
+    if (activeBookmarkMenu && !activeBookmarkMenu.contains(e.target) && !e.target.closest('.bookmark-menu-btn')) {
+        closeAllBookmarkMenus_bookmark();
+    }
+    const contextMenuMain = document.getElementById('bookmark-context-menu-main');
+    if (contextMenuMain && contextMenuMain.classList.contains('show') && !contextMenuMain.contains(e.target) && !e.target.closest('.bookmark-menu-btn-main')) {
+        contextMenuMain.classList.remove('show');
+    }
 });
 
 window.addEventListener("online", updateOfflineStatus);
 window.addEventListener("offline", updateOfflineStatus);
 
 window.addEventListener("resize", () => {
-    updateAvatarStatus();
-    checkResolutionAndToggleMessage();
-    handleFooterInfoSwitchState();
+    adjustSeparatorWidth();
 });
 
 window.addEventListener("keydown", (event) => {
@@ -638,6 +913,17 @@ window.addEventListener("keydown", (event) => {
             return;
         }
 
+        if (activeBookmarkMenu) { 
+            closeAllBookmarkMenus_bookmark(); 
+            return; 
+        }
+
+        const contextMenuContainer = document.getElementById('bookmark-container-context-menu');
+        if (contextMenuContainer && contextMenuContainer.classList.contains('show')) {
+            closeAllContainerBookmarkMenus_main();
+            return;
+        }
+
         if (activePromptMenu) { closeAllPromptMenus(); return; }
         if (menu.container.classList.contains('show-menu')) { menu.container.classList.remove('show-menu'); return; }
         const openSelects = document.querySelectorAll('.custom-select-options.show');
@@ -649,16 +935,36 @@ window.addEventListener("keydown", (event) => {
             return;
         }
 
+        const contextMenuMain = document.getElementById('bookmark-context-menu-main');
+        if (contextMenuMain && contextMenuMain.classList.contains('show')) {
+            closeAllMainBookmarkMenus_main();
+            return;
+        }
+
+        const activeEl = document.activeElement;
+        if (activeEl === pinSettings.input) {
+            if (pinSettings.input.value !== '') {
+                pinSettings.input.value = '';
+                event.preventDefault();
+                return;
+            } 
+            else {
+                pinSettings.input.blur();
+                event.preventDefault();
+                return;
+            }
+        }
+
         if (activeModalStack.length > 0 && !isBlockingModalActive) {
             const lastModal = activeModalStack[activeModalStack.length - 1];
 
             if (lastModal === promptModal.overlay) {
                 if (isSearchModeActive) {
-                    toggleSearchMode(false);
+                    togglePromptSearchMode(false);
                     return;
                 }
                 if (isManageModeActive) {
-                    toggleManageMode(false);
+                    togglePromptManageMode(false);
                     return;
                 }
             }
@@ -670,6 +976,17 @@ window.addEventListener("keydown", (event) => {
                 }
                 if (isAdvancedManageModeActive) {
                     toggleAdvancedManageMode(false);
+                    return;
+                }
+            }
+
+            if (lastModal === bookmarkListModal.overlay) {
+                if (isBookmarkSearchModeActive) {
+                    toggleBookmarkSearchMode(false);
+                    return;
+                }
+                if (isBookmarkManageModeActive) {
+                    toggleBookmarkManageMode(false);
                     return;
                 }
             }
@@ -697,6 +1014,15 @@ window.addEventListener("keydown", (event) => {
         navigateImageViewer(-1);
     } else if (event.key === "PageDown" && isImageViewerOpen) {
         navigateImageViewer(1);
+    } else if (event.key === "Enter") {
+        const activeEl = document.activeElement;
+        const isInputFocused = activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA';
+        const isSearchBarEnabled = settingSwitches.enableSearchBar && settingSwitches.enableSearchBar.checked;
+
+        if (activeModalStack.length === 0 && !isInputFocused && isSearchBarEnabled) {
+            event.preventDefault();
+            footerSearch.input.focus();
+        }
     }
 });
 
@@ -705,10 +1031,15 @@ document.addEventListener('visibilitychange', handleVisibilityChange);
 if (menu.button) {
     menu.button.addEventListener("click", toggleMenu);
     menu.button.addEventListener("dblclick", handleAvatarDoubleClick);
+    menu.button.addEventListener("contextmenu", (event) => {
+        event.preventDefault();
+        toggleMenu(event);
+    });
 }
 
 // Event Listeners for Modals
 if (usernameModal.openBtn) usernameModal.openBtn.addEventListener("click", () => {
+    closeSearch();
     menu.container.classList.remove("show-menu");
     usernameModal.input.value = currentUser;
     usernameModal.feedbackText.classList.remove('show');
@@ -728,7 +1059,6 @@ if (themeModal.closeBtn) themeModal.closeBtn.addEventListener("click", closeThem
 if (otherSettingsModal.openBtn) otherSettingsModal.openBtn.addEventListener("click", () => {
     menu.container.classList.remove("show-menu");
     openModal(otherSettingsModal.overlay);
-    updateAvatarStatus();
     pinSettings.input.value = '';
     pinSettings.feedbackText.classList.remove('show');
     handleSettingsTabSwitch('general');
@@ -804,6 +1134,10 @@ if (pinEnterModal.closeBtn) pinEnterModal.closeBtn.addEventListener("click", () 
         settingSwitches.enablePopupFinder.checked = false;
     } else if (currentPurpose === 'confirmDisablePopupFinder') {
         settingSwitches.enablePopupFinder.checked = true;
+    } else if (currentPurpose === 'confirmEnablePromptSearch') {
+        settingSwitches.enablePromptSearch.checked = false; 
+    } else if (currentPurpose === 'confirmDisablePromptSearch') {
+        settingSwitches.enablePromptSearch.checked = true;
     }
 });
 
@@ -812,18 +1146,18 @@ if (pinEnterModal.input) pinEnterModal.input.addEventListener("keydown", (e) => 
 
 if (promptModal.closeBtn) promptModal.closeBtn.addEventListener("click", () => {
     cleanupPromptBlobs();
-    toggleManageMode(false);
-    toggleSearchMode(false);
+    togglePromptManageMode(false);
+    togglePromptSearchMode(false);
     closeModal(promptModal.overlay);
 });
 
-if (promptModal.manageBtn) promptModal.manageBtn.addEventListener('click', () => toggleManageMode());
-if (promptModal.cancelManageBtn) promptModal.cancelManageBtn.addEventListener('click', () => toggleManageMode(false));
-if (promptModal.selectAllBtn) promptModal.selectAllBtn.addEventListener('click', handleSelectAll);
-if (promptModal.deleteSelectedBtn) promptModal.deleteSelectedBtn.addEventListener('click', handleDeleteSelected);
-if (promptModal.searchBtn) promptModal.searchBtn.addEventListener('click', () => toggleSearchMode());
-if (promptModal.cancelSearchBtn) promptModal.cancelSearchBtn.addEventListener('click', () => toggleSearchMode(false));
-if (promptModal.searchInput) promptModal.searchInput.addEventListener('input', handleSearchInput);
+if (promptModal.manageBtn) promptModal.manageBtn.addEventListener('click', () => togglePromptManageMode());
+if (promptModal.cancelManageBtn) promptModal.cancelManageBtn.addEventListener('click', () => togglePromptManageMode(false));
+if (promptModal.selectAllBtn) promptModal.selectAllBtn.addEventListener('click', handlePromptSelectAll);
+if (promptModal.deleteSelectedBtn) promptModal.deleteSelectedBtn.addEventListener('click', handlePromptDeleteSelected);
+if (promptModal.searchBtn) promptModal.searchBtn.addEventListener('click', () => togglePromptSearchMode());
+if (promptModal.cancelSearchBtn) promptModal.cancelSearchBtn.addEventListener('click', () => togglePromptSearchMode(false));
+if (promptModal.searchInput) promptModal.searchInput.addEventListener('input', handlePromptSearchInput);
 
 // --- Advanced Prompt Modal Listeners ---
 if (advancedPromptModal.closeBtn) advancedPromptModal.closeBtn.addEventListener("click", () => {
@@ -896,6 +1230,8 @@ if (confirmationModal.confirmBtn) confirmationModal.confirmBtn.addEventListener(
         confirmDelete();
     } else if (purpose === 'deleteAdvancedPrompt' || purpose === 'deleteSelectedAdvancedPrompts') {
         confirmAdvancedDelete();
+    } else if (purpose === 'deleteBookmark' || purpose === 'deleteSelectedBookmarks') {
+        confirmDeleteBookmark();
     }
 });
 
@@ -918,35 +1254,115 @@ if (imageViewerModal.overlay) imageViewerModal.overlay.addEventListener("click",
 if (themeModal.lightBtn) themeModal.lightBtn.addEventListener("click", async () => { applyTheme("light"); await saveSetting("theme", "light"); });
 if (themeModal.darkBtn) themeModal.darkBtn.addEventListener("click", async () => { applyTheme("dark"); await saveSetting("theme", "dark"); });
 if (themeModal.systemBtn) themeModal.systemBtn.addEventListener("click", async () => { applyTheme("system"); await saveSetting("theme", "system"); });
-if (themeModal.previewCheckbox) themeModal.previewCheckbox.addEventListener("change", () => {
-    const isPreviewing = themeModal.previewCheckbox.checked;
-    elements.body.classList.toggle("modal-open", !isPreviewing);
-    themeModal.overlay.classList.toggle("preview-mode", isPreviewing);
-    [usernameModal.openBtn, themeModal.openBtn, aboutModal.openBtn, otherSettingsModal.openBtn,updateModal.checkBtn,].forEach((btn) => { if (btn) btn.disabled = isPreviewing; });
-});
 
-if (settingSwitches.applyToAll) { settingSwitches.applyToAll.addEventListener('change', async (e) => { const isChecked = e.target.checked; const newLangSettings = { ...languageSettings, applyToAll: isChecked }; setLanguageSettings(newLangSettings); updateApplyAllState(isChecked); await saveSetting('languageSettings', languageSettings); }); }
+if (settingSwitches.applyToAll) { settingSwitches.applyToAll.addEventListener('change', async (e) => { const isChecked = e.target.checked; const newLangSettings = { ...languageSettings, applyToAll: isChecked }; setLanguageSettings(newLangSettings); updateApplyAllState(isChecked); updateLanguageControlsState(); await saveSetting('languageSettings', languageSettings); }); }
+if (settingSwitches.showContent) {
+    settingSwitches.showContent.addEventListener("change", async (e) => {
+        const isChecked = e.target.checked;
+        applyShowContent(isChecked);
+        updateMainPageSwitchesState();
+        applyShowGreeting(settingSwitches.showGreeting.checked);
+        applyShowDescription(settingSwitches.showDescription.checked);
+        applyShowDate(settingSwitches.showDate.checked);
+        applyShowTime(settingSwitches.showTime.checked);
+        await saveSetting("showContent", isChecked);
+    });
+}
+if (settingSwitches.showGreeting) { settingSwitches.showGreeting.addEventListener("change", async (e) => { applyShowGreeting(e.target.checked); updateSeparatorVisibility(); updateLanguageControlsState(); await saveSetting("showGreeting", e.target.checked); }); }
+if (settingSwitches.showDescription) { settingSwitches.showDescription.addEventListener("change", async (e) => { applyShowDescription(e.target.checked); updateSeparatorVisibility(); updateLanguageControlsState(); await saveSetting("showDescription", e.target.checked); }); }
+if (settingSwitches.showDate) { settingSwitches.showDate.addEventListener("change", async (e) => { applyShowDate(e.target.checked); updateSeparatorVisibility(); updateLanguageControlsState(); await saveSetting("showDate", e.target.checked); }); }
+if (settingSwitches.showTime) { settingSwitches.showTime.addEventListener("change", async (e) => { const isChecked = e.target.checked; applyShowTime(isChecked); updateClockSwitchesState(); updateSeparatorVisibility(); await saveSetting("showTime", isChecked); }); }
 if (settingSwitches.showSeconds) settingSwitches.showSeconds.addEventListener("change", async (e) => { applyShowSeconds(e.target.checked); await saveSetting("showSeconds", e.target.checked); });
+
+if (settingSwitches.showBookmark) { 
+    settingSwitches.showBookmark.addEventListener("change", async (e) => { 
+        applyShowBookmark(e.target.checked);
+        updateBookmarkDropdownState();
+        updateMainPageSwitchesState();
+        await saveSetting("showBookmark", e.target.checked);
+    }); 
+}
+
+if (settingSwitches.bookmarkBlur) {
+    settingSwitches.bookmarkBlur.addEventListener("change", async (e) => { 
+        applyBookmarkBlur(e.target.checked); 
+        await saveSetting("bookmarkBlur", e.target.checked); 
+    }); 
+}
+
+if (settingSwitches.enablePromptSearch) {
+    settingSwitches.enablePromptSearch.addEventListener("change", (e) => {
+        e.preventDefault();
+        const targetState = e.target.checked;
+        if (!userPIN) {
+            showInfoModal("info.attention.title", "settings.hidden.disableWarningText");
+            e.target.checked = false;
+            return;
+        }
+        const purpose = targetState ? 'confirmEnablePromptSearch' : 'confirmDisablePromptSearch';
+        setPinModalPurpose(purpose);
+        const lang = languageSettings.ui;
+        pinEnterModal.title.textContent = i18nData["pin.enter.confirmFeatureTitle"][lang];
+        pinEnterModal.label.textContent = i18nData["pin.enter.confirmFeatureLabel"][lang];
+        pinEnterModal.input.value = '';
+        pinEnterModal.feedbackText.classList.remove('show');
+        openModal(pinEnterModal.overlay);
+        pinEnterModal.input.focus();
+    });
+}
+
+if (settingSwitches.enableHistorySearch) {
+    settingSwitches.enableHistorySearch.addEventListener("change", (e) => {
+        const isChecked = e.target.checked;
+        if (isChecked) {
+            chrome.permissions.request({
+                permissions: ['history']
+            }, async (granted) => {
+                if (granted) {
+                    await saveSetting("enableHistorySearch", true);
+                    showToast("toast.historyEnabled");
+                    reinitializeSearchData();
+                } else {
+                    e.target.checked = false;
+                }
+            });
+        } else {
+            chrome.permissions.remove({
+                permissions: ['history']
+            }, async (removed) => {
+                if (removed) {
+                    await saveSetting("enableHistorySearch", false);
+                    showToast("toast.historyDisabled");
+                    reinitializeSearchData();
+                } else {
+                    e.target.checked = true;
+                }
+            });
+        }
+    });
+}
+
+if (settingSwitches.enableSearchBar) { 
+    settingSwitches.enableSearchBar.addEventListener("change", async (e) => { 
+        const isChecked = e.target.checked;
+        applyShowSearchBar(isChecked);
+        updateMainPageSwitchesState();
+        await saveSetting("enableSearchBar", isChecked);
+        reinitializeSearchData(); 
+    }); 
+}
+
+if (settingSwitches.enableBookmarkSearch) { 
+    settingSwitches.enableBookmarkSearch.addEventListener("change", async (e) => { 
+        const isChecked = e.target.checked;
+        await saveSetting("enableBookmarkSearch", isChecked);
+        reinitializeSearchData();
+    }); 
+}
+
 if (settingSwitches.menuBlur) settingSwitches.menuBlur.addEventListener("change", async (e) => { applyMenuBlur(e.target.checked); await saveSetting("menuBlur", e.target.checked); });
 if (settingSwitches.footerBlur) settingSwitches.footerBlur.addEventListener("change", async (e) => { applyFooterBlur(e.target.checked); await saveSetting("footerBlur", e.target.checked); });
 if (settingSwitches.avatarFullShow) settingSwitches.avatarFullShow.addEventListener("change", async (e) => { applyAvatarFullShow(e.target.checked); await saveSetting("avatarFullShow", e.target.checked); });
-
-if (settingSwitches.avatarAnimation) {
-    const animSwitchContainer = settingSwitches.avatarAnimation.closest('.switch-container');
-
-    if (animSwitchContainer) {
-        animSwitchContainer.addEventListener('click', () => {
-            if (settingSwitches.avatarAnimation.disabled && !settingSwitches.enableAnimation.checked) {
-                showToast("animation.enableRequired");
-            }
-        });
-    }
-
-    settingSwitches.avatarAnimation.addEventListener("change", async (e) => {
-        applyAvatarAnimation(e.target.checked);
-        await saveSetting("avatarAnimation", e.target.checked);
-    });
-}
 
 if (settingSwitches.enableAnimation) {
     settingSwitches.enableAnimation.addEventListener("change", async (e) => {
@@ -956,40 +1372,6 @@ if (settingSwitches.enableAnimation) {
     });
 }
 
-if (settingSwitches.detectMouseStillness) settingSwitches.detectMouseStillness.addEventListener("change", async (e) => { await saveSetting("detectMouseStillness", e.target.checked); setupAvatarHoverListeners(); });
-
-if (settingSwitches.showCredit) {
-    const creditSwitchContainer = settingSwitches.showCredit.closest('.switch-container');
-
-    if (creditSwitchContainer) {
-        creditSwitchContainer.addEventListener('click', () => {
-            if (settingSwitches.showCredit.disabled) {
-                showToast("footer.enableRequired");
-            }
-        });
-    }
-
-    settingSwitches.showCredit.addEventListener("change", async (e) => {
-        applyShowCredit(e.target.checked);
-        await saveSetting("showCredit", e.target.checked);
-    });
-}
-
-if (settingSwitches.showFooter) {
-    settingSwitches.showFooter.addEventListener("change", async (e) => {
-        const isChecked = e.target.checked;
-        applyShowFooter(isChecked);
-        await saveSetting("showFooter", isChecked);
-        updateOfflineStatus();
-    });
-}
-if (settingSwitches.showFooterInfo) {
-    settingSwitches.showFooterInfo.addEventListener("change", async (e) => {
-        applyShowFooterInfo(e.target.checked);
-        await saveSetting("showFooterInfo", e.target.checked);
-        updateOfflineStatus();
-    });
-}
 if (settingSwitches.enablePopupFinder) {
     settingSwitches.enablePopupFinder.addEventListener("change", (e) => {
         e.preventDefault();

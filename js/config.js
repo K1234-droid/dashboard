@@ -13,6 +13,7 @@ export const GITHUB_REPO = 'dashboard';
 // Objek untuk menampung elemen-elemen UI utama.
 export const elements = {
     greeting: document.getElementById("greeting"),
+    greetingText: document.getElementById("greeting-text"),
     date: document.getElementById("date"),
     timeContainer: document.getElementById("time-container"),
     timeMain: document.getElementById("time-main"),
@@ -21,7 +22,10 @@ export const elements = {
     body: document.body,
     accountMessage: document.getElementById("account-message"),
     toast: document.getElementById('toast-notification'),
-    creditText: document.getElementById('credit-text-span'),
+    infoSeparator: document.getElementById("info-separator"),
+    bookmarkSection: document.getElementById('bookmark-section'),
+    bookmarkGrid: document.getElementById('bookmark-grid'),
+    mainPageBookmarkContainer: document.getElementById('main-page-bookmark-container'),
 };
   
 // Elemen terkait status koneksi.
@@ -52,7 +56,6 @@ export const themeModal = {
     overlay: document.getElementById("theme-modal-overlay"),
     openBtn: document.getElementById("open-theme-modal-btn"),
     closeBtn: document.getElementById("close-theme-modal-btn"),
-    previewCheckbox: document.getElementById("theme-preview-checkbox"),
     lightBtn: document.getElementById("theme-light-btn"),
     darkBtn: document.getElementById("theme-dark-btn"),
     systemBtn: document.getElementById("theme-system-btn"),
@@ -78,6 +81,51 @@ export const aboutModal = {
     overlay: document.getElementById("about-modal-overlay"),
     openBtn: document.getElementById("open-about-modal-btn"),
     closeBtn: document.getElementById("close-about-modal-btn"),
+};
+
+// Elemen terkait Modal Bookmark.
+export const bookmarkModal = {
+    overlay: document.getElementById('bookmark-modal-overlay'),
+    closeBtn: document.getElementById('close-bookmark-modal-btn'),
+    title: document.getElementById('bookmark-modal-title'),
+    nameInput: document.getElementById('bookmark-name-input'),
+    urlInput: document.getElementById('bookmark-url-input'),
+    saveBtn: document.getElementById('save-bookmark-btn'),
+};
+
+// Elemen terkait Pencarian di Footer.
+export let footerSearch = {}; 
+export function initFooterSearch() {
+    footerSearch.container = document.getElementById('footer-search-container');
+    footerSearch.toggleBtn = document.getElementById('footer-search-toggle-btn');
+    footerSearch.input = document.getElementById('footer-search-input');
+    footerSearch.resultsContainer = document.getElementById('footer-search-results');
+    footerSearch.resultsList = document.querySelector('#footer-search-results .results-list');
+}
+
+// Elemen terkait Pencarian di Footer.
+export let isBookmarkSearchEnabled = false;
+export function setIsBookmarkSearchEnabled(value) {
+    isBookmarkSearchEnabled = value;
+}
+
+export const bookmarkListModal = {
+    overlay: document.getElementById('bookmark-list-modal-overlay'),
+    closeBtn: document.getElementById('close-bookmark-list-modal-btn'),
+    grid: document.getElementById('bookmark-grid'),
+    manageBtn: document.getElementById('bookmark-manage-btn'),
+    selectCount: document.getElementById('bookmark-select-count'),
+    selectAllBtn: document.getElementById('bookmark-select-all-btn'),
+    deleteSelectedBtn: document.getElementById('bookmark-delete-selected-btn'),
+    cancelManageBtn: document.getElementById('bookmark-cancel-manage-btn'),
+    searchBtn: document.getElementById('bookmark-search-btn'),
+    searchInput: document.getElementById('bookmark-search-input'),
+    cancelSearchBtn: document.getElementById('bookmark-cancel-search-btn'),
+    noResultsMessage: document.getElementById('bookmark-no-results'),
+    actionBar: document.getElementById('bookmark-action-bar'),
+    manageContent: document.getElementById('bookmark-manage-content'),
+    searchContent: document.getElementById('bookmark-search-content'),
+    content: document.querySelector('#bookmark-list-modal-overlay .modal-content'),
 };
 
 // Elemen terkait Modal Pembaruan.
@@ -265,25 +313,24 @@ export const imageViewerModal = {
 // Elemen-elemen untuk switch pengaturan.
 export const settingSwitches = {
     enableAnimation: document.getElementById("enable-animation-switch"),
+    showContent: document.getElementById('show-content-switch'),
+    showGreeting: document.getElementById('show-greeting-switch'),
+    showDescription: document.getElementById('show-description-switch'),
+    showDate: document.getElementById('show-date-switch'),
+    showTime: document.getElementById('show-time-switch'),
     showSeconds: document.getElementById("show-seconds-switch"),
+    showBookmark: document.getElementById("show-bookmark-switch"),
+    enableSearchBar: document.getElementById("enable-search-bar-switch"),
+    bookmarkBlur: document.getElementById("blur-bookmark-switch"),
     menuBlur: document.getElementById("blur-menu-switch"),
     footerBlur: document.getElementById("blur-footer-switch"),
-    avatarFullShow: document.getElementById("avatar-full-show"),
-    avatarAnimation: document.getElementById("avatar-animation-switch"),
-    detectMouseStillness: document.getElementById("detect-mouse-stillness-switch"),
     applyToAll: document.getElementById("apply-to-all-switch"),
     hiddenFeature: document.getElementById('hidden-feature-switch'),
     continueFeature: document.getElementById('continue-feature-switch'),
-    showCredit: document.getElementById('show-credit-switch'),
-    showFooter: document.getElementById('show-footer-switch'),
-    showFooterInfo: document.getElementById('show-footer-info-switch'),
     enablePopupFinder: document.getElementById('enable-popup-finder-switch'),
-};
-  
-// Elemen-elemen terkait status animasi avatar.
-export const avatarStatus = {
-    text: document.getElementById("avatar-status-text"),
-    helpText: document.getElementById("avatar-help-text"),
+    enableHistorySearch: document.getElementById('enable-history-search-switch'),
+    enableBookmarkSearch: document.getElementById("enable-bookmark-search-switch"),
+    enablePromptSearch: document.getElementById('enable-prompt-search-switch'),
 };
 
 export const loadingModal = {
@@ -306,11 +353,17 @@ export let userPIN = null;
 export let advancedPIN = null;
 export let prompts = [];
 export let advancedPrompts = [];
+export let bookmarks = [];
 export let currentPromptId = null;
 export let currentImageViewerId = null;
 export let imageViewerSource = 'grid';
 export let currentAdvancedPromptId = null;
 export let activePromptMenu = null;
+export let activeBookmarkMenu = null;
+export let isBookmarkManageModeActive = false;
+export let isBookmarkSearchModeActive = false;
+export let selectedBookmarkIds = [];
+export let bookmarkSortableInstance = null;
 export let activeModalStack = []; 
 export let pinModalPurpose = 'login';
 export let tempNewPIN = null;
@@ -326,11 +379,16 @@ export let selectedAdvancedPromptIds = [];
 export let sortableInstance = null;
 export let advancedSortableInstance = null;
 export let isBlockingModalActive = false;
+export let bookmarkOpenAction = 'newTab';
+export let searchEngine = 'google';
+export let searchOpenAction = 'newTab';
+export let isPromptSearchEnabled = false;
 
 export let currentImageNavList = [];
 export let uiHideTimeout = null;
 export function setUiHideTimeout(value) { uiHideTimeout = value; }
 export function setCurrentImageNavList(value) { currentImageNavList = value; }
+export function setIsPromptSearchEnabled(value) { isPromptSearchEnabled = value; }
   
 export let languageSettings = {
     ui: 'id',
@@ -346,6 +404,7 @@ export let feedbackTimeout;
 export let lastActiveModalOverlay = null;
 
 // --- Setters for state variables ---
+export function setBookmarks(value) { bookmarks = value; }
 export function setCurrentUser(value) { currentUser = value; }
 export function setUserPIN(value) { userPIN = value; }
 export function setAdvancedPIN(value) { advancedPIN = value; }
@@ -356,6 +415,11 @@ export function setCurrentImageViewerId(value) { currentImageViewerId = value; }
 export function setImageViewerSource(value) { imageViewerSource = value; }
 export function setCurrentAdvancedPromptId(value) { currentAdvancedPromptId = value; }
 export function setActivePromptMenu(value) { activePromptMenu = value; }
+export function setActiveBookmarkMenu(value) { activeBookmarkMenu = value; }
+export function setIsBookmarkManageModeActive(value) { isBookmarkManageModeActive = value; }
+export function setIsBookmarkSearchModeActive(value) { isBookmarkSearchModeActive = value; }
+export function setSelectedBookmarkIds(value) { selectedBookmarkIds = value; }
+export function setBookmarkSortableInstance(value) { bookmarkSortableInstance = value; }
 export function setActiveModalStack(value) { activeModalStack = value; }
 export function setPinModalPurpose(value) { pinModalPurpose = value; }
 export function setTempNewPIN(value) { tempNewPIN = value; }
@@ -371,6 +435,9 @@ export function setSelectedAdvancedPromptIds(value) { selectedAdvancedPromptIds 
 export function setSortableInstance(value) { sortableInstance = value; }
 export function setAdvancedSortableInstance(value) { advancedSortableInstance = value; }
 export function setIsBlockingModalActive(value) { isBlockingModalActive = value; }
+export function setBookmarkOpenAction(value) { bookmarkOpenAction = value; }
+export function setSearchEngine(value) { searchEngine = value; }
+export function setSearchOpenAction(value) { searchOpenAction = value; }
 export function setLanguageSettings(value) { languageSettings = value; }
 export function setAnimationFrameId(value) { animationFrameId = value; }
 export function setLastUpdatedHour(value) { lastUpdatedHour = value; }
@@ -391,10 +458,11 @@ export const i18nData = {
     "footer.account": { id: "Anda sebagai {value}", en: "You are logged in as {value}", ja: "{value} としてログイン中" },
     "footer.offline": { id: "Anda sedang offline", en: "You are offline", ja: "オフラインです" },
     "footer.checking": { id: "Memeriksa koneksi", en: "Checking connection", ja: "接続を確認しています" },
-    "footer.credit": { id: "Ilustrasi karakter dibuat menggunakan Google Imagen 4", en: "Character illustration created using Google Imagen 4", ja: "キャラクターイラストはGoogle Imagen 4を使用して作成" },
+    "footer.search.placeholder": { id: "Cari sesuatu...", en: "Search for something...", ja: "何かを検索します..." },
+    "popup.search.web": { id: "Telusuri {engine} untuk \"{query}\"", en: "Search {engine} for \"{query}\"", ja: "{engine}で「{query}」を検索" },
+    "popup.search.url": { id: "Kunjungi alamat \"{url}\"", en: "Go to address \"{url}\"", ja: "アドレス「{url}」に移動" },
     "footer.tooltip.settings": { id: "Pengaturan Dashboard", en: "Dashboard Settings", ja: "ダッシュボード設定" },
     "animation.enableRequired": { id: "Anda harus mengaktifkan animasi terlebih dahulu.", en: "You must enable animation first.", ja: "まずアニメーションを有効にしてください。" },
-    "footer.enableRequired": { id: "Anda harus mengaktifkan footer terlebih dahulu.", en: "You must enable the footer first.", ja: "まずフッターを有効にする必要があります。" },
     "menu.changeUsername": { id: "Ubah Username", en: "Change Username", ja: "ユーザー名を変更" },
     "menu.adjustTheme": { id: "Sesuaikan Tema", en: "Adjust Theme", ja: "テーマを調整" },
     "menu.otherSettings": { id: "Pengaturan Lainnya", en: "Other Settings", ja: "その他の設定" },
@@ -408,8 +476,6 @@ export const i18nData = {
     "settings.theme.light": { id: "Terang", en: "Light", ja: "ライト" },
     "settings.theme.dark": { id: "Gelap", en: "Dark", ja: "ダーク" },
     "settings.theme.system": { id: "Sistem", en: "System", ja: "システム" },
-    "settings.theme.showPreview": { id: "Tampilkan Pratinjau Halaman", en: "Show Page Preview", ja: "ページプレビューを表示" },
-    "settings.theme.escInfo": { id: "Tekan tombol \"Esc\" pada keyboard untuk keluar window", en: "Press the \"Esc\" key on the keyboard to exit the window", ja: "ウィンドウを終了するにはキーボードの「Esc」キーを押してください" },
     "settings.language.title": { id: "Pilihan Bahasa", en: "Language Options", ja: "言語オプション" },
     "settings.language.allContent": { id: "Semua Konten Tampilan", en: "All Display Content", ja: "すべての表示内容" },
     "settings.language.applyAll": { id: "Terapkan ke Semua Konten", en: "Apply to All Content", ja: "すべてに適用" },
@@ -417,20 +483,31 @@ export const i18nData = {
     "settings.language.description": { id: "Deskripsi", en: "Description", ja: "説明" },
     "settings.language.date": { id: "Hari dan Tanggal", en: "Day and Date", ja: "曜日と日付" },
     "settings.other.clock": { id: "Jam", en: "Clock", ja: "時間" },
-    "settings.other.showSeconds": { id: "Tampilkan Detik", en: "Show Seconds", ja: "秒を表示" },
+    "data.displayHiddenResolution": { id: "Beberapa tampilan tidak dapat muncul di halaman utama karena keterbatasan resolusi.", en: "Some views cannot appear on the main page due to resolution limitations.", ja: "解像度の制限により、一部のビューはメイン ページに表示できません。" },
+    "settings.other.mainPage": { id: "Halaman Utama", en: "Main Page", ja: "メインページ" },
+    "settings.other.showContent": { id: "Tampilkan Konten", en: "Show Content", ja: "コンテンツを表示" },
+    "settings.other.showTime": { id: "Jam", en: "Clock", ja: "クロック" },
+    "settings.other.showSeconds": { id: "Detik", en: "Seconds", ja: "秒" },
+    "settings.other.showBookmark": { id: "Tampilkan Bookmark", en: "Show Bookmark", ja: "ブックマークを表示" },
+    "settings.other.search": { id: "Pencarian", en: "Search", ja: "検索" },
+    "settings.other.enableSearchBar": { id: "Aktifkan Bar Pencarian", en: "Enable Search Bar", ja: "検索バーを有効にする" },
+    "settings.other.searchEngine": { id: "Mesin Telusur", en: "Search Engine", ja: "検索エンジン" },
     "settings.other.visual": { id: "Visual", en: "Visuals", ja: "ビジュアル" },
     "settings.other.enableAnimation": { id: "Aktifkan Animasi", en: "Enable Animation", ja: "アニメーションを有効にする" },
-    "settings.other.blurMenu": { id: "Aktifkan Efek Blur Background Menu", en: "Enable Menu Background Blur Effect", ja: "メニュー背景のぼかし効果を有効にする" },
-    "settings.other.blurFooter": { id: "Aktifkan Efek Blur Footer", en: "Enable Footer Blur Effect", ja: "フッターのぼかし効果を有効にする" },
+    "settings.other.blurBookmark": { id: "Efek Blur Bookmark", en: "Bookmark Blur Effect", ja: "ブックマークぼかし効果" },
+    "settings.other.blurMenu": { id: "Efek Blur Background Menu", en: "Menu Background Blur Effect", ja: "メニュー背景ぼかし効果" },
+    "settings.other.blurFooter": { id: "Efek Blur Footer", en: "Footer Blur Effect", ja: "フッターのぼかし効果" },
     "settings.other.interactiveChar": { id: "Gambar Karakter Interaktif", en: "Interactive Character Image", ja: "インタラクティブキャラクター画像" },
     "settings.other.showChar": { id: "Tampilkan Karakter", en: "Show Character", ja: "キャラクターを表示" },
     "settings.other.enableAnim": { id: "Aktifkan Animasi Interaktif", en: "Enable Interactive Animation", ja: "インタラクティブアニメーションを有効にする" },
     "settings.other.detectMouse": { id: "Deteksi Mouse Diam", en: "Detect Still Mouse", ja: "マウス静止を検出" },
-    "settings.other.showCredit": { id: "Tampilkan Sumber Karakter", en: "Show Character Source", ja: "キャラクターの出典を表示" },
-    "settings.other.showFooter": { id: "Tampilkan Footer", en: "Show Footer", ja: "フッターを表示" },
     "settings.other.animHelp": { id: "Animasi interaktif akan dimulai setelah kursor diam di atas gambar karakter selama 0,3 detik untuk menghindari interaksi yang tidak disengaja.", en: "The interactive animation will start after the cursor remains still over the character image for 0.3 seconds to avoid unintentional interactions.", ja: "意図しない操作を避けるため、キャラクター画像上でカーソルが0.3秒間静止した後にインタラクティブアニメーションが開始されます。" },
     "settings.other.support": { id: "Dukungan gambar karakter interaktif:", en: "Interactive character image support:", ja: "インタラクティブキャラクター画像のサポート：" },
     "settings.other.supportHelp": { id: "Atur ke resolusi layar lebih tinggi untuk mendapat dukungan gambar karakter interaktif.\nMinimal 480px (lebar) x 510px (tinggi)", en: "Set to a higher screen resolution to get interactive character image support.\nMinimum 480px (width) x 510px (height)", ja: "インタラクティブキャラクター画像のサポートを得るには、より高い画面解像度に設定してください。\n最小480px（幅）x 510px（高さ）" },
+    "searchEngine.google": { id: "Google", en: "Google", ja: "Google" },
+    "searchEngine.yahoo": { id: "Yahoo!", en: "Yahoo!", ja: "Yahoo!" },
+    "searchEngine.bing": { id: "Microsoft Bing", en: "Microsoft Bing", ja: "Microsoft Bing" },
+    "searchEngine.duckduckgo": { id: "DuckDuckGo", en: "DuckDuckGo", ja: "DuckDuckGo" },
     "about.p1": { id: "Halaman ini bertujuan untuk menggantikan halaman beranda yang ada pada browser. Terima kasih telah menggunakan.", en: "This page is intended to replace the default browser homepage. Thank you for using it.", ja: "このページは、ブラウザのホームページを置き換えることを目的としています。ご利用いただきありがとうございます。" },
     "about.featuresTitle": { id: "Apa Saja Fitur-Fiturnya?", en: "What are the Features?", ja: "主な機能" },
     "about.f1": { id: "Informasi waktu real-time", en: "Real-time clock information", ja: "リアルタイムの時刻情報" },
@@ -551,16 +628,50 @@ export const i18nData = {
     "settings.tabs.display": { id: "Tampilan", en: "Display", ja: "表示" },
     "settings.tabs.other": { id: "Lainnya", en: "Other", ja: "その他" },
     "settings.popup.enable": { id: "Aktifkan Pop-up Pencari Prompt", en: "Enable Prompt Finder Pop-up", ja: "プロンプト検索ポップアップを有効にする" },
-    "settings.popup.enableHelp": { id: "Dengan mengaktifkan fitur ini, maka data prompt Anda akan mudah dicari melalui Pop-up Dashboard.", en: "By enabling this feature, your prompt data can be easily searched via the Dashboard Pop-up.", ja: "この機能を有効にすると、ダッシュボードのポップアップからプロンプトデータを簡単に検索できます。" },
-    "settings.other.showFooterInfo": { id: "Tampilkan Informasi Username dan Koneksi Internet di Footer", en: "Show Username and Internet Connection Information in Footer", ja: "フッターにユーザー名とインターネット接続情報を表示する" },
+    "settings.popup.enableHelp": { id: "Dengan mengaktifkan dua fitur prompt di atas, maka data prompt Anda akan mudah dicari melalui bar pencarian dan Pop-up Dashboard.", en: "By activating the two prompt features above, your prompt data will be easy to search through the search bar and Pop-up Dashboard.", ja: "上記の 2 つのプロンプト機能を有効にすると、検索バーとポップアップ ダッシュボードからプロンプト データを簡単に検索できるようになります。" },
+    "search.historyType": { id: "Riwayat", en: "History", ja: "履歴" },
+    "toast.historyEnabled": { id: "Histori browser diaktifkan untuk pencarian.", en: "Browser history enabled for search.", ja: "検索のためにブラウザ履歴が有効になりました。" },
+    "toast.historyDisabled": { id: "Histori browser dinonaktifkan untuk pencarian.", en: "Browser history disabled for search.", ja: "検索のためにブラウザ履歴が無効になりました。" },
+    // Bookmark
+    "bookmark.title": { id: "Bookmark", en: "Bookmarks", ja: "ブックマーク" },
+    "bookmark.open": { id: "Lihat Bookmark", en: "View Bookmarks", ja: "ブックマークを表示" },
+    "bookmark.add": { id: "Tambah Bookmark", en: "Add Bookmark", ja: "ブックマークを追加" },
+    "bookmark.addTitle": { id: "Tambah Bookmark Baru", en: "Add New Bookmark", ja: "新しいブックマークを追加" },
+    "bookmark.editTitle": { id: "Edit Bookmark", en: "Edit Bookmark", ja: "ブックマークを編集" },
+    "bookmark.label.name": { id: "Nama", en: "Name", ja: "名前" },
+    "bookmark.label.url": { id: "URL", en: "URL", ja: "URL" },
+    "bookmark.error.urlRequired": { id: "URL tidak boleh kosong.", en: "URL cannot be empty.", ja: "URLは空にできません。" },
+    "bookmark.error.urlInvalid": { id: "URL tidak valid.", en: "Invalid URL.", ja: "無効なURLです。" },
+    "bookmark.error.urlExists": { id: "URL sudah ada.", en: "URL already exists.", ja: "URLはすでに存在します。" },
+    "bookmark.save.success": { id: "Bookmark berhasil disimpan!", en: "Bookmark saved successfully!", ja: "ブックマークが正常に保存されました！" },
+    "bookmark.edit.success": { id: "Bookmark berhasil diperbarui!", en: "Bookmark updated successfully!", ja: "ブックマークが正常に更新されました！" },
+    "bookmark.delete.success": { id: "Bookmark berhasil dihapus!", en: "Bookmark deleted successfully!", ja: "ブックマークが正常に削除されました！" },
+    "bookmark.menu.copyLink": { id: "Salin Tautan", en: "Copy Link", ja: "リンクをコピー" },
+    "bookmark.copy.link.success": { id: "URL berhasil disalin!", en: "URL copied successfully!", ja: "URLを正常にコピーしました！" },
+    "bookmark.menu.edit": { id: "Edit", en: "Edit", ja: "編集" },
+    "bookmark.menu.delete": { id: "Hapus", en: "Delete", ja: "削除" },
+    "bookmark.delete.title": { id: "Hapus Bookmark?", en: "Delete Bookmark?", ja: "ブックマークを削除しますか？" },
+    "bookmark.delete.text": { id: "Apakah Anda yakin ingin menghapus bookmark ini?", en: "Are you sure you want to delete this bookmark?", ja: "このブックマークを削除してもよろしいですか？" },
+    "bookmark.delete.selectedText": { id: "Apakah Anda yakin ingin menghapus {count} bookmark yang dipilih? Tindakan ini tidak dapat diurungkan.", en: "Are you sure you want to delete the {count} selected bookmarks? This action cannot be undone.", ja: "選択した{count}個のブックマークを削除してもよろしいですか？この操作は元に戻せません。" },
+    "settings.bookmark.openAction": { id: "Aksi Membuka Situs", en: "Bookmark Open Action", ja: "ブックマークを開くアクション" },
+    "settings.bookmark.openAction.direct": { id: "Buka Langsung", en: "Open Directly", ja: "直接開く" },
+    "settings.bookmark.openAction.newTab": { id: "Tab Baru", en: "New Tab", ja: "新しいタブ" },
+    "settings.search.openAction": { id: "Aksi Membuka Situs", en: "Search Open Action", ja: "検索を開くアクション" },
+    "data.search.title": { id: "Data di Pencarian", en: "Data in Search", ja: "検索内のデータ" },
+    "data.searchHelp": { id: "Bar pencarian perlu diaktifkan terlebih dahulu di menu tampilan sebelum melakukan perubahan fitur dibawah.", en: "The search bar needs to be enabled first in the display menu before making any feature changes below.", ja: "以下の機能変更を行う前に、まず表示メニューで検索バーを有効にする必要があります。" },
+    "settings.search.enablePrompt": { id: "Prompt Karakter dan Pembuat Prompt", en: "Character and Builder Prompts", ja: "キャラクターとビルダープロンプト" },
+    "settings.search.enableHistory": { id: "Histori Browser", en: "Browser History", ja: "ブラウザ履歴" },
+    "settings.search.enableHistoryHelp": { id: "Histori browser Anda akan mudah dicari melalui bar pencarian. Mohon pertimbangkan sebelum mengaktifkan nya.", en: "Your browser history will be easily searchable via the search bar. Please consider before enabling it.", ja: "ブラウザの履歴が検索バーから簡単に検索できるようになります。有効にする前によくご検討ください。" },
+    "settings.search.enableHistoryHelp2": { id: "Untuk keamanan, opsi ini tidak akan di ekspor.", en: "For security reasons, this option will not be exported.", ja: "セキュリティ上の理由から、このオプションはエクスポートされません。" },
     // Import and Export Data
     "settings.tabs.data": { id: "Data", en: "Data", ja: "データ" },
-    "data.manageUser.title": { id: "Kelola Data Pengguna", en: "Manage User Data", ja: "ユーザーデータの管理" },
-    "data.manageUser.desc": { id: "Mengelola username, pilihan tema, dan pengaturan lainnya.", en: "Manage username, theme preferences, and other settings.", ja: "ユーザー名、テーマ設定、その他の設定を管理します。" },
-    "data.manageHidden.title": { id: "Kelola Data Fitur Tersembunyi", en: "Manage Hidden Feature Data", ja: "隠し機能データの管理" },
-    "data.manageHidden.desc": { id: "Mengelola data prompt karakter dan pembuat prompt beserta PIN nya.", en: "Manage character prompt and prompt builder data, including PINs.", ja: "キャラクタープロンプトとプロンプトビルダーのデータ（PINを含む）を管理します。" },
-    "data.button.import": { id: "Impor File", en: "Import File", ja: "ファイルをインポート" },
-    "data.button.export": { id: "Ekspor File", en: "Export File", ja: "ファイルをエクスポート" },
+    "data.manageData.title": { id: "Impor dan Ekspor", en: "Import and Export", ja: "輸入と輸出" },
+    "data.manageUser.title": { id: "Data Pengguna", en: "User Data", ja: "ユーザーデータ" },
+    "data.manageUser.desc": { id: "Username, pilihan tema, bookmark, dan pengaturan lainnya.", en: "Username, theme choices, bookmarks, and other settings.", ja: "ユーザー名、テーマの選択、ブックマーク、その他の設定。" },
+    "data.manageHidden.title": { id: "Data Fitur Tersembunyi", en: "Hidden Feature Data", ja: "隠れた特徴データ" },
+    "data.manageHidden.desc": { id: "Prompt karakter dan pembuat prompt beserta PIN nya.", en: "Character prompt and prompt builder, including PINs.", ja: "PIN を含む、文字プロンプトとプロンプト ビルダー。" },
+    "data.button.import": { id: "Impor", en: "Import", ja: "輸入" },
+    "data.button.export": { id: "Ekspor", en: "Export", ja: "エクスポルト" },
     "pin.enter.confirmExport": { id: "Konfirmasi Ekspor", en: "Confirm Export", ja: "エクスポートの確認" },
     "pin.enter.confirmExportLabel": { id: "Masukkan PIN Fitur Tersembunyi untuk melanjutkan", en: "Enter Hidden Feature PIN to continue", ja: "続行するには隠し機能のPINを入力してください" },
     "export.success": { id: "Data berhasil diekspor!", en: "Data exported successfully!", ja: "データが正常にエクスポートされました！" },
@@ -583,6 +694,8 @@ export const i18nData = {
     // Pop-up Feature
     "pin.enter.confirmFeatureTitle": { id: "Konfirmasi Fitur", en: "Feature Confirmation", ja: "機能の確認" },
     "pin.enter.confirmFeatureLabel": { id: "Masukkan PIN Fitur Tersembunyi untuk melanjutkan", en: "Enter Hidden Feature PIN to continue", ja: "続行するには隠し機能のPINを入力してください" },
+    "prompt.search.success.enabled": { id: "Pencarian Prompt berhasil diaktifkan!", en: "Prompt search enabled successfully!", ja: "プロンプト検索が正常に有効化されました！" },
+    "prompt.search.success.disabled": { id: "Pencarian Prompt dinonaktifkan.", en: "Prompt search disabled.", ja: "プロンプト検索が無効になりました。" },
     "popup.success.enabled": { id: "Pop-up pencari prompt berhasil diaktifkan!", en: "Prompt finder pop-up enabled successfully!", ja: "プロンプト検索ポップアップが正常に有効化されました！" },
     "popup.success.disabled": { id: "Pop-up pencari prompt dinonaktifkan.", en: "Prompt finder pop-up disabled.", ja: "プロンプト検索ポップアップが無効になりました。" },
     "popup.featureDisabled.title": { id: "Fitur Dinonaktifkan", en: "Feature Disabled", ja: "機能が無効です" },
@@ -590,6 +703,8 @@ export const i18nData = {
     "popup.search.placeholder": { id: "Cari karakter AI atau prompt builder...", en: "Search AI characters or prompt builder...", ja: "AIキャラクターまたはプロンプトビルダーを検索..." },
     "popup.type.character": { id: "Karakter", en: "Character", ja: "キャラクター" },
     "popup.type.builder": { id: "Builder", en: "Builder", ja: "ビルダー" },
+    "settings.search.enableBookmark": { id: "Bookmark", en: "Bookmark", ja: "ブックマーク" },
+    "popup.type.bookmark": { id: "Bookmark", en: "Bookmark", ja: "ブックマーク" },
     "popup.error.loadFailed": { id: "Gagal memuat data", en: "Failed to load data", ja: "データの読み込みに失敗しました" },
     "popup.error.noResults": { id: "Tidak ditemukan hasil", en: "No results found", ja: "結果が見つかりません" },
     "popup.copy.success": { id: "Teks berhasil disalin!", en: "Text copied successfully!", ja: "テキストをコピーしました！" },

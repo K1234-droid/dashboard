@@ -13,7 +13,6 @@ import {
     menu,
     pinSettings,
     settingSwitches,
-    avatarStatus,
     setActiveModalStack,
     userPIN,
     advancedPIN,
@@ -23,16 +22,25 @@ import {
     progressModal,
     loadingModal,
     setIsBlockingModalActive,
-    updateModal
+    updateModal,
+    footerSearch,
+    searchEngine
 } from './config.js';
 import { saveSetting } from './storage.js';
 import { showToast } from './utils.js';
+import { closeAllBookmarkMenus, closeAllMainBookmarkMenus_main, closeAllContainerBookmarkMenus_main } from './bookmark.js';
 
 let hoverTimeout;
 
 // --- Modals and Menus ---
 export function toggleMenu(event) {
     event.stopPropagation();
+    if (footerSearch.resultsContainer) {
+        footerSearch.resultsContainer.classList.remove('show');
+    }
+    closeAllBookmarkMenus();
+    closeAllMainBookmarkMenus_main();
+    closeAllContainerBookmarkMenus_main();
     menu.container.classList.toggle("show-menu");
     window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -73,20 +81,7 @@ export function closeModal(overlay) {
 }
 
 export function closeThemeModal() {
-    if (themeModal.overlay) {
-        themeModal.overlay.classList.add("hidden");
-        themeModal.overlay.classList.remove("preview-mode");
-        const newStack = activeModalStack.filter(modal => modal !== themeModal.overlay);
-        setActiveModalStack(newStack);
-
-        if (themeModal.previewCheckbox) themeModal.previewCheckbox.checked = false;
-        [usernameModal.openBtn, themeModal.openBtn, aboutModal.openBtn, otherSettingsModal.openBtn, updateModal.checkBtn].forEach((btn) => {
-            if (btn) btn.disabled = false;
-        });
-    }
-    if (activeModalStack.length === 0) {
-        elements.body.classList.remove("modal-open");
-    }
+    closeModal(themeModal.overlay);
 }
 
 export function showInfoModal(titleKey, messageKey) {
@@ -113,6 +108,156 @@ export function showFeedback(modalFeedbackElement, messageKey, isError = false) 
     setFeedbackTimeout(newTimeout);
 }
 
+export function updateSearchEngineDisplay() {
+    const trigger = document.getElementById(`search-engine-select`);
+    if (!trigger) return;
+    const optionsContainer = trigger.nextElementSibling;
+    const selectedTextSpan = trigger.querySelector('span:first-child');
+    const selectedOption = optionsContainer.querySelector(`[data-value="${searchEngine}"]`);
+    if (selectedOption) {
+        selectedTextSpan.textContent = selectedOption.textContent;
+        const i18nKey = selectedOption.getAttribute('data-i18n-key');
+        if (i18nKey) {
+            selectedTextSpan.setAttribute('data-i18n-key', i18nKey);
+        }
+        optionsContainer.querySelectorAll('.custom-option').forEach(opt => opt.classList.remove('selected'));
+        selectedOption.classList.add('selected');
+    }
+}
+
+export function updateMainPageSwitchesState() {
+    if (!settingSwitches.showContent) return;
+    const isMasterContentOn = settingSwitches.showContent.checked;
+    const childSwitches = [
+        settingSwitches.showGreeting,
+        settingSwitches.showDescription,
+        settingSwitches.showDate,
+        settingSwitches.showTime
+    ];
+    childSwitches.forEach(switchEl => {
+        if (switchEl) {
+            switchEl.disabled = !isMasterContentOn;
+        }
+    });
+    updateClockSwitchesState();
+    updateBookmarkDropdownState();
+    updateLanguageControlsState();
+    const isSearchBarEnabled = settingSwitches.enableSearchBar.checked;
+    const isBookmarkEnabled = settingSwitches.showBookmark.checked;
+    const bookmarkSearchSwitchContainer = settingSwitches.enableBookmarkSearch?.closest('.switch-container');
+    const isBookmarkSearchDisabled = !isBookmarkEnabled;
+
+    if (settingSwitches.enableBookmarkSearch) {
+        settingSwitches.enableBookmarkSearch.disabled = isBookmarkSearchDisabled;
+        if (bookmarkSearchSwitchContainer) {
+            bookmarkSearchSwitchContainer.classList.toggle('disabled', isBookmarkSearchDisabled);
+        }
+    }
+    const historySearchSwitchContainer = settingSwitches.enableHistorySearch?.closest('.switch-container');
+    const historyHelpText1 = document.getElementById('enable-history-search-help-text');
+    const historyHelpText2 = document.querySelectorAll('#settings-panel-data .setting-help-text[data-i18n-key="settings.search.enableHistoryHelp2"]')[0];
+    const isHistorySearchDisabled = !isSearchBarEnabled;
+    if (settingSwitches.enableHistorySearch) {
+        settingSwitches.enableHistorySearch.disabled = isHistorySearchDisabled;
+        if (historySearchSwitchContainer) {
+            historySearchSwitchContainer.classList.toggle('disabled', isHistorySearchDisabled);
+        }
+        if (historyHelpText1) {
+             historyHelpText1.classList.toggle('disabled', isHistorySearchDisabled);
+        }
+        if (historyHelpText2) {
+             historyHelpText2.classList.toggle('disabled', isHistorySearchDisabled);
+        }
+        if (isHistorySearchDisabled && settingSwitches.enableHistorySearch.checked) {
+            settingSwitches.enableHistorySearch.checked = false;
+            saveSetting("enableHistorySearch", false);
+            showToast("toast.historyDisabled"); 
+        }
+    }
+    const searchEngineContainer = document.getElementById('search-engine-select')?.closest('.switch-container');
+    if (searchEngineContainer) {
+        searchEngineContainer.classList.toggle('disabled', !isSearchBarEnabled);
+    }
+    const searchActionContainer = document.getElementById('search-open-action-select')?.closest('.switch-container');
+    if (searchActionContainer) {
+        searchActionContainer.classList.toggle('disabled', !isSearchBarEnabled);
+    }
+}
+
+export function adjustSeparatorWidth() {
+    if (!elements.greetingText || !elements.infoSeparator || !settingSwitches.showDescription || !settingSwitches.showGreeting) return;
+    const isDescriptionHidden = !settingSwitches.showDescription.checked;
+    const isGreetingVisible = settingSwitches.showGreeting.checked;
+    if (isDescriptionHidden && isGreetingVisible) {
+        setTimeout(() => {
+            const greetingWidth = elements.greetingText.getBoundingClientRect().width;
+            if (greetingWidth > 0) {
+                elements.infoSeparator.style.width = `${greetingWidth}px`;
+            }
+        }, 0); 
+    } else {
+        elements.infoSeparator.style.width = '';
+    }
+}
+
+export function updateClockSwitchesState() {
+    if (!settingSwitches.showTime || !settingSwitches.showSeconds || !settingSwitches.showContent) return;
+    const isContentEnabled = settingSwitches.showContent.checked;
+    const isTimeEnabled = settingSwitches.showTime.checked;
+    settingSwitches.showSeconds.disabled = !isContentEnabled || !isTimeEnabled;
+    applyShowSeconds(settingSwitches.showSeconds.checked);
+}
+
+export function updateBookmarkDropdownState() {
+    if (!settingSwitches.showBookmark) return;
+    const isBookmarkEnabled = settingSwitches.showBookmark.checked;
+    const entireSwitchContainer = document.getElementById('bookmark-open-action-select')?.closest('.switch-container');
+    
+    if (entireSwitchContainer) {
+        entireSwitchContainer.classList.toggle('disabled', !isBookmarkEnabled);
+    }
+}
+
+export function updateLanguageControlsState() {
+    if (!settingSwitches.showGreeting || !settingSwitches.showDescription || !settingSwitches.showDate || !settingSwitches.applyToAll || !settingSwitches.showContent) return;
+    const isMasterContentOn = settingSwitches.showContent.checked;
+    const isGreetingOn = settingSwitches.showGreeting.checked;
+    const isDescriptionOn = settingSwitches.showDescription.checked;
+    const isDateOn = settingSwitches.showDate.checked;
+    const greetingLangContainer = document.getElementById('lang-container-greeting');
+    const descriptionLangContainer = document.getElementById('lang-container-description');
+    const dateLangContainer = document.getElementById('lang-container-date');
+    const applyAllSwitchContainer = settingSwitches.applyToAll.closest('.switch-container');
+    if (greetingLangContainer) {
+        greetingLangContainer.classList.toggle('disabled', !isMasterContentOn || !isGreetingOn);
+    }
+    if (descriptionLangContainer) {
+        descriptionLangContainer.classList.toggle('disabled', !isMasterContentOn || !isDescriptionOn);
+    }
+    if (dateLangContainer) {
+        dateLangContainer.classList.toggle('disabled', !isMasterContentOn || !isDateOn);
+    }
+    const allSubSwitchesOff = !isGreetingOn && !isDescriptionOn && !isDateOn;
+    if (applyAllSwitchContainer) {
+        const shouldDisableApplyAll = !isMasterContentOn || allSubSwitchesOff;
+        applyAllSwitchContainer.classList.toggle('disabled', shouldDisableApplyAll);
+        settingSwitches.applyToAll.disabled = shouldDisableApplyAll;
+    }
+}
+
+export function updateSeparatorVisibility() {
+    if (!elements.infoSeparator || !settingSwitches.showContent) return;
+    const isContentMasterOn = settingSwitches.showContent.checked;
+    const isGreetingOn = settingSwitches.showGreeting.checked;
+    const isDescriptionOn = settingSwitches.showDescription.checked;
+    const isDateOn = settingSwitches.showDate.checked;
+    const isTimeOn = settingSwitches.showTime.checked;
+    const isContentAbove = isGreetingOn || isDescriptionOn;
+    const isContentBelow = isDateOn || isTimeOn;
+    const shouldShow = isContentMasterOn && isContentAbove && isContentBelow;
+    elements.body.classList.toggle("separator-hidden", !shouldShow);
+}
+
 export function updateUsernameDisplay() {
     const lang = languageSettings.ui;
     const template = i18nData["footer.account"]?.[lang] || i18nData["footer.account"]?.['id'];
@@ -122,7 +267,6 @@ export function updateUsernameDisplay() {
             elements.accountMessage.textContent = message;
             elements.accountMessage.setAttribute('data-i18n-value', currentUser);
         }
-        // Jika footer info disetel sebagai toast, tampilkan perubahan username juga
         if (document.body.classList.contains('footer-info-as-toast')) {
             showToast('footer.account', currentUser);
         }
@@ -145,20 +289,8 @@ export async function handleSaveUsername() {
     }
 }
 
-export function applyShowFooter(show) {
-    elements.body.classList.toggle("footer-hidden", !show);
-    handleFooterInfoSwitchState();
-    updateAvatarStatus();
-}
-
-export function applyShowFooterInfo(show) {
-    const isFooterOn = settingSwitches.showFooter ? settingSwitches.showFooter.checked : false;
-    elements.body.classList.toggle("footer-info-as-toast", !show || !isFooterOn);
-}
-
 export function applyEnableAnimation(show) {
     elements.body.classList.toggle("animations-disabled", !show);
-    updateAvatarStatus();
 }
 
 // --- Apply Settings ---
@@ -179,119 +311,23 @@ export function applyTheme(theme) {
     }
 }
 
-export function applyShowSeconds(show) { elements.body.classList.toggle("seconds-hidden", !show); }
+export function applyShowGreeting(show) { const isContentOn = settingSwitches.showContent ? settingSwitches.showContent.checked : true; elements.body.classList.toggle("greeting-hidden", !(show && isContentOn)); updateSeparatorVisibility(); adjustSeparatorWidth(); }
+export function applyShowDescription(show) { const isContentOn = settingSwitches.showContent ? settingSwitches.showContent.checked : true; elements.body.classList.toggle("description-hidden", !(show && isContentOn)); updateSeparatorVisibility(); adjustSeparatorWidth(); }
+export function applyShowDate(show) { const isContentOn = settingSwitches.showContent ? settingSwitches.showContent.checked : true; elements.body.classList.toggle("date-hidden", !(show && isContentOn)); updateSeparatorVisibility(); }
+export function applyShowTime(show) { const isContentOn = settingSwitches.showContent ? settingSwitches.showContent.checked : true; elements.body.classList.toggle("time-hidden", !(show && isContentOn)); updateSeparatorVisibility(); }
+export function applyShowSeconds(show) { const isContentOn = settingSwitches.showContent ? settingSwitches.showContent.checked : true; const isTimeEnabled = settingSwitches.showTime ? settingSwitches.showTime.checked : true; const shouldShowSeconds = show && isTimeEnabled && isContentOn; elements.body.classList.toggle("seconds-hidden", !shouldShowSeconds); }
 export function applyMenuBlur(show) { elements.body.classList.toggle("menu-blur-disabled", !show); }
+export function applyBookmarkBlur(show) { elements.body.classList.toggle("bookmark-blur-disabled", !show); }
+export function applyShowSearchBar(show) { elements.body.classList.toggle("search-bar-hidden", !show); }
+
+export function applyShowBookmark(show) {
+    const isBookmarkSwitchOn = show;
+    elements.body.classList.toggle("bookmark-hidden", !isBookmarkSwitchOn);
+    elements.mainPageBookmarkContainer?.classList.toggle("hidden", !isBookmarkSwitchOn);
+}
+
 export function applyFooterBlur(show) { elements.body.classList.toggle("footer-blur-disabled", !show); }
-
-export function applyShowCredit(show) {
-    updateAvatarStatus();
-}
-
-export function applyAvatarFullShow(show) {
-    const avatarFull = document.querySelector(".avatar-full");
-    if (avatarFull) { avatarFull.classList.toggle("hidden", !show); }
-    elements.body.classList.toggle("avatar-hidden", !show);
-    updateAvatarStatus();
-}
-
-export function applyAvatarAnimation(show) {
-    elements.body.classList.toggle("avatar-animation-disabled", !show);
-    updateAvatarStatus();
-}
-
-// --- Avatar Logic ---
-const avatar = document.querySelector(".avatar-full");
-const handleSimpleMouseEnter = () => avatar.classList.add('is-zoomed');
-const handleSimpleMouseLeave = () => avatar.classList.remove('is-zoomed');
-const handleStillnessMouseEnter = () => { hoverTimeout = setTimeout(() => avatar.classList.add('is-zoomed'), 300); };
-const handleStillnessMouseMove = () => { clearTimeout(hoverTimeout); hoverTimeout = setTimeout(() => avatar.classList.add('is-zoomed'), 300); };
-const handleStillnessMouseLeave = () => { clearTimeout(hoverTimeout); avatar.classList.remove('is-zoomed'); };
-
-export function setupAvatarHoverListeners() {
-    avatar.removeEventListener('mouseenter', handleSimpleMouseEnter);
-    avatar.removeEventListener('mouseleave', handleSimpleMouseLeave);
-    avatar.removeEventListener('mouseenter', handleStillnessMouseEnter);
-    avatar.removeEventListener('mousemove', handleStillnessMouseMove);
-    avatar.removeEventListener('mouseleave', handleStillnessMouseLeave);
-    avatar.classList.remove('is-zoomed');
-
-    const isAnimationFeatureEnabled = !settingSwitches.avatarAnimation.disabled && settingSwitches.avatarAnimation.checked;
-    settingSwitches.detectMouseStillness.disabled = !isAnimationFeatureEnabled;
-
-    if (isAnimationFeatureEnabled) {
-        const isStillnessDetectionEnabled = settingSwitches.detectMouseStillness.checked;
-        if (isStillnessDetectionEnabled) {
-            avatar.addEventListener('mouseenter', handleStillnessMouseEnter);
-            avatar.addEventListener('mousemove', handleStillnessMouseMove);
-            avatar.addEventListener('mouseleave', handleStillnessMouseLeave);
-        } else {
-            avatar.addEventListener('mouseenter', handleSimpleMouseEnter);
-            avatar.addEventListener('mouseleave', handleSimpleMouseLeave);
-        }
-    }
-}
-
-export function updateAvatarStatus() {
-    if (!avatarStatus.text || !avatarStatus.helpText) return;
-    
-    const isSupportedResolution = window.innerWidth > 930;
-    const isCreditSupportedResolution = window.innerWidth >= 865;
-    const supportedText = { id: "Iya", en: "Yes", jp: "はい" };
-    const notSupportedText = { id: "Tidak", en: "No", jp: "いいえ" };
-    const lang = languageSettings.ui;
-    const stillnessHelpText = document.getElementById('detect-mouse-stillness-help-text');
-
-    avatarStatus.text.textContent = isSupportedResolution ? supportedText[lang] || supportedText['id'] : notSupportedText[lang] || notSupportedText['id'];
-    avatarStatus.text.className = isSupportedResolution ? "supported" : "not-supported";
-    avatarStatus.helpText.classList.toggle("is-hidden", isSupportedResolution);
-
-    const isAvatarFullShown = settingSwitches.avatarFullShow.checked;
-    const areGlobalAnimationsEnabled = settingSwitches.enableAnimation ? settingSwitches.enableAnimation.checked : true;
-    const isAvatarAnimationOn = settingSwitches.avatarAnimation.checked;
-    const disableAnimationSwitches = !isAvatarFullShown || !isSupportedResolution || !areGlobalAnimationsEnabled;
-
-    if (settingSwitches.avatarAnimation) { 
-        settingSwitches.avatarAnimation.disabled = disableAnimationSwitches;
-    }
-    
-    if (settingSwitches.detectMouseStillness) { 
-        const isStillnessDisabled = disableAnimationSwitches || !isAvatarAnimationOn;
-        settingSwitches.detectMouseStillness.disabled = isStillnessDisabled;
-        
-        if (stillnessHelpText) {
-            stillnessHelpText.classList.toggle('disabled', isStillnessDisabled);
-        }
-    }
-    
-    if (settingSwitches.showCredit) { 
-        const isFooterHidden = settingSwitches.showFooter && !settingSwitches.showFooter.checked;
-        settingSwitches.showCredit.disabled = !isAvatarFullShown || !isCreditSupportedResolution || isFooterHidden;
-    }
-
-    if (elements.creditText) {
-        const isCreditSwitchOn = settingSwitches.showCredit.checked;
-        const isFooterOn = settingSwitches.showFooter ? settingSwitches.showFooter.checked : false;
-        elements.creditText.classList.toggle('visible', isAvatarFullShown && isCreditSwitchOn && isCreditSupportedResolution && isFooterOn);
-    }
-    
-    setupAvatarHoverListeners();
-    checkResolutionAndToggleMessage();
-}
-
-export function checkResolutionAndToggleMessage() {
-}
-
-export function handleFooterInfoSwitchState() {
-    if (!settingSwitches.showFooterInfo || !settingSwitches.showFooter) return;
-
-    const isMobileView = window.innerWidth <= 410;
-    const isFooterHidden = !settingSwitches.showFooter.checked;
-    const shouldBeDisabled = isMobileView || isFooterHidden;
-    settingSwitches.showFooterInfo.disabled = shouldBeDisabled;
-    const effectiveState = shouldBeDisabled ? false : settingSwitches.showFooterInfo.checked;
-
-    applyShowFooterInfo(effectiveState);
-}
+export function applyShowContent(show) { elements.body.classList.toggle("content-off", !show); }
 
 export function updateSecurityFeaturesUI() {
     const isHiddenEnabled = !!userPIN;
@@ -299,6 +335,7 @@ export function updateSecurityFeaturesUI() {
     const lang = languageSettings.ui;
     const manageHiddenContainer = document.getElementById('manage-hidden-data-container');
     const popupFinderHelpText = document.getElementById('enable-popup-finder-help-text');
+    const promptSearchContainer = document.getElementById('enable-prompt-search-container');
 
     if (manageHiddenContainer) {
         manageHiddenContainer.classList.toggle('disabled', !isHiddenEnabled);
@@ -328,6 +365,21 @@ export function updateSecurityFeaturesUI() {
         if (isDisabled) {
             settingSwitches.enablePopupFinder.checked = false;
             saveSetting("enablePopupFinder", false);
+        }
+    }
+    if (settingSwitches.enablePromptSearch) {
+        const isDisabled = !isHiddenEnabled;
+        settingSwitches.enablePromptSearch.disabled = isDisabled; //
+
+        if (promptSearchContainer) {
+            promptSearchContainer.classList.toggle('disabled', isDisabled); //
+        }
+
+        if (isDisabled) {
+            settingSwitches.enablePromptSearch.checked = false;
+            saveSetting("enablePromptSearch", false);
+            const event = new CustomEvent('promptSearchDisabledByUI');
+            document.dispatchEvent(event); 
         }
     }
 }

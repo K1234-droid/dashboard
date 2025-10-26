@@ -10,6 +10,7 @@ import {
 import { openModal, closeModal, showInfoModal } from './ui.js';
 import { showToast, resizeImage, blobToDataURL } from './utils.js';
 import { saveSetting, getPromptBlob, savePrompt as savePromptToDB, deletePromptDB, getFullPrompt } from './storage.js';
+import { markSearchDataAsStale } from './search.js';
 
 // --- Context Menu ---
 export function showPromptContextMenu(event) {
@@ -435,6 +436,7 @@ export async function handleSavePrompt() {
         promptModalBody.scrollTop = scrollPosition;
 
         showToast(isEditing ? "prompt.edit.success" : "prompt.save.success");
+        markSearchDataAsStale();
         
         document.dispatchEvent(new CustomEvent('characterPromptsUpdated'));
         
@@ -501,6 +503,7 @@ export async function confirmDelete() {
         }
 
         showToast("prompt.delete.success");
+        markSearchDataAsStale();
         if(!promptViewerModal.overlay.classList.contains('hidden')) {
             closeModal(promptViewerModal.overlay);
         }
