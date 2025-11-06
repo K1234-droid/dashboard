@@ -1,0 +1,10 @@
+{
+    "extName": {
+      "message": "K1234 ダッシュボード",
+      "description": "The name of the extension."
+    },
+    "extDesc": {
+      "message": "デフォルトの新しいタブページをカスタムのK1234ページに置き換えます。",
+      "description": "The description of the extension."
+    }
+}

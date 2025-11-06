@@ -1,0 +1,10 @@
+{
+    "extName": {
+      "message": "K1234 Dashboard",
+      "description": "The name of the extension."
+    },
+    "extDesc": {
+      "message": "Replaces the default new tab page with the custom K1234 page.",
+      "description": "The description of the extension."
+    }
+}
