@@ -596,7 +596,24 @@ body::after {
   z-index: 0;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.2s ease-in-out;
+  transition: opacity 0.2s ease-in-out, background 0.2s ease-in-out;
+}
+
+body.custom-background-active.light-theme::after {
+  background: linear-gradient(to right, rgba(255, 255, 255, 0.5), transparent);
+}
+
+@media (prefers-color-scheme: light) {
+  body.custom-background-active:not(.dark-theme)::after {
+    background: linear-gradient(to right, rgba(255, 255, 255, 0.5), transparent);
+  }
+}
+
+body.custom-background-active.info-overlay-force-light::after {
+  background: linear-gradient(to right, rgba(255, 255, 255, 0.5), transparent);
+}
+body.custom-background-active.info-overlay-force-dark::after {
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.5), transparent);
 }
 
 body.custom-background-active::before {
@@ -708,6 +725,12 @@ body.custom-background-active.footer-force-light .footer-search-results::-webkit
 body.custom-background-active.footer-force-light .footer-search-results::-webkit-scrollbar-thumb:hover {
   background-color: rgba(128, 128, 128, 0.6);
 }
+body.custom-background-active.info-shadow-light .info-section {
+  text-shadow: 0 1px 3px rgba(255, 255, 255, 0.5);
+}
+body.custom-background-active.info-shadow-dark .info-section {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
 
 /* ==================== LAYOUT DASAR HALAMAN ==================== */
 #loader-overlay {
@@ -747,7 +770,8 @@ body::-webkit-scrollbar {
 }
 
 #theme-modal-overlay #info-section-theme-container.hidden,
-#theme-modal-overlay #footer-theme-container.hidden {
+#theme-modal-overlay #footer-theme-container.hidden,
+#theme-modal-overlay #shadow-theme-container.hidden {
   display: none;
 }
 
@@ -1547,7 +1571,8 @@ body.dark-theme .switch input:checked + .slider:before {
   margin-top: 0rem;
 }
 #info-section-theme-container,
-#footer-theme-container {
+#footer-theme-container,
+#shadow-theme-container {
   margin-top: 1.5rem;
 }
 #info-section-theme-container .sub-judul,
@@ -2536,6 +2561,64 @@ pointer-events: all;
   transform: translate(-2px, 0px) rotate(-45deg);
 }
 
+/* ==================== ANIMASI MODAL SAMPING (DESKTOP) ==================== */
+@media (min-width: 866px) {
+  .modal-overlay.modal-slide-right {
+    justify-content: flex-end;
+    align-items: flex-start;
+    padding: 0;
+  }
+
+  .modal-overlay.modal-slide-right .modal-content {
+    width: 90%;
+    max-width: 380px;
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
+    border: none;
+    border-left: 1px solid rgba(128, 128, 128, 0.2);
+    transform: translateX(100%);
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    opacity: 1;
+    position: fixed;
+    top: 0;
+    right: 0;
+    margin: 0;
+  }
+
+  .modal-overlay.modal-slide-right:not(.hidden) .modal-content {
+    transform: translateX(0);
+  }
+
+  .modal-overlay.modal-slide-right.hidden .modal-content {
+    transform: translateX(100%);
+    opacity: 0; 
+  }
+
+  #other-settings-modal-overlay.modal-slide-right .modal-content,
+  #theme-modal-overlay.modal-slide-right .modal-content,
+  #about-modal-overlay.modal-slide-right .modal-content {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    max-height: 100vh;
+  }
+
+  #other-settings-modal-overlay.modal-slide-right .modal-body,
+  #theme-modal-overlay.modal-slide-right .modal-body,
+  #about-modal-overlay.modal-slide-right .modal-body {
+    flex-grow: 1;
+    min-height: 0;
+    max-height: none;
+  }
+
+  #theme-modal-overlay.hidden .modal-content,
+  #other-settings-modal-overlay.hidden .modal-content,
+  #about-modal-overlay.hidden .modal-content {
+    transform: translateX(100%);
+  }
+}
+
 /* ==================== RESPONSIVE DESIGN ==================== */
 @media (max-width: 1328px) {
   h1, .description, .separator, .time-info p, .main-page-bookmark-container {
@@ -3468,7 +3551,6 @@ body.bookmark-blur-disabled .bookmark-more-btn {
     max-height: calc(100vh - 2rem - 65px - 5rem);
   }
   
-  #other-settings-modal-overlay,
   #prompt-modal-overlay,
   #add-edit-prompt-modal-overlay,
   #prompt-viewer-modal-overlay,
@@ -3480,7 +3562,6 @@ body.bookmark-blur-disabled .bookmark-more-btn {
     padding: 0;
   }
 
-  #other-settings-modal-overlay .modal-content,
   #prompt-modal-overlay .modal-content,
   #add-edit-prompt-modal-overlay .modal-content,
   #prompt-viewer-modal-overlay .modal-content,
@@ -3500,7 +3581,6 @@ body.bookmark-blur-disabled .bookmark-more-btn {
     flex-direction: column;
   }
 
-  #other-settings-modal-overlay .modal-header,
   #prompt-modal-overlay .modal-header,
   #add-edit-prompt-modal-overlay .modal-header,
   #prompt-viewer-modal-overlay .modal-header,
@@ -3513,7 +3593,6 @@ body.bookmark-blur-disabled .bookmark-more-btn {
     flex-shrink: 0;
   }
 
-  #other-settings-modal-overlay .modal-body,
   #prompt-modal-overlay .modal-body,
   #add-edit-prompt-modal-overlay .modal-body,
   #prompt-viewer-modal-overlay .modal-body,

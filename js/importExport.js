@@ -5,7 +5,7 @@ import { showToast, resizeImage, log } from './utils.js';
 import {
     userPIN, advancedPIN, setPinModalPurpose, languageSettings, i18nData, pinEnterModal, confirmationMergeReplaceModal,
     setTempImportData, tempImportData, advancedPrompts, currentUser, bookmarks, confirmationBookmarkMergeModal, setTempUserImportData,
-    tempUserImportData
+    tempUserImportData, setIsDataOperationInProgress
 } from './config.js';
 import { openModal, closeModal, showInfoModal, showProgressModal, updateProgress, hideProgressModal, showLoadingModal, hideLoadingModal } from './ui.js';
 
@@ -47,6 +47,7 @@ function triggerImport(callback, acceptedTypes) {
 // =================== LOGIKA EKSPOR ===================
 
 export async function exportUserData() {
+    setIsDataOperationInProgress(true);
     showProgressModal('progress.export.title', 'progress.message');
     try {
         const settingsToExport = await getAllSettings([
@@ -89,11 +90,13 @@ export async function exportUserData() {
         showToast('export.failed');
     } finally {
         setTimeout(hideProgressModal, 500);
+        setIsDataOperationInProgress(false);
     }
 }
 
 export function importUserData() {
     triggerImport(async (file) => {
+        setIsDataOperationInProgress(true);
         try {
             let importedData;
 
@@ -150,6 +153,7 @@ export function importUserData() {
                     }
                     hideLoadingModal();
                     showToast('import.success');
+                    setIsDataOperationInProgress(false);
                     setTimeout(() => window.location.reload(), 1000);
                 }
             } else {
@@ -160,11 +164,13 @@ export function importUserData() {
                 }
                 hideLoadingModal();
                 showToast('import.success');
+                setIsDataOperationInProgress(false);
                 setTimeout(() => window.location.reload(), 1000);
             }
         } catch (error) {
             hideLoadingModal();
             showInfoModal('info.attention.title', 'import.failed');
+            setIsDataOperationInProgress(false);
         }
     }, '.json, .zip');
 }
@@ -213,11 +219,13 @@ export async function handleBookmarkMerge() {
         setTempUserImportData(null);
         hideLoadingModal();
         showToast('import.merged');
+        setIsDataOperationInProgress(false);
         setTimeout(() => window.location.reload(), 1000);
     } catch (error) {
         log('error', 'log.error.bookmarkMergeFailed', {}, error);
         hideLoadingModal();
         showInfoModal('info.attention.title', 'import.failed');
+        setIsDataOperationInProgress(false);
     }
 }
 
@@ -232,11 +240,13 @@ export async function handleBookmarkReplace() {
         setTempUserImportData(null);
         hideLoadingModal();
         showToast('import.replaced');
+        setIsDataOperationInProgress(false);
         setTimeout(() => window.location.reload(), 1000);
     } catch (error) {
         log('error', 'log.error.bookmarkReplaceFailed', {}, error);
         hideLoadingModal();
         showInfoModal('info.attention.title', 'import.failed');
+        setIsDataOperationInProgress(false);
     }
 }
 
@@ -255,6 +265,7 @@ export function exportHiddenData() {
 }
 
 export async function proceedWithHiddenDataExport() {
+    setIsDataOperationInProgress(true);
     showProgressModal('progress.export.title', 'progress.message');
     try {
         const zipWriter = new zip.ZipWriter(new zip.BlobWriter("application/zip"));
@@ -308,6 +319,7 @@ export async function proceedWithHiddenDataExport() {
         showToast('export.failed');
     } finally {
         setTimeout(hideProgressModal, 500);
+        setIsDataOperationInProgress(false);
     }
 }
 
@@ -320,7 +332,7 @@ export function importHiddenData() {
             showInfoModal('info.attention.title', 'import.failed');
             return;
         }
-
+        setIsDataOperationInProgress(true);
         try {
             const zipReader = new zip.ZipReader(new zip.BlobReader(file));
             const entries = await zipReader.getEntries();
@@ -337,6 +349,7 @@ export function importHiddenData() {
         } catch (error) {
             hideLoadingModal();
             showInfoModal('info.attention.title', 'import.failed');
+            setIsDataOperationInProgress(false);
         }
     }, '.zip');
 }
@@ -445,7 +458,10 @@ export async function handleMerge() {
         const success = await applyImportedData(tempImportData, false);
         if (success) {
             setTempImportData(null);
+            setIsDataOperationInProgress(false);
             setTimeout(() => window.location.reload(), 1000);
+        } else {
+            setIsDataOperationInProgress(false);
         }
     }
 }
@@ -456,7 +472,10 @@ export async function handleReplace() {
         const success = await applyImportedData(tempImportData, true);
         if (success) {
             setTempImportData(null);
+            setIsDataOperationInProgress(false);
             setTimeout(() => window.location.reload(), 1000);
+        } else {
+            setIsDataOperationInProgress(false);
         }
     }
 }

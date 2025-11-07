@@ -5,7 +5,7 @@
  */
 
 // ==================== PENGATURAN PEMBARUAN ====================
-export const CURRENT_VERSION = 'v4.2.0';
+export const CURRENT_VERSION = 'v4.4.0';
 export const GITHUB_OWNER = 'K1234-droid';
 export const GITHUB_REPO = 'dashboard';
 // ==============================================================
@@ -75,6 +75,10 @@ export const themeModal = {
     footerThemeDefaultBtn: document.getElementById('footer-theme-default-btn'),
     footerThemeLightBtn: document.getElementById('footer-theme-light-btn'),
     footerThemeDarkBtn: document.getElementById('footer-theme-dark-btn'),
+    shadowThemeContainer: document.getElementById('shadow-theme-container'),
+    shadowThemeDefaultBtn: document.getElementById('shadow-theme-default-btn'),
+    shadowThemeLightBtn: document.getElementById('shadow-theme-light-btn'),
+    shadowThemeDarkBtn: document.getElementById('shadow-theme-dark-btn'),
 };
   
 // Elemen terkait Modal Pengaturan Lainnya.
@@ -424,6 +428,7 @@ export let selectedAdvancedPromptIds = [];
 export let sortableInstance = null;
 export let advancedSortableInstance = null;
 export let isBlockingModalActive = false;
+export let isDataOperationInProgress = false;
 export let bookmarkOpenAction = 'newTab';
 export let searchEngine = 'google';
 export let searchOpenAction = 'newTab';
@@ -436,6 +441,7 @@ export let colorScheme = 'default';
 export let customThemeOverrides = {
     infoSection: 'default',
     footer: 'default',
+    shadow: 'default',
 };
 
 export let currentImageNavList = [];
@@ -500,6 +506,7 @@ export function setBookmarkOpenAction(value) { bookmarkOpenAction = value; }
 export function setSearchEngine(value) { searchEngine = value; }
 export function setSearchOpenAction(value) { searchOpenAction = value; }
 export function setIsAdvancedGridStale(value) { isAdvancedGridStale = value; }
+export function setIsDataOperationInProgress(value) { isDataOperationInProgress = value; }
 export function setLanguageSettings(value) { languageSettings = value; }
 export function setAnimationFrameId(value) { animationFrameId = value; }
 export function setLastUpdatedHour(value) { lastUpdatedHour = value; }
@@ -551,6 +558,7 @@ export const i18nData = {
     "settings.upload.background": { id: "Upload Gambar", en: "Upload Image", ja: "画像をアップロード" },
     "settings.theme.infoSection.title": { id: "Bagian Info", en: "Info Section", ja: "情報セクション" },
     "settings.theme.footer.title": { id: "Bookmark dan Footer", en: "Bookmark and Footer", ja: "ブックマークとフッター" },
+    "settings.theme.shadow.title": { id: "Bayangan", en: "Shadow", ja: "影" },
     "settings.theme.override.default": { id: "Bawaan", en: "Default", ja: "デフォルト" },
     "settings.theme.override.light": { id: "Terang", en: "Light", ja: "ライト" },
     "settings.theme.override.dark": { id: "Gelap", en: "Dark", ja: "ダーク" },

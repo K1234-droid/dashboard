@@ -88,6 +88,15 @@ export function openModal(overlay) {
 
     const baseZIndex = 101;
     overlay.style.zIndex = baseZIndex + activeModalStack.length;
+    const slideInModals = [
+        "other-settings-modal-overlay",
+        "theme-modal-overlay",
+        "about-modal-overlay"
+    ];
+
+    if (slideInModals.includes(overlay.id)) {
+        overlay.classList.add("modal-slide-right");
+    }
 
     overlay.classList.remove("hidden");
     const newStack = [...activeModalStack, overlay];
@@ -106,6 +115,7 @@ export function closeModal(overlay) {
         const newStack = activeModalStack.filter(modal => modal !== overlay);
         setActiveModalStack(newStack);
     }
+    
     if (activeModalStack.length === 0) {
         elements.body.classList.remove("modal-open");
         document.body.focus({ preventScroll: true }); 
@@ -550,11 +560,16 @@ export function updateCustomThemeSettingsVisibility() {
     if (themeModal.footerThemeContainer) {
         themeModal.footerThemeContainer.classList.toggle('hidden', !isCustomBg);
     }
+    if (themeModal.shadowThemeContainer) {
+        themeModal.shadowThemeContainer.classList.toggle('hidden', !isCustomBg);
+    }
 }
 
 export function applyThemeOverrides() {
     const overrides = customThemeOverrides;
-    elements.body.classList.remove('info-force-light', 'info-force-dark', 'footer-force-light', 'footer-force-dark');
+    elements.body.classList.remove('info-force-light', 'info-force-dark', 'footer-force-light', 'footer-force-dark',
+        'info-overlay-force-light', 'info-overlay-force-dark'
+    );
 
     if (overrides.infoSection === 'light') {
         elements.body.classList.add('info-force-dark'); 
@@ -566,6 +581,12 @@ export function applyThemeOverrides() {
         elements.body.classList.add('footer-force-light');
     } else if (overrides.footer === 'dark') {
         elements.body.classList.add('footer-force-dark');
+    }
+
+    if (overrides.shadow === 'light') {
+        elements.body.classList.add('info-overlay-force-light');
+    } else if (overrides.shadow === 'dark') {
+        elements.body.classList.add('info-overlay-force-dark');
     }
 }
 
@@ -586,5 +607,14 @@ export function updateThemeOverrideButtons() {
         if (footerSetting === 'light') themeModal.footerThemeLightBtn.classList.add('active');
         else if (footerSetting === 'dark') themeModal.footerThemeDarkBtn.classList.add('active');
         else themeModal.footerThemeDefaultBtn.classList.add('active');
+    }
+
+    if (themeModal.shadowThemeDefaultBtn) {
+        [themeModal.shadowThemeDefaultBtn, themeModal.shadowThemeLightBtn, themeModal.shadowThemeDarkBtn].forEach(btn => btn.classList.remove('active'));
+        const shadowSetting = customThemeOverrides.shadow;
+
+        if (shadowSetting === 'light') themeModal.shadowThemeLightBtn.classList.add('active');
+        else if (shadowSetting === 'dark') themeModal.shadowThemeDarkBtn.classList.add('active');
+        else themeModal.shadowThemeDefaultBtn.classList.add('active');
     }
 }

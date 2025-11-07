@@ -15,7 +15,8 @@ import {
     bookmarkOpenAction, setBookmarkOpenAction, footerSearch, searchEngine, setSearchEngine, initFooterSearch,
     searchOpenAction, setSearchOpenAction, isPromptSearchEnabled, setIsPromptSearchEnabled, confirmationBookmarkMergeModal,
     bookmarkModal, isShortcutCtrlDEnabled, setIsShortcutCtrlDEnabled, setCharacterDataStale, setIsAdvancedGridStale,
-    setIsPromptGridStale, dataDeletion, colorScheme, setColorScheme, customThemeOverrides, setCustomThemeOverrides
+    setIsPromptGridStale, dataDeletion, colorScheme, setColorScheme, customThemeOverrides, setCustomThemeOverrides,
+    isDataOperationInProgress, setIsDataOperationInProgress
 } from './config.js';
 
 import { debounce, getBrowserLanguage, showToast, formatBytes, log } from './utils.js';
@@ -937,6 +938,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     // Import and Export Data
+    window.addEventListener('beforeunload', (event) => {
+        if (isDataOperationInProgress) {
+            event.preventDefault();
+            event.returnValue = '';
+        }
+    });
+
     if (otherSettingsModal.dataTab) {
         otherSettingsModal.dataTab.addEventListener('click', () => {
             handleSettingsTabSwitch('data');
@@ -950,7 +958,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (dataManagement.importHiddenDataBtn) dataManagement.importHiddenDataBtn.addEventListener('click', importHiddenData);
 
     if (confirmationBookmarkMergeModal.closeBtn) {
-        confirmationBookmarkMergeModal.closeBtn.addEventListener('click', () => closeModal(confirmationBookmarkMergeModal.overlay));
+        confirmationBookmarkMergeModal.closeBtn.addEventListener('click', () => {
+            closeModal(confirmationBookmarkMergeModal.overlay);
+            setIsDataOperationInProgress(false);
+        });
     }
     if (confirmationBookmarkMergeModal.mergeBtn) {
         confirmationBookmarkMergeModal.mergeBtn.addEventListener('click', handleBookmarkMerge);
@@ -959,7 +970,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         confirmationBookmarkMergeModal.replaceBtn.addEventListener('click', handleBookmarkReplace);
     }
 
-    if (confirmationMergeReplaceModal.closeBtn) confirmationMergeReplaceModal.closeBtn.addEventListener('click', () => closeModal(confirmationMergeReplaceModal.overlay));
+    if (confirmationMergeReplaceModal.closeBtn) {
+        confirmationMergeReplaceModal.closeBtn.addEventListener('click', () => {
+            closeModal(confirmationMergeReplaceModal.overlay);
+            setIsDataOperationInProgress(false);
+        });
+    }
     if (confirmationMergeReplaceModal.mergeBtn) confirmationMergeReplaceModal.mergeBtn.addEventListener('click', handleMerge);
     if (confirmationMergeReplaceModal.replaceBtn) confirmationMergeReplaceModal.replaceBtn.addEventListener('click', handleReplace);
 
@@ -1059,6 +1075,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (themeModal.footerThemeDefaultBtn) themeModal.footerThemeDefaultBtn.addEventListener('click', () => handleOverrideChange('footer', 'default'));
     if (themeModal.footerThemeLightBtn) themeModal.footerThemeLightBtn.addEventListener('click', () => handleOverrideChange('footer', 'light'));
     if (themeModal.footerThemeDarkBtn) themeModal.footerThemeDarkBtn.addEventListener('click', () => handleOverrideChange('footer', 'dark'));
+
+    if (themeModal.shadowThemeDefaultBtn) themeModal.shadowThemeDefaultBtn.addEventListener('click', () => handleOverrideChange('shadow', 'default'));
+    if (themeModal.shadowThemeLightBtn) themeModal.shadowThemeLightBtn.addEventListener('click', () => handleOverrideChange('shadow', 'light'));
+    if (themeModal.shadowThemeDarkBtn) themeModal.shadowThemeDarkBtn.addEventListener('click', () => handleOverrideChange('shadow', 'dark'));
 
     document.body.classList.add('loaded');
 });
