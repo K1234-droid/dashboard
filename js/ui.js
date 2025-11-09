@@ -2,11 +2,12 @@ import {
     elements, usernameModal, themeModal, aboutModal, otherSettingsModal, infoModal, activeModalStack, currentUser, setCurrentUser,
     languageSettings, i18nData, menu, pinSettings, settingSwitches, setActiveModalStack, userPIN, advancedPIN, feedbackTimeout,
     setFeedbackTimeout, dataManagement, progressModal, loadingModal, setIsBlockingModalActive, updateModal, footerSearch, searchEngine,
-    colorScheme, setColorScheme, customThemeOverrides, setCustomThemeOverrides
+    colorScheme, setColorScheme, customThemeOverrides, setCustomThemeOverrides, mainPageTodoContainer
 } from './config.js';
 import { saveSetting, loadSettings, clearWallpaperCache, getWallpaperFromCache } from './storage.js';
 import { showToast } from './utils.js';
 import { closeAllBookmarkMenus, closeAllMainBookmarkMenus_main, closeAllContainerBookmarkMenus_main } from './bookmark.js';
+import { applyShowTodoList, closeAllTodoMenus, closeAllContainerTodoMenus_main } from './todoList.js';
 
 let hoverTimeout;
 let currentWallpaperUrl = null;
@@ -71,6 +72,8 @@ export function toggleMenu(event) {
     closeAllBookmarkMenus();
     closeAllMainBookmarkMenus_main();
     closeAllContainerBookmarkMenus_main();
+    closeAllTodoMenus();
+    closeAllContainerTodoMenus_main();
     menu.container.classList.toggle("show-menu");
     window.scrollTo({ top: 0, behavior: "smooth" });
 }

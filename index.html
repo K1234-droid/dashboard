@@ -40,6 +40,12 @@
     </div>
     </div>
 
+    <div id="main-page-todo-container" class="main-page-todo-container hidden"></div>
+
+    <button id="open-todo-modal-arrow-btn" class="todo-modal-arrow-btn" aria-label="Buka Daftar Tugas" data-tooltip="Lihat Daftar Tugas" data-i18n-key="todo.open">
+        <span class="nav-arrow"></span>
+    </button>
+
     <div id="bottom-search-bar" class="bottom-search-bar">
         <div id="footer-search-container" class="footer-search-container">
             <div id="footer-search-placeholder" class="footer-search-placeholder">
@@ -118,7 +124,7 @@
                     </div>
                 </div>
                 <div id="footer-theme-container" class="hidden">
-                    <h4 class="sub-judul" data-i18n-key="settings.theme.footer.title">Bookmark dan Footer</h4>
+                    <h4 class="sub-judul" data-i18n-key="settings.theme.footer.title">Bookmark, Footer, dan Daftar Tugas</h4>
                     <div class="theme-options">
                         <button id="footer-theme-default-btn" class="theme-btn active" data-i18n-key="settings.theme.override.default">Bawaan</button>
                         <button id="footer-theme-light-btn" class="theme-btn" data-i18n-key="settings.theme.override.light">Terang</button>
@@ -294,6 +300,14 @@
                         </label>
                     </div>
                     <p id="enable-shortcut-ctrl-d-help-text" class="setting-help-text" data-i18n-key="settings.bookmark.shortcutHelp">Jika Anda selalu menambahkan bookmark menggunakan browser bawaan, matikan fitur ini.</p>
+                    <h4 class="sub-judul" data-i18n-key="todo.main.title">Daftar Tugas</h4>
+                    <div class="switch-container">
+                        <label for="show-todo-list-switch" class="switch-label" data-i18n-key="settings.other.showTodoList">Tampilkan Daftar Tugas</label>
+                        <label class="switch">
+                            <input type="checkbox" id="show-todo-list-switch">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
                     <h4 class="sub-judul" data-i18n-key="settings.other.search">Pencarian</h4>
                     <div class="switch-container">
                         <label for="enable-search-bar-switch" class="switch-label" data-i18n-key="settings.other.enableSearchBar">Aktifkan Bar Pencarian</label>
@@ -337,7 +351,7 @@
                         </label>
                     </div>
                     <div class="switch-container">
-                        <label for="blur-bookmark-switch" class="switch-label" data-i18n-key="settings.other.blurBookmark">Efek Blur Bookmark</label>
+                        <label for="blur-bookmark-switch" class="switch-label" data-i18n-key="settings.other.blurBookmark">Efek Blur Bookmark dan Daftar Tugas</label>
                         <label class="switch">
                             <input type="checkbox" id="blur-bookmark-switch">
                             <span class="slider"></span>
@@ -366,7 +380,7 @@
                         <div class="switch-container">
                             <label for="manage-user-title" class="switch-label" data-i18n-key="data.manageUser.title">Data Pengguna</label>
                         </div>
-                        <p class="setting-help-text" data-i18n-key="data.manageUser.desc">Username, pilihan tema, bookmark, dan pengaturan.</p>
+                        <p class="setting-help-text" data-i18n-key="data.manageUser.desc">Username, pilihan tema, bookmark, daftar tugas, dan pengaturan.</p>
                         <div class="data-actions">
                             <button id="import-user-data-btn" class="modal-secondary-btn" data-i18n-key="data.button.import">Impor</button>
                             <button id="export-user-data-btn" class="modal-save-btn" data-i18n-key="data.button.export">Ekspor</button>
@@ -444,6 +458,7 @@
                             <button id="clear-bookmark-cache-btn" class="modal-secondary-btn" type="button" data-i18n-key="data.button.clearBookmarkCache">Hapus Cache Bookmark</button>
                             <button id="clear-hidden-cache-btn" class="modal-secondary-btn" type="button" data-i18n-key="data.button.clearHiddenCache">Hapus Cache Fitur Tersembunyi</button>
                             <button id="delete-user-data-btn" class="modal-danger-btn" type="button" data-i18n-key="data.button.deleteUserData">Hapus Data Pengguna</button>
+                            <button id="delete-todo-list-data-btn" class="modal-danger-btn" type="button" data-i18n-key="data.button.deleteTodoListData">Hapus Data Daftar Tugas</button>
                             <button id="delete-hidden-data-btn" class="modal-danger-btn" type="button" data-i18n-key="data.button.deleteHiddenData">Hapus Data Fitur Tersembunyi</button>
                        </div>
                     </div>
@@ -521,7 +536,7 @@
                 <button id="close-confirmation-bookmark-merge-modal-btn" class="close-btn">&times;</button>
             </div>
             <div class="modal-body">
-                <p id="confirmation-bookmark-merge-modal-text" data-i18n-key="confirm.import.user.text">File cadangan bookmark terdeteksi. Apa yang ingin Anda lakukan dengan data yang ada saat ini?</p>
+                <p id="confirmation-bookmark-merge-modal-text" data-i18n-key="confirm.import.mergeText">File cadangan terdeteksi. Apa yang ingin Anda lakukan dengan data yang ada saat ini?</p>
                 <div class="modal-button-group-column">
                     <button id="confirm-bookmark-merge-btn" class="modal-save-btn" data-i18n-key="confirm.import.mergeBtn">Gabungkan</button>
                     <button id="confirm-bookmark-replace-btn" class="modal-save-btn" data-i18n-key="confirm.import.replaceBtn">Gantikan Semua</button>
@@ -932,6 +947,71 @@
         </div>
     </div>
 
+    <div id="todo-list-modal-overlay" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-i18n-key="todo.listTitle">To-do List</h3>
+                <div>
+                    <button id="todo-add-btn-header" class="modal-header-btn add-btn">+</button>
+                    <button id="todo-search-btn" class="modal-header-btn" data-i18n-key="prompt.search">Cari</button>
+                    <button id="todo-manage-btn" class="modal-header-btn" data-i18n-key="prompt.manage">Kelola</button>
+                    <button id="close-todo-list-modal-btn" class="close-btn">&times;</button>
+                </div>
+            </div>
+            
+            <div id="todo-action-bar" class="prompt-action-bar hidden">
+                <div id="todo-search-content" class="action-bar-content hidden">
+                    <input type="text" id="todo-search-input" class="modal-input" placeholder=" " data-i18n-key-placeholder="prompt.search.placeholder" aria-label="Search Todos">
+                    <button id="todo-cancel-search-btn" class="modal-secondary-btn" data-i18n-key="prompt.delete.cancel">Batal</button>
+                </div>
+            
+                <div id="todo-manage-content" class="action-bar-content hidden">
+                    <span id="todo-select-count" class="prompt-select-count-text">Pilih (0)</span>
+                    <div class="prompt-manage-actions">
+                        <button id="todo-select-all-btn" class="modal-secondary-btn" data-i18n-key="prompt.selectAll">Pilih Semua</button>
+                        <button id="todo-delete-selected-btn" class="modal-danger-btn" data-i18n-key="prompt.menu.delete" disabled>Hapus</button>
+                        <button id="todo-cancel-manage-btn" class="modal-secondary-btn" data-i18n-key="prompt.delete.cancel">Batal</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div id="todo-grid" class="bookmark-grid todo-grid">
+                    </div>
+                <p id="todo-no-results" class="prompt-no-results hidden" data-i18n-key="prompt.search.noResults">Tidak ditemukan hasil</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="todo-modal-overlay" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="todo-modal-title">Tambah To-do Baru</h3>
+                <button id="close-todo-modal-btn" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-item-column">
+                    <label for="todo-title-input" class="modal-label" data-i18n-key="todo.label.title">Judul</label>
+                    <input type="text" id="todo-title-input" class="modal-input">
+                </div>
+                <div class="setting-item-column">
+                    <label for="todo-description-input" class="modal-label" data-i18n-key="todo.label.description">Deskripsi</label>
+                    <textarea id="todo-description-input" class="modal-input" rows="3"></textarea>
+                </div>
+                <div class="setting-item-column">
+                    <label for="todo-datetime-input" class="modal-label" data-i18n-key="todo.label.datetime">Tenggat Waktu (Opsional)</label>
+                    <div class="datetime-input-wrapper">
+                        <input type="datetime-local" id="todo-datetime-input" class="modal-input" data-placeholder="">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer-actions">
+                <div class="modal-button-group">
+                    <button id="save-todo-btn" class="modal-save-btn" data-i18n-key="settings.username.save">Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="update-modal-overlay" class="modal-overlay hidden">
         <div class="modal-content">
             <div class="modal-header">
@@ -958,6 +1038,11 @@
     <div id="bookmark-container-context-menu" class="prompt-item-menu">
         <button class="bookmark-menu-option" data-action="add-new" data-i18n-key="bookmark.add">Tambah Bookmark</button>
         <button class="bookmark-menu-option" data-action="view-all" data-i18n-key="bookmark.open">Lihat Bookmark</button>
+    </div>
+
+    <div id="todo-container-context-menu" class="prompt-item-menu">
+        <button class="bookmark-menu-option" data-action="add-new" data-i18n-key="todo.add">Tambah To-do</button>
+        <button class="bookmark-menu-option" data-action="view-all" data-i18n-key="todo.open">Lihat Semua</button>
     </div>
 
     <div class="hover-dead-zone"></div>

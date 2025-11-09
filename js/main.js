@@ -16,7 +16,9 @@ import {
     searchOpenAction, setSearchOpenAction, isPromptSearchEnabled, setIsPromptSearchEnabled, confirmationBookmarkMergeModal,
     bookmarkModal, isShortcutCtrlDEnabled, setIsShortcutCtrlDEnabled, setCharacterDataStale, setIsAdvancedGridStale,
     setIsPromptGridStale, dataDeletion, colorScheme, setColorScheme, customThemeOverrides, setCustomThemeOverrides,
-    isDataOperationInProgress, setIsDataOperationInProgress
+    isDataOperationInProgress, setIsDataOperationInProgress, todoList, setTodoList, todoListModal, todoModal,
+    setTodoSortableInstance, activeTodoMenu, mainPageTodoContainer, isTodoSearchModeActive, isTodoManageModeActive,
+    setIsDraggingTodo, todoSortableInstance, isDraggingTodo
 } from './config.js';
 
 import { debounce, getBrowserLanguage, showToast, formatBytes, log } from './utils.js';
@@ -37,6 +39,11 @@ import {
     renderBookmarkModalGrid, toggleManageMode as toggleBookmarkManageMode, toggleSearchMode as toggleBookmarkSearchMode, closeAllMainBookmarkMenus_main,
     closeAllContainerBookmarkMenus_main, handleOpenAddBookmarkModal
 } from './bookmark.js';
+import {
+    initializeTodoList, confirmDeleteTodo, closeAllTodoMenus, renderMainPageTodoList, renderTodoModalGrid,
+    applyShowTodoList, toggleManageMode as toggleTodoManageMode, toggleSearchMode as toggleTodoSearchMode,
+    closeAllContainerTodoMenus_main
+} from './todoList.js';
 import { initializeSearch, closeSearch, initializeData as reinitializeSearchData } from './search.js';
 import { startPinUpdate, handleSaveInitialPin, handleSaveInitialAdvancedPin, handleDisableFeature, handlePinSubmit } from './pinManager.js';
 import {
@@ -195,6 +202,45 @@ function initializeDragAndDrop() {
         });
         setBookmarkSortableInstance(bookmarkSortable);
     }
+    if (todoListModal.grid) {
+        const todoSortable = new Sortable(todoListModal.grid, {
+            animation: 150,
+            ghostClass: 'sortable-ghost',
+            chosenClass: 'sortable-chosen',
+            forceFallback: true,
+            filter: '.add-bookmark-item, .todo-item.completed, .todo-completed-header',
+            preventOnFilter: true,
+            delay: 200,
+            delayOnTouchOnly: true,
+            onStart: function() {
+                closeAllTodoMenus();
+                setIsDraggingTodo(true);
+            },
+            onMove: function (evt) {
+                const isAddButton = evt.related.classList.contains('add-bookmark-item');
+                const isRelatedCompleted = evt.related.classList.contains('completed');
+                const isHeader = evt.related.classList.contains('todo-completed-header');
+                return !isAddButton && !isRelatedCompleted && !isHeader;
+            },
+            onEnd: async function(evt) {
+                const incompleteTodos = todoList.filter(t => !t.completed);
+                const completedTodos = todoList.filter(t => t.completed);
+
+                const movedItem = incompleteTodos.splice(evt.oldIndex, 1)[0];
+                incompleteTodos.splice(evt.newIndex, 0, movedItem);
+
+                const newTodos = [...incompleteTodos, ...completedTodos];
+                setTodoList(newTodos);
+                await saveSetting('todoList', newTodos);
+                
+                renderMainPageTodoList();
+                setTimeout(() => {
+                    setIsDraggingTodo(false);
+                }, 0);
+            },
+        });
+        setTodoSortableInstance(todoSortable);
+    }
 }
 
 const langDropdowns = ['greeting', 'description', 'date'];
@@ -274,6 +320,8 @@ function setupDropdown(type) {
                 renderMainPageBookmarks();
                 renderBookmarkModalGrid();
                 reinitializeSearchData();
+                renderMainPageTodoList();
+                renderTodoModalGrid();
                 if (isManageModeActive) {
                     updatePromptManageModeUI();
                 }
@@ -332,10 +380,19 @@ document.addEventListener("DOMContentLoaded", async () => {
         "promptOrder", "enableAnimation", "showContent", "showGreeting", "showDescription", "showDate", "showTime",
         "showUsername", "bookmarks", "showBookmark", "bookmarkBlur", "enableSearchBar", "bookmarkOpenAction", "searchEngine",
         "searchOpenAction", "enableHistorySearch", "enableBookmarkSearch", "enableBookmarkPopupFinder", "enablePromptSearch",
-        "enableShortcutCtrlD", "colorScheme", "customBackground", "customThemeOverrides"
+        "enableShortcutCtrlD", "colorScheme", "customBackground", "customThemeOverrides", "todoList", "showTodoList"
     ];
 
     const settings = await loadSettings(keysToLoad);
+
+    mainPageTodoContainer.list = document.querySelector('#main-page-todo-container .main-page-todo-list');
+
+    const todoArrowBtn = document.getElementById('open-todo-modal-arrow-btn');
+    if (todoArrowBtn) {
+        todoArrowBtn.addEventListener('click', () => {
+            openModal(todoListModal.overlay);
+        });
+    }
 
     if (settings.languageSettings) {
         setLanguageSettings({ ...languageSettings, ...settings.languageSettings });
@@ -364,6 +421,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     setAdvancedPIN(settings.advancedPIN || null);
     setAdvancedPrompts(settings.advancedPrompts || []);
     setBookmarks(settings.bookmarks || []);
+    setTodoList(settings.todoList || []);
     setColorScheme(settings.colorScheme || 'default');
     
     if (settings.languageSettings) {
@@ -439,6 +497,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const shouldUseMenuBlur = settings.menuBlur !== false; settingSwitches.menuBlur.checked = shouldUseMenuBlur;
     const shouldUseBookmarkBlur = settings.bookmarkBlur !== false; settingSwitches.bookmarkBlur.checked = shouldUseBookmarkBlur;
     const shouldShowBookmark = settings.showBookmark !== false; settingSwitches.showBookmark.checked = shouldShowBookmark;
+    const shouldShowTodoList = settings.showTodoList !== false;
+    if (settingSwitches.showTodoList) settingSwitches.showTodoList.checked = shouldShowTodoList;
     const shouldUseFooterBlur = settings.footerBlur !== false; settingSwitches.footerBlur.checked = shouldUseFooterBlur;
     const shouldShowSearchBar = settings.enableSearchBar !== false; settingSwitches.enableSearchBar.checked = shouldShowSearchBar;
     settingSwitches.enableAnimation.checked = shouldEnableAnimation;
@@ -596,6 +656,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     setupSearchActionDropdown();
     setupSearchEngineDropdown();
     initializeBookmarks();
+    initializeTodoList();
     initializeSearch();
     initializeDragAndDrop();
 
@@ -761,6 +822,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     applyFooterBlur(shouldUseFooterBlur);
     applyShowContent(shouldShowContent);
     applyShowBookmark(shouldShowBookmark);
+    applyShowTodoList(shouldShowTodoList);
     applyShowSearchBar(shouldShowSearchBar);
 
     adjustSeparatorWidth();
@@ -1051,6 +1113,16 @@ document.addEventListener("DOMContentLoaded", async () => {
             setTimeout(() => window.location.reload(), 1500);
         });
     }
+
+    if (dataDeletion.deleteTodoListDataBtn) {
+        dataDeletion.deleteTodoListDataBtn.addEventListener('click', () => {
+            setConfirmationModalPurpose('deleteTodoListData');
+            const lang = languageSettings.ui;
+            confirmationModal.title.textContent = i18nData["confirm.delete.todo.title"][lang];
+            confirmationModal.text.textContent = i18nData["confirm.delete.todo.text"][lang];
+            openModal(confirmationModal.overlay);
+        });
+    }
     
     if (dataDeletion.clearHiddenCacheBtn) {
         dataDeletion.clearHiddenCacheBtn.addEventListener('click', async () => {
@@ -1080,6 +1152,32 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (themeModal.shadowThemeLightBtn) themeModal.shadowThemeLightBtn.addEventListener('click', () => handleOverrideChange('shadow', 'light'));
     if (themeModal.shadowThemeDarkBtn) themeModal.shadowThemeDarkBtn.addEventListener('click', () => handleOverrideChange('shadow', 'dark'));
 
+    window.addEventListener("blur", () => {
+        if (isDraggingTodo) {
+            const pointerUpEvent = new PointerEvent('pointerup', {
+                view: window,
+                bubbles: true,
+                cancelable: true,
+                pointerId: 1,
+                isPrimary: true
+            });
+    
+            window.dispatchEvent(pointerUpEvent);
+            document.dispatchEvent(pointerUpEvent);
+            document.body.dispatchEvent(pointerUpEvent);
+    
+            const mouseUpEvent = new MouseEvent('mouseup', {
+                view: window,
+                bubbles: true,
+                cancelable: true
+            });
+            
+            window.dispatchEvent(mouseUpEvent);
+            document.dispatchEvent(mouseUpEvent);
+            document.body.dispatchEvent(mouseUpEvent);
+        }
+    });
+
     document.body.classList.add('loaded');
 });
 
@@ -1095,9 +1193,16 @@ window.addEventListener("click", (e) => {
     if (activeBookmarkMenu && !activeBookmarkMenu.contains(e.target) && !e.target.closest('.bookmark-menu-btn')) {
         closeAllBookmarkMenus_bookmark();
     }
+    if (activeTodoMenu && !activeTodoMenu.contains(e.target) && !e.target.closest('.todo-menu-btn')) {
+        closeAllTodoMenus();
+    }
     const contextMenuMain = document.getElementById('bookmark-context-menu-main');
     if (contextMenuMain && contextMenuMain.classList.contains('show') && !contextMenuMain.contains(e.target) && !e.target.closest('.bookmark-menu-btn-main')) {
         contextMenuMain.classList.remove('show');
+    }
+    const contextMenuTodo = document.getElementById('todo-container-context-menu');
+    if (contextMenuTodo && contextMenuTodo.classList.contains('show') && !contextMenuTodo.contains(e.target)) {
+        closeAllContainerTodoMenus_main();
     }
 });
 
@@ -1106,6 +1211,12 @@ window.addEventListener("offline", updateOfflineStatus);
 
 window.addEventListener("resize", () => {
     adjustSeparatorWidth();
+    if (settingSwitches.showTodoList) {
+        applyShowTodoList(settingSwitches.showTodoList.checked);
+    }
+    if (settingSwitches.showTodoList?.checked) {
+        renderMainPageTodoList();
+    }
 });
 
 window.addEventListener("keydown", (event) => {
@@ -1125,9 +1236,20 @@ window.addEventListener("keydown", (event) => {
             return; 
         }
 
+        if (activeTodoMenu) {
+            closeAllTodoMenus();
+            return;
+        }
+
         const contextMenuContainer = document.getElementById('bookmark-container-context-menu');
         if (contextMenuContainer && contextMenuContainer.classList.contains('show')) {
             closeAllContainerBookmarkMenus_main();
+            return;
+        }
+
+        const contextMenuTodoContainer = document.getElementById('todo-container-context-menu');
+        if (contextMenuTodoContainer && contextMenuTodoContainer.classList.contains('show')) {
+            closeAllContainerTodoMenus_main();
             return;
         }
 
@@ -1210,6 +1332,17 @@ window.addEventListener("keydown", (event) => {
                 }
             }
 
+            if (lastModal === todoListModal.overlay) {
+                if (isTodoSearchModeActive) {
+                    toggleTodoSearchMode(false);
+                    return;
+                }
+                if (isTodoManageModeActive) {
+                    toggleTodoManageMode(false);
+                    return;
+                }
+            }
+
             if (lastModal === addEditAdvancedPromptModal.overlay) {
                 if (addEditAdvancedPromptModal.searchInput && addEditAdvancedPromptModal.searchInput.value !== '') {
                     addEditAdvancedPromptModal.searchInput.value = '';
@@ -1284,6 +1417,11 @@ function handleModalSearchShortcut(event) {
             event.preventDefault();
             if (!isBookmarkManageModeActive) {
                 toggleBookmarkSearchMode(true);
+            }
+        } else if (topModal === todoListModal.overlay) {
+            event.preventDefault();
+            if (!isTodoManageModeActive) {
+                toggleTodoSearchMode(true);
             }
         }
     }
@@ -1503,6 +1641,8 @@ if (confirmationModal.confirmBtn) confirmationModal.confirmBtn.addEventListener(
         confirmAdvancedDelete();
     } else if (purpose === 'deleteBookmark' || purpose === 'deleteSelectedBookmarks') {
         confirmDeleteBookmark();
+    } else if (purpose === 'deleteTodo' || purpose === 'deleteSelectedTodos' || purpose === 'deleteTodoListData') {
+        confirmDeleteTodo();
     } else if (purpose === 'deleteUserData') {
         clearUserData().then(() => {
             showToast("data.delete.user.success");
@@ -1621,6 +1761,14 @@ if (settingSwitches.bookmarkBlur) {
         applyBookmarkBlur(e.target.checked); 
         await saveSetting("bookmarkBlur", e.target.checked); 
     }); 
+}
+
+if (settingSwitches.showTodoList) {
+    settingSwitches.showTodoList.addEventListener("change", async (e) => {
+        const isChecked = e.target.checked;
+        applyShowTodoList(isChecked);
+        await saveSetting("showTodoList", isChecked);
+    });
 }
 
 if (settingSwitches.enablePromptSearch) {

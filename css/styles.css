@@ -171,6 +171,18 @@ html.monochrome-scheme body {
   html.monochrome-scheme body:not(.dark-theme) .modal-danger-btn:hover {
     opacity: 0.9 !important;
   }
+  html.monochrome-scheme body:not(.dark-theme) .todo-item-checkbox-modal:checked {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+  }
+  html.monochrome-scheme body:not(.dark-theme) .todo-item-checkbox-modal:checked::after {
+    color: #ffffff;
+    text-shadow: 
+        0.5px 0 0 #ffffff,
+        0 0 0 #ffffff, 
+        0 0 0 #ffffff, 
+        0 0 0 #ffffff;
+  }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -192,7 +204,8 @@ html.monochrome-scheme body {
   }
   html.monochrome-scheme body:not(.light-theme) .modal-content.manage-mode .prompt-item.selected,
   html.monochrome-scheme body:not(.light-theme) .modal-content.manage-mode .advanced-prompt-item.selected,
-  html.monochrome-scheme body:not(.light-theme) .modal-content.manage-mode .bookmark-item.selected {
+  html.monochrome-scheme body:not(.light-theme) .modal-content.manage-mode .bookmark-item.selected,
+  html.monochrome-scheme body:not(.light-theme) .modal-content.manage-mode .todo-item.selected {
     border-color: #FAFAFA;
     outline-color: #FAFAFA;
   }
@@ -206,7 +219,8 @@ html.monochrome-scheme body {
   }
   html.monochrome-scheme body:not(.light-theme) .prompt-item.sortable-ghost,
   html.monochrome-scheme body:not(.light-theme) .advanced-prompt-item.sortable-ghost,
-  html.monochrome-scheme body:not(.light-theme) .bookmark-item.sortable-ghost {
+  html.monochrome-scheme body:not(.light-theme) .bookmark-item.sortable-ghost,
+  html.monochrome-scheme body:not(.light-theme) .todo-item.sortable-ghost {
     border-color: var(--link-color);
   }
   html.monochrome-scheme body:not(.light-theme) .custom-select:focus,
@@ -222,7 +236,8 @@ html.monochrome-scheme body {
   }
   html.monochrome-scheme body:not(.light-theme) .bookmark-add-btn::before,
   html.monochrome-scheme body:not(.light-theme) .bookmark-more-btn::before,
-  html.monochrome-scheme body:not(.light-theme) .avatar-menu-container::before {
+  html.monochrome-scheme body:not(.light-theme) .avatar-menu-container::before,
+  html.monochrome-scheme body:not(.light-theme) .todo-modal-arrow-btn::before {
     background-color: rgba(224, 224, 224, 0.95);
     color: #121212;
   }
@@ -240,6 +255,22 @@ html.monochrome-scheme body {
   html.monochrome-scheme body:not(.light-theme) .modal-save-btn:not(:disabled):hover,
   html.monochrome-scheme body:not(.light-theme) .modal-danger-btn:not(:disabled):hover {
     opacity: 0.8 !important;
+  }
+  html.monochrome-scheme body:not(.light-theme) .todo-item-checkbox-modal:checked {
+    background-color: #ffffff;
+    border-color: #ffffff;
+  }
+  html.monochrome-scheme body:not(.light-theme) .todo-item-checkbox-modal:checked::after {
+    color: var(--accent-color);
+    text-shadow: 
+      0.6px 0 0 var(--accent-color),
+      0 0 0 var(--accent-color), 
+      0 0 0 var(--accent-color), 
+      0 0 0 var(--accent-color),
+      0.6px 0 0 var(--accent-color),
+      0 0 0 var(--accent-color),
+      0 0 0 var(--accent-color),
+      0 0 0 var(--accent-color);
   }
 }
 
@@ -271,7 +302,8 @@ html.monochrome-scheme body.dark-theme .switch input:checked + .slider:before {
 
 html.monochrome-scheme body.dark-theme .modal-content.manage-mode .prompt-item.selected,
 html.monochrome-scheme body.dark-theme .modal-content.manage-mode .advanced-prompt-item.selected,
-html.monochrome-scheme body.dark-theme .modal-content.manage-mode .bookmark-item.selected {
+html.monochrome-scheme body.dark-theme .modal-content.manage-mode .bookmark-item.selected,
+html.monochrome-scheme body.dark-theme .modal-content.manage-mode .todo-item.selected {
   border-color: #FAFAFA;
   outline-color: #FAFAFA;
 }
@@ -286,7 +318,8 @@ html.monochrome-scheme body .modal-content.drag-over {
 }
 html.monochrome-scheme body.dark-theme .prompt-item.sortable-ghost,
 html.monochrome-scheme body.dark-theme .advanced-prompt-item.sortable-ghost,
-html.monochrome-scheme body.dark-theme .bookmark-item.sortable-ghost {
+html.monochrome-scheme body.dark-theme .bookmark-item.sortable-ghost,
+html.monochrome-scheme body.dark-theme .todo-item.sortable-ghost {
   border-color: var(--link-color);
 }
 
@@ -311,14 +344,16 @@ html.monochrome-scheme body.dark-theme .toast-notification {
 
 html.monochrome-scheme body .bookmark-add-btn::before,
 html.monochrome-scheme body .bookmark-more-btn::before,
-html.monochrome-scheme body .avatar-menu-container::before {
+html.monochrome-scheme body .avatar-menu-container::before,
+html.monochrome-scheme body .todo-modal-arrow-btn::before {
     background-color: rgba(33, 33, 33, 0.95);
     color: #FAFAFA;
 }
 
 html.monochrome-scheme body.dark-theme .bookmark-add-btn::before,
 html.monochrome-scheme body.dark-theme .bookmark-more-btn::before,
-html.monochrome-scheme body.dark-theme .avatar-menu-container::before {
+html.monochrome-scheme body.dark-theme .avatar-menu-container::before,
+html.monochrome-scheme body.dark-theme .todo-modal-arrow-btn::before {
     background-color: rgba(224, 224, 224, 0.95);
     color: var(--bg-color);
 }
@@ -330,6 +365,23 @@ html.monochrome-scheme body.dark-theme .progress-bar {
   background-color: var(--link-color);
 }
 
+html.monochrome-scheme body.dark-theme .todo-item-checkbox-modal:checked {
+  background-color: #ffffff;
+  border-color: #ffffff;
+}
+html.monochrome-scheme body.dark-theme .todo-item-checkbox-modal:checked::after {
+  color: var(--accent-color);
+  text-shadow: 
+      0.6px 0 0 var(--accent-color),
+      0 0 0 var(--accent-color), 
+      0 0 0 var(--accent-color), 
+      0 0 0 var(--accent-color),
+      0.6px 0 0 var(--accent-color),
+      0 0 0 var(--accent-color),
+      0 0 0 var(--accent-color),
+      0 0 0 var(--accent-color);
+}
+
 html.monochrome-scheme body.light-theme .modal-danger-btn {
   background-color: var(--accent-color);
   color: white;
@@ -337,6 +389,20 @@ html.monochrome-scheme body.light-theme .modal-danger-btn {
 }
 html.monochrome-scheme body.light-theme .modal-danger-btn:not(:disabled):hover {
   opacity: 0.9;
+}
+
+html.monochrome-scheme body.light-theme .todo-item-checkbox-modal:checked {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+html.monochrome-scheme body.light-theme .todo-item-checkbox-modal:checked::after {
+  color: #ffffff;
+  text-shadow: 
+      0.5px 0 0 #ffffff,
+      0 0 0 #ffffff, 
+      0 0 0 #ffffff, 
+      0 0 0 #ffffff;
 }
 
 html.monochrome-scheme body:not(.light-theme) .modal-save-btn,
@@ -424,14 +490,17 @@ body.custom-background-active.dark-theme .result-type {
 }
 body.custom-background-active.dark-theme .bookmark-item-main,
 body.custom-background-active.dark-theme .bookmark-add-btn,
-body.custom-background-active.dark-theme .bookmark-more-btn {
+body.custom-background-active.dark-theme .bookmark-more-btn,
+body.custom-background-active.dark-theme .todo-item-main,
+body.custom-background-active.dark-theme .todo-modal-arrow-btn {
   background-color: rgba(33, 33, 33, 0.70);
   color: #FAFAFA;
 }
 body.custom-background-active.dark-theme .toast-notification,
 body.custom-background-active.dark-theme .avatar-menu-container::before,
 body.custom-background-active.dark-theme .bookmark-add-btn::before,
-body.custom-background-active.dark-theme .bookmark-more-btn::before {
+body.custom-background-active.dark-theme .bookmark-more-btn::before,
+body.custom-background-active.dark-theme .todo-modal-arrow-btn::before {
     background-color: rgba(224, 224, 224, 0.95);
     color: #121212;
 }
@@ -462,14 +531,17 @@ body.custom-background-active.dark-theme .bookmark-menu-btn-main {
   }
   body.custom-background-active:not(.light-theme) .bookmark-item-main,
   body.custom-background-active:not(.light-theme) .bookmark-add-btn,
-  body.custom-background-active:not(.light-theme) .bookmark-more-btn {
+  body.custom-background-active:not(.light-theme) .bookmark-more-btn,
+  body.custom-background-active:not(.light-theme) .todo-item-main,
+  body.custom-background-active:not(.light-theme) .todo-modal-arrow-btn {
     background-color: rgba(33, 33, 33, 0.70);
     color: #FAFAFA;
   }
   body.custom-background-active:not(.light-theme) .toast-notification,
   body.custom-background-active:not(.light-theme) .avatar-menu-container::before,
   body.custom-background-active:not(.light-theme) .bookmark-add-btn::before,
-  body.custom-background-active:not(.light-theme) .bookmark-more-btn::before {
+  body.custom-background-active:not(.light-theme) .bookmark-more-btn::before,
+  body.custom-background-active:not(.light-theme) .todo-modal-arrow-btn::before {
       background-color: rgba(224, 224, 224, 0.95);
       color: #121212;
   }
@@ -500,14 +572,17 @@ body.custom-background-active.light-theme .result-type {
 }
 body.custom-background-active.light-theme .bookmark-item-main,
 body.custom-background-active.light-theme .bookmark-add-btn,
-body.custom-background-active.light-theme .bookmark-more-btn {
+body.custom-background-active.light-theme .bookmark-more-btn,
+body.custom-background-active.light-theme .todo-item-main,
+body.custom-background-active.light-theme .todo-modal-arrow-btn {
   background-color: rgba(224, 224, 224, 0.70);
   color: #121212;
 }
 body.custom-background-active.light-theme .toast-notification,
 body.custom-background-active.light-theme .avatar-menu-container::before,
 body.custom-background-active.light-theme .bookmark-add-btn::before,
-body.custom-background-active.light-theme .bookmark-more-btn::before {
+body.custom-background-active.light-theme .bookmark-more-btn::before,
+body.custom-background-active.light-theme .todo-modal-arrow-btn::before {
     background-color: rgba(33, 33, 33, 0.95) !important;
     color: #FAFAFA !important;
 }
@@ -538,14 +613,17 @@ body.custom-background-active.light-theme .bookmark-menu-btn-main {
   }
   body.custom-background-active:not(.dark-theme) .bookmark-item-main,
   body.custom-background-active:not(.dark-theme) .bookmark-add-btn,
-  body.custom-background-active:not(.dark-theme) .bookmark-more-btn {
+  body.custom-background-active:not(.dark-theme) .bookmark-more-btn,
+  body.custom-background-active:not(.dark-theme) .todo-item-main,
+  body.custom-background-active:not(.dark-theme) .todo-modal-arrow-btn {
     background-color: rgba(224, 224, 224, 0.70);
     color: #121212;
   }
   body.custom-background-active:not(.dark-theme) .toast-notification,
   body.custom-background-active:not(.dark-theme) .avatar-menu-container::before,
   body.custom-background-active:not(.dark-theme) .bookmark-add-btn::before,
-  body.custom-background-active:not(.dark-theme) .bookmark-more-btn::before {
+  body.custom-background-active:not(.dark-theme) .bookmark-more-btn::before,
+  body.custom-background-active:not(.dark-theme) .todo-modal-arrow-btn::before {
       background-color: rgba(33, 33, 33, 0.95) !important;
       color: #FAFAFA !important;
   }
@@ -566,6 +644,36 @@ body.custom-background-active.light-theme .footer-search-results::-webkit-scroll
 }
 body.custom-background-active.light-theme .footer-search-results::-webkit-scrollbar-thumb:hover {
   background-color: rgba(128, 128, 128, 0.6);
+}
+
+@media (prefers-color-scheme: dark) {
+  body.custom-background-active:not(.light-theme) .todo-item-checkbox {
+    border-color: #FAFAFA;
+  }
+
+  body.custom-background-active:not(.light-theme) .todo-item-checkbox:checked {
+    border-color: var(--link-color);
+    background-color: var(--link-color);
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  body.custom-background-active:not(.dark-theme) .todo-item-checkbox {
+    border-color: #121212;
+  }
+  body.custom-background-active:not(.dark-theme) .todo-item-checkbox:checked {
+    border-color: var(--accent-color);
+    background-color: var(--accent-color);
+  }
+}
+
+body.custom-background-active.light-theme .todo-item-checkbox {
+  border-color: #121212;
+}
+
+body.custom-background-active.light-theme .todo-item-checkbox:checked {
+  border-color: var(--accent-color);
+  background-color: var(--accent-color);
 }
 
 body::before {
@@ -667,20 +775,31 @@ body.custom-background-active.footer-force-dark .result-type {
 }
 body.custom-background-active.footer-force-dark .bookmark-item-main,
 body.custom-background-active.footer-force-dark .bookmark-add-btn,
-body.custom-background-active.footer-force-dark .bookmark-more-btn {
+body.custom-background-active.footer-force-dark .bookmark-more-btn,
+body.custom-background-active.footer-force-dark .todo-item-main,
+body.custom-background-active.footer-force-dark .todo-modal-arrow-btn {
   background-color: rgba(33, 33, 33, 0.70);
   color: #FAFAFA;
 }
 body.custom-background-active.footer-force-dark .toast-notification,
 body.custom-background-active.footer-force-dark .avatar-menu-container::before,
 body.custom-background-active.footer-force-dark .bookmark-add-btn::before,
-body.custom-background-active.footer-force-dark .bookmark-more-btn::before {
+body.custom-background-active.footer-force-dark .bookmark-more-btn::before,
+body.custom-background-active.footer-force-dark .todo-modal-arrow-btn::before {
     background-color: rgba(224, 224, 224, 0.95);
     color: #121212;
 }
 body.custom-background-active.footer-force-dark .bookmark-menu-btn-main {
   background-color: #ffffff;
   color: #000000;
+}
+
+body.custom-background-active.footer-force-dark .todo-item-main .todo-item-checkbox {
+  border-color: #FAFAFA;
+}
+body.custom-background-active.footer-force-dark .todo-item-checkbox:checked {
+  background-color: var(--link-color);
+  border-color: var(--link-color);
 }
 
 body.custom-background-active.footer-force-light .footer,
@@ -704,14 +823,17 @@ body.custom-background-active.footer-force-light .result-type {
 }
 body.custom-background-active.footer-force-light .bookmark-item-main,
 body.custom-background-active.footer-force-light .bookmark-add-btn,
-body.custom-background-active.footer-force-light .bookmark-more-btn {
+body.custom-background-active.footer-force-light .bookmark-more-btn,
+body.custom-background-active.footer-force-light .todo-item-main,
+body.custom-background-active.footer-force-light .todo-modal-arrow-btn {
   background-color: rgba(224, 224, 224, 0.70);
   color: #121212;
 }
 body.custom-background-active.footer-force-light .toast-notification,
 body.custom-background-active.footer-force-light .avatar-menu-container::before,
 body.custom-background-active.footer-force-light .bookmark-add-btn::before,
-body.custom-background-active.footer-force-light .bookmark-more-btn::before {
+body.custom-background-active.footer-force-light .bookmark-more-btn::before,
+body.custom-background-active.footer-force-light .todo-modal-arrow-btn::before {
     background-color: rgba(33, 33, 33, 0.95) !important;
     color: #FAFAFA !important;
 }
@@ -724,6 +846,13 @@ body.custom-background-active.footer-force-light .footer-search-results::-webkit
 }
 body.custom-background-active.footer-force-light .footer-search-results::-webkit-scrollbar-thumb:hover {
   background-color: rgba(128, 128, 128, 0.6);
+}
+body.custom-background-active.footer-force-light .todo-item-main .todo-item-checkbox {
+  border-color: #121212;
+}
+body.custom-background-active.footer-force-light .todo-item-checkbox:checked {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
 }
 body.custom-background-active.info-shadow-light .info-section {
   text-shadow: 0 1px 3px rgba(255, 255, 255, 0.5);
@@ -1874,9 +2003,17 @@ body.dark-theme .switch input:checked + .slider:before {
   background-color: var(--select-hover-bg);
   border: 2px dashed var(--accent-color);
 }
+.todo-item.sortable-ghost {
+  opacity: 0.4;
+  background-color: var(--select-hover-bg);
+  border: 2px dashed var(--accent-color);
+  margin-top: -1px;
+  margin-bottom: -1px;
+}
 .prompt-item.sortable-chosen, 
 .advanced-prompt-item.sortable-chosen,
-.bookmark-item.sortable-chosen {
+.bookmark-item.sortable-chosen,
+.todo-item.sortable-chosen {
   cursor: grabbing;
   box-shadow: 0 5px 15px rgba(0,0,0,0.2);
 }
@@ -2093,7 +2230,8 @@ body.dark-theme .modal-input-file::file-selector-button {
 #advanced-prompt-viewer-modal-overlay .modal-content,
 #prompt-viewer-modal-overlay .modal-content,
 #add-edit-prompt-modal-overlay .modal-content,
-#add-edit-advanced-prompt-modal-overlay .modal-content {
+#add-edit-advanced-prompt-modal-overlay .modal-content,
+#todo-modal-overlay .modal-content {
     display: flex;
     flex-direction: column;
     max-height: 85vh;
@@ -2654,7 +2792,15 @@ pointer-events: all;
   }
 }
 @media (max-width: 930px) {
-
+  .main-page-todo-container {
+    display: none !important;
+  }
+  body.todo-list-visible .todo-modal-arrow-btn {
+    display: flex;
+  }
+  body.todo-list-visible .info-section {
+    right: 2rem !important;
+  }
 }
 @media (max-width: 865px) {
   #main-page-bookmark-container {
@@ -2793,6 +2939,16 @@ pointer-events: all;
   .info-section {
     left: 15%;
     right: 15%;
+  }
+  body.todo-list-visible .info-section {
+    right: auto;
+  }
+  #main-page-todo-container { 
+    right: 15%; 
+    left: auto;
+  }
+  .todo-modal-arrow-btn {
+    right: 0; 
   }
   #prompt-modal-overlay .modal-content,
   #advanced-prompt-modal-overlay .modal-content,
@@ -3116,7 +3272,8 @@ body.content-off .main-page-bookmark-container {
   z-index: 2;
 }
 
-.bookmark-item-main:hover .bookmark-menu-btn-main {
+.bookmark-item-main:hover .bookmark-menu-btn-main,
+.todo-item-main:hover .bookmark-menu-btn-main {
   opacity: 1;
 }
 
@@ -3322,9 +3479,485 @@ body.content-off .main-page-bookmark-container {
 
 body.bookmark-blur-disabled .bookmark-item-main,
 body.bookmark-blur-disabled .bookmark-add-btn,
-body.bookmark-blur-disabled .bookmark-more-btn {
+body.bookmark-blur-disabled .bookmark-more-btn,
+body.bookmark-blur-disabled .todo-item-main,
+body.bookmark-blur-disabled .todo-modal-arrow-btn {
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
+}
+
+/* ==================== TODO LIST STYLES ==================== */
+.main-page-todo-container {
+  position: fixed;
+  top: 46%;
+  transform: translateY(-50%);
+  right: 1rem;
+  width: 240px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  z-index: 5;
+  color: var(--text-color);
+}
+
+.main-page-todo-container.hidden {
+  display: none;
+}
+
+body.todo-list-visible .info-section {
+  right: 332px;
+  transition: none;
+}
+
+.main-page-todo-header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  flex-shrink: 0;
+}
+
+.main-page-todo-title {
+  font-size: 1.25rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+.main-page-todo-controls {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 4px;
+  justify-content: flex-end;
+}
+
+.main-page-todo-description {
+  font-size: 0.9rem;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.main-page-todo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex-grow: 1;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  max-height: 312px;
+}
+.main-page-todo-list::-webkit-scrollbar {
+    display: none;
+}
+
+.main-page-todo-controls .bookmark-add-btn::before,
+.main-page-todo-controls .bookmark-more-btn::before {
+  left: auto;
+  right: 0;
+}
+
+.todo-item-main {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 42px;
+  height: auto;
+  padding: 0.3rem 0.8rem;
+  background-color: var(--select-bg);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  border-radius: 8px;
+  color: var(--text-color);
+  border: 1px solid rgba(128, 128, 128, 0.2);
+  outline: 2px solid transparent;
+  outline-offset: -2px;
+  transition: background-color 0.2s ease;
+  flex-shrink: 0;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  cursor: pointer;
+}
+.todo-item-main:hover {
+  background-color: var(--select-hover-bg);
+}
+
+.todo-item-main .todo-item-text-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.todo-item-date-main {
+  margin: 0;
+  font-size: 0.75rem;
+  opacity: 0.8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.todo-item-main.completed .todo-item-name,
+.todo-item-main.completed .todo-item-date-main {
+    text-decoration: line-through;
+    opacity: 0.6;
+}
+
+.todo-item-checkbox {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  cursor: pointer;
+  accent-color: var(--accent-color);
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-color: transparent; 
+  border: 2px solid var(--text-color);
+  border-radius: 4px;
+}
+
+.todo-item-checkbox:checked {
+  background-color: var(--accent-color); 
+  border-color: var(--accent-color);
+  position: relative;
+}
+
+.todo-item-checkbox:checked::after {
+  content: '\2713';
+  display: block;
+  color: white;
+  font-size: 14px;
+  line-height: 1;
+  text-align: center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-shadow: 
+    0.5px 0 0 white,
+    0 0 0 white, 
+    0 0 0 white, 
+    0 0 0 white;
+}
+
+body.dark-theme .todo-item-checkbox,
+body.dark-theme .todo-item-checkbox-modal {
+  border-color: #ffffff;
+}
+
+.todo-item-text-container {
+  min-width: 0;
+  flex-grow: 1;
+}
+
+.todo-item-name {
+  margin: 0;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: opacity 0.2s ease, text-decoration 0.2s ease;
+}
+
+.main-page-todo-no-items {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    text-align: center;
+    padding: 1rem 0;
+}
+
+#todo-list-modal-overlay .modal-content {
+  max-width: 500px;
+  width: 95%;
+}
+
+#todo-modal-overlay .setting-item-column {
+  margin-bottom: 1.5rem;
+}
+
+.todo-item-date-modal {
+  margin: 0;
+  font-size: 0.85rem;
+  opacity: 0.8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.todo-item.completed .todo-item-date-modal {
+  opacity: 0.6;
+}
+
+.todo-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+.todo-grid .add-bookmark-item {
+  display: flex;
+  aspect-ratio: auto;
+  height: 3.6rem; 
+  padding-left: 1rem;
+  padding-right: 1rem;
+  box-sizing: border-box; 
+  padding-top: 0;
+  padding-bottom: 0;
+  flex-direction: row; 
+  align-items: center;
+  justify-content: center;
+}
+
+.todo-completed-header {
+  grid-column: 1 / -1;
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin: 0.13rem 0 0.15rem 0;
+  color: var(--text-color);
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.todo-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    background-color: var(--select-bg);
+    border: 1px solid rgba(128, 128, 128, 0.2);
+    outline: 2px solid transparent;
+    outline-offset: -2px;
+    transition: background-color 0.2s, outline-color 0.2s;
+    cursor: grab;
+    position: relative;
+    min-height: 40px;
+    box-sizing: border-box;
+    overflow: hidden;
+    min-width: 0;
+}
+.todo-item:hover {
+    background-color: var(--select-hover-bg);
+}
+
+.todo-item.completed .todo-item-name-modal,
+.todo-item.completed .todo-item-description-modal,
+.todo-item.completed .todo-item-date-modal {
+    text-decoration: line-through;
+    opacity: 0.6;
+}
+
+.todo-item-checkbox-modal {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: var(--accent-color);
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-color: transparent; 
+  border: 2px solid var(--text-color); 
+  border-radius: 4px;
+}
+
+.todo-item-checkbox-modal:checked {
+  background-color: var(--accent-color); 
+  border-color: var(--accent-color);
+  position: relative;
+}
+
+.todo-item-checkbox-modal:checked::after {
+  content: '\2713';
+  display: block;
+  color: white;
+  font-size: 14px;
+  line-height: 1;
+  text-align: center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-shadow: 
+    0.5px 0 0 white, 
+    0 0 0 white, 
+    0 0 0 white, 
+    0 0 0 white;
+}
+
+.todo-item-text-container-modal {
+    flex-grow: 1;
+    min-width: 0;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 2rem;
+}
+
+.todo-item-name-modal {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.todo-item-description-modal {
+    margin: 0;
+    font-size: 0.85rem;
+    opacity: 0.8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.todo-item .todo-menu-btn {
+  position: absolute;
+  top: 50%;
+  right: 6px; 
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2rem;
+  line-height: 1;
+  padding: 0;
+  box-sizing: border-box;
+  z-index: 3;
+  transition: opacity 0.2s ease;
+}
+.todo-item:hover .todo-menu-btn {
+    opacity: 1;
+}
+
+.modal-content.manage-mode .todo-item.selected {
+  outline-color: var(--accent-color);
+  border-color: var(--accent-color);
+}
+.modal-content.manage-mode .todo-item {
+  cursor: pointer;
+}
+.modal-content.manage-mode .todo-item .todo-menu-btn {
+  display: none;
+}
+
+#todo-modal-overlay .modal-body {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  min-height: 0;
+  padding-bottom: 0.55rem;
+}
+#todo-modal-overlay .setting-item-column {
+    margin-bottom: 1.5rem;
+}
+#todo-modal-overlay .setting-item-column:last-of-type {
+    margin-bottom: 1rem;
+}
+
+/* ==================== TOMBOL PANAH TODO ==================== */
+.todo-modal-arrow-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 42px;
+  width: 40px;
+  background-color: var(--select-bg);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  border-radius: 8px 0 0 8px;
+  color: var(--text-color);
+  cursor: pointer;
+  border: 1px solid rgba(128, 128, 128, 0.2);
+  transition: background-color 0.2s ease;
+  position: fixed;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  z-index: 90;
+  display: none;
+  -webkit-user-select: none;
+  user-select: none;
+  border-right: none;
+}
+
+.todo-modal-arrow-btn:hover {
+  background-color: var(--select-hover-bg);
+}
+
+.todo-modal-arrow-btn .nav-arrow {
+  border-color: currentColor;
+  border-style: solid;
+  border-width: 0 3px 3px 0;
+  display: inline-block;
+  padding: 5px;
+  transform: translate(2px, 0px) rotate(135deg); 
+}
+
+.todo-modal-arrow-btn::before {
+  content: attr(data-tooltip);
+  position: absolute;
+  right: calc(100% + 8px);
+  transform: translateX(0);
+  background-color: rgba(30, 30, 30, 0.9);
+  z-index: 1;
+  color: #fff;
+  padding: 5.5px 12px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  font-family: "Poppins", "Noto Sans JP", Arial, sans-serif;
+  font-weight: 500;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+@media (hover: hover) {
+  .todo-modal-arrow-btn:hover::before {
+    opacity: 1;
+    transform: translateX(-5px);
+  }
+}
+
+.datetime-input-wrapper {
+  position: relative;
+}
+
+.datetime-input-wrapper::after {
+  content: '⋮'; 
+  position: absolute;
+  top: 50%;
+  right: 38px;
+  transform: translateY(-50%);
+  font-size: 1.2rem; 
+  line-height: 1;
+  color: var(--text-color);
+  pointer-events: none; 
+}
+
+.modal-input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  cursor: pointer;
+}
+
+.modal-input[type="datetime-local"] {
+  padding-right: 30px; 
+}
+
+@-moz-document url-prefix() {
+  .datetime-input-wrapper::after {
+    display: none;
+  }
 }
 
 /* ==================== GLOBAL ANIMATION OFF SWITCH ==================== */
@@ -3399,7 +4032,8 @@ body.bookmark-blur-disabled .bookmark-more-btn {
   #add-edit-advanced-prompt-modal-overlay,
   #advanced-prompt-viewer-modal-overlay,
   #bookmark-list-modal-overlay,
-  #bookmark-modal-overlay {
+  #todo-list-modal-overlay,
+  #todo-modal-overlay {
     padding: 0;
   }
 
@@ -3411,7 +4045,8 @@ body.bookmark-blur-disabled .bookmark-more-btn {
   #add-edit-advanced-prompt-modal-overlay .modal-content,
   #advanced-prompt-viewer-modal-overlay .modal-content,
   #bookmark-list-modal-overlay .modal-content,
-  #bookmark-modal-overlay .modal-content {
+  #todo-list-modal-overlay .modal-content,
+  #todo-modal-overlay .modal-content {
     width: 100%;
     height: 100%;
     max-width: none;
@@ -3442,7 +4077,8 @@ body.bookmark-blur-disabled .bookmark-more-btn {
   #prompt-viewer-modal-overlay .modal-body,
   #advanced-prompt-modal-overlay .modal-body,
   #add-edit-advanced-prompt-modal-overlay .modal-body,
-  #advanced-prompt-viewer-modal-overlay .modal-body {
+  #advanced-prompt-viewer-modal-overlay .modal-body,
+  #todo-modal-overlay .modal-body {
     flex-grow: 1;
     max-height: none;
     min-height: 0;
@@ -3468,7 +4104,8 @@ body.bookmark-blur-disabled .bookmark-more-btn {
   }
 
   #bookmark-list-modal-overlay .modal-body,
-  #bookmark-modal-overlay .modal-body {
+  #todo-list-modal-overlay .modal-body,
+  #todo-modal-overlay .modal-body {
   flex-grow: 1;
   max-height: none;
   min-height: 0;
@@ -3509,44 +4146,77 @@ body.bookmark-blur-disabled .bookmark-more-btn {
   #main-page-bookmark-container { 
     max-height:312px;
   }
+  body.content-off #main-page-bookmark-container {
+    max-height: 475px;
+  }
 }
 @media (max-height: 754px) {
   #main-page-bookmark-container { 
     max-height: 259px;
+  }
+  body.content-off #main-page-bookmark-container {
+    max-height: 420px;
   }
 }
 @media (max-height: 725px) {
   #main-page-bookmark-container { 
     max-height: 204px;
   }
+  body.content-off #main-page-bookmark-container {
+    max-height: 368px;
+  }
 }
 @media (max-height: 680px) {
   #main-page-bookmark-container { 
     max-height: 150px;
+  }
+  body.content-off #main-page-bookmark-container {
+    max-height: 315px;
   }
 }
 @media (max-height: 620px) {
   #main-page-bookmark-container { 
     max-height: 96px;
   }
+  body.content-off #main-page-bookmark-container {
+    max-height: 258px;
+  }
 }
 @media (max-height: 570px) {
   #main-page-bookmark-container { 
     max-height: 42px;
   }
+  body.content-off #main-page-bookmark-container {
+    max-height: 205px;
+  }
 }
 @media (max-height: 520px) {
-  #main-page-bookmark-container { 
-    display: none;
+  body:not(.content-off) #main-page-bookmark-container { 
+    display: none; 
   }
-  #main-page-bookmark-controls { 
+  body:not(.content-off) #main-page-bookmark-controls { 
     display: none;
   }
   #displayHiddenResolution {
     display: block;
   }
+  body.content-off #main-page-bookmark-container {
+    display: flex !important;
+    max-height: 150px;
+  }
+  body.content-off #main-page-bookmark-controls {
+    display: flex !important;
+  }
 }
 @media (max-height: 435px) {
+  body.content-off #main-page-bookmark-container {
+    display: flex !important;
+    max-height: 98px;
+  }
+  body.content-off #main-page-bookmark-controls {
+    display: flex !important;
+  }
+  
   .modal-body {
     max-height: calc(100vh - 2rem - 65px - 5rem);
   }
@@ -3557,8 +4227,7 @@ body.bookmark-blur-disabled .bookmark-more-btn {
   #advanced-prompt-modal-overlay,
   #add-edit-advanced-prompt-modal-overlay,
   #advanced-prompt-viewer-modal-overlay,
-  #bookmark-list-modal-overlay,
-  #bookmark-modal-overlay {
+  #bookmark-list-modal-overlay {
     padding: 0;
   }
 
@@ -3568,8 +4237,7 @@ body.bookmark-blur-disabled .bookmark-more-btn {
   #advanced-prompt-modal-overlay .modal-content,
   #add-edit-advanced-prompt-modal-overlay .modal-content,
   #advanced-prompt-viewer-modal-overlay .modal-content,
-  #bookmark-list-modal-overlay .modal-content,
-  #bookmark-modal-overlay .modal-content {
+  #bookmark-list-modal-overlay .modal-content {
     width: 100%;
     height: 100%;
     max-width: none;
@@ -3623,8 +4291,7 @@ body.bookmark-blur-disabled .bookmark-more-btn {
     height: 100%;
   }
 
-  #bookmark-list-modal-overlay .modal-body,
-  #bookmark-modal-overlay .modal-body {
+  #bookmark-list-modal-overlay .modal-body {
   flex-grow: 1;
   max-height: none;
   min-height: 0;

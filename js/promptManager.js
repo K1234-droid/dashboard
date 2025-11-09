@@ -683,11 +683,15 @@ export async function handleSavePrompt() {
 
         closeModal(addEditPromptModal.overlay);
 
-        if (isEditing) {
-            await updateSinglePromptItem(metadata);
-            await updateSingleCharacterItem(metadata);
+        if (isSearchModeActive) {
+            handleSearchInput();
         } else {
-            await appendNewPromptItem(metadata); 
+            if (isEditing) {
+                await updateSinglePromptItem(metadata);
+                await updateSingleCharacterItem(metadata);
+            } else {
+                await appendNewPromptItem(metadata); 
+            }
         }
         
         promptModalBody.scrollTop = scrollPosition;
@@ -742,6 +746,10 @@ export async function confirmDelete() {
         }
 
         setPrompts(newPromptsMetadata);
+
+        const newOrder = newPromptsMetadata.map(p => p.id);
+        await saveSetting('promptOrder', newOrder);
+
         document.dispatchEvent(new CustomEvent('characterListUpdated', {
             detail: { type: 'delete', deletedIds: idsToDelete }
         }));

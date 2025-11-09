@@ -297,7 +297,10 @@ export function handleCharacterSearchInput() {
         addEditAdvancedPromptModal.characterGrid.appendChild(noResultsEl);
     }
 
-    if (visibleCount === 0 && searchTerm.length > 0 && prompts.length > 0) {
+    if (prompts.length === 0) {
+        noResultsEl.textContent = i18nData["advanced.prompt.noCharacters"][lang];
+        noResultsEl.style.display = 'block';
+    } else if (visibleCount === 0 && searchTerm.length > 0) {
         noResultsEl.textContent = i18nData["character.search.noResults"][lang];
         noResultsEl.style.display = 'block';
     } else {
@@ -371,6 +374,10 @@ export async function updateSingleAdvancedPromptItem(updatedPrompt) {
                 }
             }
         }
+        const overflowEl = document.createElement('span');
+        overflowEl.className = 'char-overflow-indicator';
+        overflowEl.style.display = 'none';
+        charsContainer.appendChild(overflowEl);
     }
     
     adjustVisibleIcons();
@@ -434,6 +441,11 @@ async function appendNewAdvancedPromptItem(newPrompt) {
             }
         }
     }
+    const overflowEl = document.createElement('span');
+    overflowEl.className = 'char-overflow-indicator';
+    overflowEl.style.display = 'none';
+    charsContainer.appendChild(overflowEl);
+
     item.appendChild(charsContainer);
 
     const menuBtn = document.createElement('button');
@@ -553,6 +565,11 @@ export function renderAdvancedPrompts(promptsToRender = advancedPrompts) {
 
             adjustVisibleIcons();
         }
+
+        const overflowEl = document.createElement('span');
+        overflowEl.className = 'char-overflow-indicator';
+        overflowEl.style.display = 'none';
+        charsContainer.appendChild(overflowEl);
         
         item.appendChild(charsContainer);
   
@@ -864,10 +881,14 @@ export async function handleSaveAdvancedPrompt() {
 
     closeModal(addEditAdvancedPromptModal.overlay);
 
-    if (isEditing) {
-        await updateSingleAdvancedPromptItem(promptData);
+    if (isAdvancedSearchModeActive) {
+        handleAdvancedSearchInput();
     } else {
-        await appendNewAdvancedPromptItem(promptData);
+        if (isEditing) {
+            await updateSingleAdvancedPromptItem(promptData);
+        } else {
+            await appendNewAdvancedPromptItem(promptData);
+        }
     }
 
     showToast(isEditing ? "prompt.edit.success" : "prompt.save.success");

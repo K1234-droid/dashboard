@@ -165,8 +165,6 @@ export function renderBookmarkModalGrid(bookmarksToRender = bookmarks) {
     if (!bookmarkListModal.grid) return;
     bookmarkListModal.grid.innerHTML = '';
     const lang = languageSettings.ui;
-    
-    bookmarkListModal.noResultsMessage.classList.toggle('hidden', bookmarksToRender.length > 0 || bookmarks.length === 0);
 
     bookmarksToRender.forEach(bookmark => {
         const item = document.createElement('a');
@@ -479,7 +477,13 @@ export async function handleSaveBookmark() {
     
     closeModal(bookmarkModal.overlay);
     renderMainPageBookmarks();
-    renderBookmarkModalGrid();
+
+    if (isBookmarkSearchModeActive) {
+        handleSearchInput();
+    } else {
+        renderBookmarkModalGrid();
+    }
+    
     showToast(isEditing ? "bookmark.edit.success" : "bookmark.save.success");
     markSearchDataAsStale();
     currentBookmarkId = null;
@@ -519,7 +523,13 @@ export async function confirmDeleteBookmark() {
     
     closeModal(confirmationModal.overlay);
     renderMainPageBookmarks();
-    renderBookmarkModalGrid();
+
+    if (isBookmarkSearchModeActive) {
+        handleSearchInput();
+    } else {
+        renderBookmarkModalGrid();
+    }
+
     showToast("bookmark.delete.success");
     markSearchDataAsStale();
 
@@ -673,6 +683,7 @@ export function toggleSearchMode(forceState = null) {
         setTimeout(() => bookmarkListModal.searchContent.classList.add('hidden'), 300);
         bookmarkListModal.searchInput.value = '';
         renderBookmarkModalGrid();
+        bookmarkListModal.noResultsMessage.classList.add('hidden');
     }
 }
 
@@ -680,6 +691,12 @@ export function handleSearchInput() {
     const searchTerm = bookmarkListModal.searchInput.value.toLowerCase().trim();
     const filtered = bookmarks.filter(b => b.name.toLowerCase().includes(searchTerm) || b.url.toLowerCase().includes(searchTerm));
     renderBookmarkModalGrid(filtered);
+
+    if (filtered.length === 0 && searchTerm.length > 0) {
+        bookmarkListModal.noResultsMessage.classList.remove('hidden');
+    } else {
+        bookmarkListModal.noResultsMessage.classList.add('hidden');
+    }
 }
 
 

@@ -5,7 +5,7 @@ import { showToast, resizeImage, log } from './utils.js';
 import {
     userPIN, advancedPIN, setPinModalPurpose, languageSettings, i18nData, pinEnterModal, confirmationMergeReplaceModal,
     setTempImportData, tempImportData, advancedPrompts, currentUser, bookmarks, confirmationBookmarkMergeModal, setTempUserImportData,
-    tempUserImportData, setIsDataOperationInProgress
+    tempUserImportData, setIsDataOperationInProgress, todoList
 } from './config.js';
 import { openModal, closeModal, showInfoModal, showProgressModal, updateProgress, hideProgressModal, showLoadingModal, hideLoadingModal } from './ui.js';
 
@@ -52,9 +52,9 @@ export async function exportUserData() {
     try {
         const settingsToExport = await getAllSettings([
             'username', 'theme', 'colorScheme', 'showSeconds', 'menuBlur', 'footerBlur',
-            'languageSettings', 'enableAnimation', 'showContent', 'showGreeting',
-            'showDescription', 'showDate', 'showTime', 'showUsername', 'bookmarks', 'showBookmark', 'enableBookmarkSearch',
-            'enableBookmarkPopupFinder', 'bookmarkOpenAction', 'enableShortcutCtrlD', 'bookmarkBlur', 'enableSearchBar',
+            'languageSettings', 'enableAnimation', 'showContent', 'showGreeting', 'showDescription', 'showDate',
+            'showTime', 'showUsername', 'bookmarks', 'showBookmark', 'enableBookmarkSearch', 'enableBookmarkPopupFinder',
+            'bookmarkOpenAction', 'enableShortcutCtrlD', 'todoList', 'showTodoList', 'bookmarkBlur', 'enableSearchBar',
             'searchEngine', 'searchOpenAction', 'customBackground', 'customThemeOverrides'
         ]);
         updateProgress(20);
@@ -140,28 +140,19 @@ export function importUserData() {
             }
 
             const currentBookmarks = bookmarks;
+            const currentTodoList = todoList;
             const hasImportableBookmarks = 'bookmarks' in importedData && Array.isArray(importedData.bookmarks) && importedData.bookmarks.length > 0;
+            const hasImportableTodos = 'todoList' in importedData && Array.isArray(importedData.todoList) && importedData.todoList.length > 0;
 
-            if (hasImportableBookmarks) {
-                if (Array.isArray(currentBookmarks) && currentBookmarks.length > 0) {
-                    setTempUserImportData(importedData);
-                    hideLoadingModal();
-                    openModal(confirmationBookmarkMergeModal.overlay);
-                } else {
-                    for (const key in importedData) {
-                        await saveSetting(key, importedData[key]);
-                    }
-                    hideLoadingModal();
-                    showToast('import.success');
-                    setIsDataOperationInProgress(false);
-                    setTimeout(() => window.location.reload(), 1000);
-                }
+            if (
+                (hasImportableBookmarks && Array.isArray(currentBookmarks) && currentBookmarks.length > 0) ||
+                (hasImportableTodos && Array.isArray(currentTodoList) && currentTodoList.length > 0)
+            ) {
+                setTempUserImportData(importedData);
+                hideLoadingModal();
+                openModal(confirmationBookmarkMergeModal.overlay);
             } else {
-                for (const key in importedData) {
-                    if (key !== 'bookmarks') {
-                        await saveSetting(key, importedData[key]);
-                    }
-                }
+                await applyUserSettings(importedData, []);
                 hideLoadingModal();
                 showToast('import.success');
                 setIsDataOperationInProgress(false);
@@ -176,9 +167,9 @@ export function importUserData() {
 }
 
 
-async function applyUserSettings(settings, shouldSkipBookmarks = false) {
+async function applyUserSettings(settings, skipKeys = []) {
     for (const key in settings) {
-        if (shouldSkipBookmarks && key === 'bookmarks') {
+        if (skipKeys.includes(key)) {
             continue;
         }
         await saveSetting(key, settings[key]);
@@ -190,7 +181,7 @@ export async function handleBookmarkMerge() {
 
     showLoadingModal();
     try {
-        await applyUserSettings(tempUserImportData, true);
+        await applyUserSettings(tempUserImportData, ['bookmarks', 'todoList']);
 
         const importedBookmarks = tempUserImportData.bookmarks || [];
         const currentBookmarks = [...bookmarks];
@@ -212,8 +203,19 @@ export async function handleBookmarkMerge() {
                 existingIds.add(newBookmark.id);
             }
         });
-        
         await saveSetting('bookmarks', currentBookmarks);
+        
+        const importedTodoList = tempUserImportData.todoList || [];
+        const currentTodoList = [...todoList];
+        const existingTodoIds = new Set(currentTodoList.map(t => t.id));
+
+        importedTodoList.forEach(importedTodo => {
+            if (!existingTodoIds.has(importedTodo.id)) {
+                currentTodoList.push(importedTodo);
+                existingTodoIds.add(importedTodo.id);
+            }
+        });
+        await saveSetting('todoList', currentTodoList);
 
         closeModal(confirmationBookmarkMergeModal.overlay);
         setTempUserImportData(null);
@@ -234,7 +236,7 @@ export async function handleBookmarkReplace() {
 
     showLoadingModal();
     try {
-        await applyUserSettings(tempUserImportData, false);
+        await applyUserSettings(tempUserImportData, []);
 
         closeModal(confirmationBookmarkMergeModal.overlay);
         setTempUserImportData(null);
@@ -431,9 +433,10 @@ async function applyImportedData(importData, replace = false) {
             await saveSetting('advancedPIN', data.advancedPIN || advancedPIN);
             
             if (Array.isArray(data.advancedPrompts) && data.advancedPrompts.length > 0) {
-                const combinedPrompts = [...existingAdvancedPrompts, ...data.advancedPrompts];
-                const uniquePrompts = [...new Set(combinedPrompts)];
-                await saveSetting('advancedPrompts', uniquePrompts);
+                const existingIds = new Set(existingAdvancedPrompts.map(p => p.id));
+                const newPromptsToAdd = data.advancedPrompts.filter(p => !existingIds.has(p.id));
+                const finalAdvancedPrompts = [...existingAdvancedPrompts, ...newPromptsToAdd];
+                await saveSetting('advancedPrompts', finalAdvancedPrompts);
             }
 
             if (typeof data.enablePopupFinder !== 'undefined') await saveSetting('enablePopupFinder', data.enablePopupFinder);

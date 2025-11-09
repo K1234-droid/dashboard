@@ -398,7 +398,7 @@ export async function clearUserData() {
         "bookmarks", "showBookmark", "bookmarkBlur", "enableSearchBar", "bookmarkOpenAction",
         "searchEngine", "searchOpenAction", "enableHistorySearch", "enableBookmarkSearch",
         "enableBookmarkPopupFinder", "enableShortcutCtrlD", "lastKnownBookmarkSearchState", "lastKnownBookmarkPopupState",
-        "colorScheme", "customBackground", "customThemeOverrides"
+        "colorScheme", "customBackground", "customThemeOverrides", "todoList", "showTodoList"
     ];
 
     try {

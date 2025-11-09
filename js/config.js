@@ -5,7 +5,7 @@
  */
 
 // ==================== PENGATURAN PEMBARUAN ====================
-export const CURRENT_VERSION = 'v4.4.0';
+export const CURRENT_VERSION = 'v4.6.0';
 export const GITHUB_OWNER = 'K1234-droid';
 export const GITHUB_REPO = 'dashboard';
 // ==============================================================
@@ -29,6 +29,7 @@ export const elements = {
     mainPageBookmarkContainer: document.getElementById('main-page-bookmark-container'),
     mainPageBookmarkContainer: document.getElementById('main-page-bookmark-container'),
     mainPageBookmarkControls: document.getElementById('main-page-bookmark-controls'),
+    mainPageTodoContainer: document.getElementById('main-page-todo-container'),
 };
   
 // Elemen terkait status koneksi.
@@ -111,6 +112,42 @@ export const bookmarkModal = {
     nameInput: document.getElementById('bookmark-name-input'),
     urlInput: document.getElementById('bookmark-url-input'),
     saveBtn: document.getElementById('save-bookmark-btn'),
+};
+
+// Elemen terkait Modal To-do List.
+export const todoModal = {
+    overlay: document.getElementById('todo-modal-overlay'),
+    closeBtn: document.getElementById('close-todo-modal-btn'),
+    title: document.getElementById('todo-modal-title'),
+    titleInput: document.getElementById('todo-title-input'),
+    descriptionInput: document.getElementById('todo-description-input'),
+    dateTimeInput: document.getElementById('todo-datetime-input'),
+    saveBtn: document.getElementById('save-todo-btn'),
+};
+
+export const todoListModal = {
+    overlay: document.getElementById('todo-list-modal-overlay'),
+    closeBtn: document.getElementById('close-todo-list-modal-btn'),
+    addBtn: document.getElementById('todo-add-btn-header'),
+    grid: document.getElementById('todo-grid'),
+    manageBtn: document.getElementById('todo-manage-btn'),
+    selectCount: document.getElementById('todo-select-count'),
+    selectAllBtn: document.getElementById('todo-select-all-btn'),
+    deleteSelectedBtn: document.getElementById('todo-delete-selected-btn'),
+    cancelManageBtn: document.getElementById('todo-cancel-manage-btn'),
+    searchBtn: document.getElementById('todo-search-btn'),
+    searchInput: document.getElementById('todo-search-input'),
+    cancelSearchBtn: document.getElementById('todo-cancel-search-btn'),
+    noResultsMessage: document.getElementById('todo-no-results'),
+    actionBar: document.getElementById('todo-action-bar'),
+    manageContent: document.getElementById('todo-manage-content'),
+    searchContent: document.getElementById('todo-search-content'),
+    content: document.querySelector('#todo-list-modal-overlay .modal-content'),
+};
+
+export const mainPageTodoContainer = {
+    container: document.getElementById('main-page-todo-container'),
+    list: null,
 };
 
 // Elemen terkait Pencarian di Footer.
@@ -196,6 +233,7 @@ export const dataDeletion = {
     clearHiddenCacheBtn: document.getElementById('clear-hidden-cache-btn'),
     deleteUserDataBtn: document.getElementById('delete-user-data-btn'),
     deleteHiddenDataBtn: document.getElementById('delete-hidden-data-btn'),
+    deleteTodoListDataBtn: document.getElementById('delete-todo-list-data-btn'),
 };
   
 // ==================== DEFINISI ELEMEN FITUR PIN & PROMPT ====================
@@ -366,6 +404,7 @@ export const settingSwitches = {
     showTime: document.getElementById('show-time-switch'),
     showSeconds: document.getElementById("show-seconds-switch"),
     showBookmark: document.getElementById("show-bookmark-switch"),
+    showTodoList: document.getElementById("show-todo-list-switch"),
     enableSearchBar: document.getElementById("enable-search-bar-switch"),
     bookmarkBlur: document.getElementById("blur-bookmark-switch"),
     menuBlur: document.getElementById("blur-menu-switch"),
@@ -402,16 +441,23 @@ export let advancedPIN = null;
 export let prompts = [];
 export let advancedPrompts = [];
 export let bookmarks = [];
+export let todoList = [];
 export let currentPromptId = null;
 export let currentImageViewerId = null;
 export let imageViewerSource = 'grid';
 export let currentAdvancedPromptId = null;
 export let activePromptMenu = null;
 export let activeBookmarkMenu = null;
+export let activeTodoMenu = null;
 export let isBookmarkManageModeActive = false;
 export let isBookmarkSearchModeActive = false;
 export let selectedBookmarkIds = [];
+export let isTodoManageModeActive = false;
+export let isDraggingTodo = false;
+export let isTodoSearchModeActive = false;
+export let selectedTodoIds = [];
 export let bookmarkSortableInstance = null;
+export let todoSortableInstance = null;
 export let activeModalStack = []; 
 export let pinModalPurpose = 'login';
 export let tempNewPIN = null;
@@ -450,6 +496,7 @@ export function setUiHideTimeout(value) { uiHideTimeout = value; }
 export function setCurrentImageNavList(value) { currentImageNavList = value; }
 export function setIsPromptSearchEnabled(value) { isPromptSearchEnabled = value; }
 export function setIsPromptGridStale(value) { isPromptGridStale = value; }
+export function setIsDraggingTodo(value) { isDraggingTodo = value; }
 
 export let cachedIconDataUrls = {}; 
 export function setCachedIconDataUrls(value) { cachedIconDataUrls = value; }
@@ -471,6 +518,7 @@ export let lastActiveModalOverlay = null;
 
 // --- Setters for state variables ---
 export function setBookmarks(value) { bookmarks = value; }
+export function setTodoList(value) { todoList = value; }
 export function setCurrentUser(value) { currentUser = value; }
 export function setUserPIN(value) { userPIN = value; }
 export function setAdvancedPIN(value) { advancedPIN = value; }
@@ -482,10 +530,15 @@ export function setImageViewerSource(value) { imageViewerSource = value; }
 export function setCurrentAdvancedPromptId(value) { currentAdvancedPromptId = value; }
 export function setActivePromptMenu(value) { activePromptMenu = value; }
 export function setActiveBookmarkMenu(value) { activeBookmarkMenu = value; }
+export function setActiveTodoMenu(value) { activeTodoMenu = value; }
 export function setIsBookmarkManageModeActive(value) { isBookmarkManageModeActive = value; }
 export function setIsBookmarkSearchModeActive(value) { isBookmarkSearchModeActive = value; }
 export function setSelectedBookmarkIds(value) { selectedBookmarkIds = value; }
+export function setIsTodoManageModeActive(value) { isTodoManageModeActive = value; }
+export function setIsTodoSearchModeActive(value) { isTodoSearchModeActive = value; }
+export function setSelectedTodoIds(value) { selectedTodoIds = value; }
 export function setBookmarkSortableInstance(value) { bookmarkSortableInstance = value; }
+export function setTodoSortableInstance(value) { todoSortableInstance = value; }
 export function setActiveModalStack(value) { activeModalStack = value; }
 export function setPinModalPurpose(value) { pinModalPurpose = value; }
 export function setTempNewPIN(value) { tempNewPIN = value; }
@@ -557,7 +610,7 @@ export const i18nData = {
     "settings.upload.background.title": { id: "Background Gambar", en: "Background Image", ja: "背景画像" },
     "settings.upload.background": { id: "Upload Gambar", en: "Upload Image", ja: "画像をアップロード" },
     "settings.theme.infoSection.title": { id: "Bagian Info", en: "Info Section", ja: "情報セクション" },
-    "settings.theme.footer.title": { id: "Bookmark dan Footer", en: "Bookmark and Footer", ja: "ブックマークとフッター" },
+    "settings.theme.footer.title": { id: "Bookmark, Footer, dan Daftar Tugas", en: "Bookmark, Footer, and To-do List", ja: "ブックマーク、フッター、タスク一覧" },
     "settings.theme.shadow.title": { id: "Bayangan", en: "Shadow", ja: "影" },
     "settings.theme.override.default": { id: "Bawaan", en: "Default", ja: "デフォルト" },
     "settings.theme.override.light": { id: "Terang", en: "Light", ja: "ライト" },
@@ -576,12 +629,13 @@ export const i18nData = {
     "settings.other.showTime": { id: "Jam", en: "Clock", ja: "クロック" },
     "settings.other.showSeconds": { id: "Detik", en: "Seconds", ja: "秒" },
     "settings.other.showBookmark": { id: "Tampilkan Bookmark", en: "Show Bookmark", ja: "ブックマークを表示" },
+    "settings.other.showTodoList": { id: "Tampilkan Daftar Tugas", en: "Show To-do List", ja: "タスクリストを表示" },
     "settings.other.search": { id: "Pencarian", en: "Search", ja: "検索" },
     "settings.other.enableSearchBar": { id: "Aktifkan Bar Pencarian", en: "Enable Search Bar", ja: "検索バーを有効にする" },
     "settings.other.searchEngine": { id: "Mesin Telusur", en: "Search Engine", ja: "検索エンジン" },
     "settings.other.visual": { id: "Visual", en: "Visuals", ja: "ビジュアル" },
     "settings.other.enableAnimation": { id: "Aktifkan Animasi", en: "Enable Animation", ja: "アニメーションを有効にする" },
-    "settings.other.blurBookmark": { id: "Efek Blur Bookmark", en: "Bookmark Blur Effect", ja: "ブックマークぼかし効果" },
+    "settings.other.blurBookmark": { id: "Efek Blur Bookmark dan Daftar Tugas", en: "Bookmark and To-do List Blur Effect", ja: "ブックマークとタスク一覧のぼかし効果" },
     "settings.other.blurMenu": { id: "Efek Blur Background Menu", en: "Menu Background Blur Effect", ja: "メニュー背景ぼかし効果" },
     "settings.other.blurFooter": { id: "Efek Blur Footer", en: "Footer Blur Effect", ja: "フッターのぼかし効果" },
     "searchEngine.google": { id: "Google", en: "Google", ja: "Google" },
@@ -742,12 +796,35 @@ export const i18nData = {
     "settings.search.enableHistory": { id: "Histori Browser", en: "Browser History", ja: "ブラウザ履歴" },
     "settings.search.enableHistoryHelp": { id: "Histori browser Anda akan mudah dicari melalui bar pencarian hingga 1 tahun terakhir. Mohon pertimbangkan sebelum mengaktifkan nya.", en: "Your browser history will be easy to search via the search bar for up to the last 1 year. Please consider before activating it.", ja: "検索バーを使用すると、過去 1 年間までのブラウザ履歴を簡単に検索できます。有効化する前に検討してください。" },
     "settings.search.enableHistoryHelp2": { id: "Untuk keamanan, opsi ini tidak akan di ekspor.", en: "For security reasons, this option will not be exported.", ja: "セキュリティ上の理由から、このオプションはエクスポートされません。" },
+    // To-do List
+    "todo.main.title": { id: "Daftar Tugas", en: "To-do List", ja: "やることリスト" },
+    "todo.main.description": { id: "Daftar Tugas", en: "To-do List", ja: "やることリスト" },
+    "todo.main.noItems": { id: "Tidak ada tugas", en: "No tasks", ja: "タスクはありません" },
+    "todo.listTitle": { id: "Daftar Tugas", en: "To-do List", ja: "やることリスト" },
+    "todo.add": { id: "Tambah Daftar Tugas", en: "Add To Do List", ja: "タスクを追加" },
+    "todo.open": { id: "Lihat Daftar Tugas", en: "View Task List", ja: "タスクリスト表示" },
+    "todo.addTitle": { id: "Tambah Daftar Tugas Baru", en: "Add New To-do", ja: "新しいタスクリスト追加" },
+    "todo.editTitle": { id: "Edit Daftar Tugas", en: "Edit To-do", ja: "タスクリスト編集" },
+    "todo.label.title": { id: "Judul", en: "Title", ja: "タイトル" },
+    "todo.label.description": { id: "Deskripsi (Opsional)", en: "Description (Optional)", ja: "説明（任意）" },
+    "todo.label.datetime": { id: "Tenggat Waktu (Opsional)", en: "Due Date (Optional)", ja: "期日（任意）" },
+    "todo.error.titleRequired": { id: "Judul tidak boleh kosong.", en: "Title cannot be empty.", ja: "タイトルは空にできません。" },
+    "todo.save.success": { id: "Daftar tugas berhasil disimpan!", en: "To-do saved successfully!", ja: "タスクリストが正常に保存されました！" },
+    "todo.edit.success": { id: "Daftar tugas berhasil diperbarui!", en: "To-do updated successfully!", ja: "タスクリストが正常に更新されました！" },
+    "todo.delete.success": { id: "Daftar tugas berhasil dihapus!", en: "To-do deleted successfully!", ja: "タスクリストが正常に削除されました！" },
+    "todo.menu.edit": { id: "Edit", en: "Edit", ja: "編集" },
+    "todo.menu.delete": { id: "Hapus", en: "Delete", ja: "削除" },
+    "todo.delete.title": { id: "Hapus Daftar Tugas?", en: "Delete To-do?", ja: "タスクリスト削除？" },
+    "todo.delete.text": { id: "Apakah Anda yakin ingin menghapus item daftar tugas ini?", en: "Are you sure you want to delete this to-do item?", ja: "このタスクリストの項目を削除してもよろしいですか？" },
+    "todo.delete.selectedTitle": { id: "Hapus Daftar Tugas yang Dipilih?", en: "Delete Selected To-dos?", ja: "選択したタスクリストを削除？" },
+    "todo.delete.selectedText": { id: "Apakah Anda yakin ingin menghapus {count} item daftar tugas yang dipilih? Tindakan ini tidak dapat diurungkan.", en: "Are you sure you want to delete the {count} selected to-do items? This action cannot be undone.", ja: "選択した {count} 件のタスクリスト項目を削除してもよろしいですか？この操作は元に戻せません。" },
+    "todo.completedTitle": { id: "Tugas Selesai", en: "Completed Tasks", ja: "完了したタスク" },
     // Import and Export Data
     "settings.tabs.data": { id: "Data", en: "Data", ja: "データ" },
     "data.manageData.title": { id: "Impor dan Ekspor", en: "Import and Export", ja: "輸入と輸出" },
     "data.manageData.desc": { id: "Setiap kali Anda melakukan impor, halaman akan memuat ulang secara otomatis.", en: "Every time you import, the page will reload automatically.", ja: "インポートするたびに、ページは自動的にリロードされます。" },
     "data.manageUser.title": { id: "Data Pengguna", en: "User Data", ja: "ユーザーデータ" },
-    "data.manageUser.desc": { id: "Username, pilihan tema, bookmark, dan pengaturan.", en: "Username, theme choices, bookmarks, and settings.", ja: "ユーザー名、テーマの選択、ブックマーク、設定。" },
+    "data.manageUser.desc": { id: "Username, pilihan tema, bookmark, daftar tugas, dan pengaturan.", en: "Username, theme choices, bookmarks, to-do list, and settings.", ja: "ユーザー名、テーマの選択、ブックマーク、タスク一覧、設定。" },
     "data.manageHidden.title": { id: "Data Fitur Tersembunyi", en: "Hidden Feature Data", ja: "隠れた特徴データ" },
     "data.manageHidden.desc": { id: "Prompt karakter dan pembuat prompt beserta PIN nya.", en: "Character prompt and prompt builder, including PINs.", ja: "PIN を含む、文字プロンプトとプロンプト ビルダー。" },
     "data.button.import": { id: "Impor", en: "Import", ja: "輸入" },
@@ -760,7 +837,6 @@ export const i18nData = {
     "import.failed": { id: "Gagal mengimpor data. File mungkin rusak atau tidak valid.", en: "Failed to import data. The file may be corrupt or invalid.", ja: "データのインポートに失敗しました。ファイルが破損しているか、無効な可能性があります。" },
     "import.noData": { id: "Tidak ada data yang ditemukan untuk diimpor.", en: "No data found to import.", ja: "インポートするデータが見つかりません。" },
     "confirm.import.user.title": { id: "Impor Data Pengguna", en: "Import User Data", ja: "ユーザーデータのインポート" },
-    "confirm.import.user.text": { id: "File cadangan bookmark terdeteksi. Apa yang ingin Anda lakukan dengan data yang ada saat ini?", en: "Bookmark backup file detected. What would you like to do with the current data?", ja: "ブックマークのバックアップファイルが検出されました。現在のデータをどうしますか？" },
     "confirm.import.mergeTitle": { id: "Impor Data Fitur Tersembunyi", en: "Import Hidden Feature Data", ja: "隠し機能データをインポート" },
     "confirm.import.mergeText": { id: "File cadangan terdeteksi. Apa yang ingin Anda lakukan dengan data yang ada saat ini?", en: "Backup file detected. What would you like to do with the current data?", ja: "バックアップファイルが検出されました。現在のデータをどうしますか？" },
     "confirm.import.mergeBtn": { id: "Gabungkan", en: "Merge", ja: "マージ" },
@@ -777,6 +853,7 @@ export const i18nData = {
     "data.cache.title": { id: "Data dan Cache", en: "Data and Cache", ja: "データとキャッシュ" },
     "data.button.deleteUserData": { id: "Hapus Data Pengguna", en: "Delete User Data", ja: "ユーザーデータを削除" },
     "data.button.deleteHiddenData": { id: "Hapus Data Fitur Tersembunyi", en: "Delete Hidden Feature Data", ja: "隠し機能データを削除" },
+    "data.button.deleteTodoListData": { id: "Hapus Data Daftar Tugas", en: "Delete To-do List Data", ja: "タスクリストのデータ削除" },
     "confirm.delete.user.title": { id: "Hapus Semua Data Pengguna?", en: "Delete All User Data?", ja: "すべてのユーザーデータを削除しますか？" },
     "confirm.delete.user.text": { id: "Tindakan ini akan menghapus semua pengaturan, bookmark, dan username Anda secara permanen. Apakah Anda yakin?", en: "This will permanently delete all your settings, bookmarks, and username. Are you sure?", ja: "これにより、すべての設定、ブックマーク、およびユーザー名が完全に削除されます。よろしいですか？" },
     "confirm.delete.hidden.pinLabel": { id: "Masukkan PIN untuk menghapus semua data fitur tersembunyi", en: "Enter PIN to delete all hidden feature data", ja: "すべての隠し機能データを削除するにはPINを入力してください" },
@@ -791,6 +868,9 @@ export const i18nData = {
     "confirm.delete.hidden.title": { id: "Hapus Semua Data Fitur Tersembunyi?", en: "Delete All Hidden Feature Data?", ja: "すべての隠し機能データを削除しますか？" },
     "confirm.delete.hidden.text": { id: "Tindakan ini akan menghapus semua data prompt dan PIN Anda secara permanen. Apakah Anda yakin?", en: "This will permanently delete all your prompt data and PINs. Are you sure?", ja: "これにより、すべてのプロンプトデータとPINが完全に削除されます。よろしいですか？" },
     "settings.hidden.notEnabled": { id: "Anda belum mengaktifkan fitur tersembunyi.", en: "You haven't enabled the hidden feature yet.", ja: "まだ隠し機能を有効にしていません。" },
+    "confirm.delete.todo.title": { id: "Hapus Semua Data Daftar Tugas?", en: "Delete All To-do Data?", ja: "すべてのタスクリストデータを削除？" },
+    "confirm.delete.todo.text": { id: "Tindakan ini akan menghapus semua data daftar tugas Anda secara permanen. Apakah Anda yakin?", en: "This will permanently delete all your to-do list data. Are you sure?", ja: "この操作により、すべてのタスクリストデータが完全に削除されます。よろしいですか？" },
+    "data.delete.todo.success": { id: "Data daftar tugas berhasil dihapus! Memuat ulang halaman.", en: "To-do List data deleted successfully! Reload the page.", ja: "タスクリストのデータが正常に削除されました！ページを再読み込みしてください。" },
     // Pop-up Feature
     "pin.enter.confirmFeatureTitle": { id: "Konfirmasi Fitur", en: "Feature Confirmation", ja: "機能の確認" },
     "pin.enter.confirmFeatureLabel": { id: "Masukkan PIN Fitur Tersembunyi untuk melanjutkan", en: "Enter Hidden Feature PIN to continue", ja: "続行するには隠し機能のPINを入力してください" },

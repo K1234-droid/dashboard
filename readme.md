@@ -18,6 +18,9 @@ This page is a homepage designed to provide a personal and enjoyable experience 
   * Drag and drop sorting using **sortable.js**.
   * Keyboard shortcut `Ctrl + D` for quick bookmark addition.
   * Choose to open links directly or in a new tab.
+* **To-do List**:
+  * Add, edit, delete, and search to-do list.
+  * Easily assign dates to each task.
 * **Search Bar**:
   * Search through bookmarks, prompts, and browser history.
   * Supports multiple search engines (Google, Bing, Yahoo!, DuckDuckGo).
