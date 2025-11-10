@@ -5,7 +5,7 @@
  */
 
 // ==================== PENGATURAN PEMBARUAN ====================
-export const CURRENT_VERSION = 'v4.6.0';
+export const CURRENT_VERSION = 'v4.6.1';
 export const GITHUB_OWNER = 'K1234-droid';
 export const GITHUB_REPO = 'dashboard';
 // ==============================================================
@@ -787,7 +787,7 @@ export const i18nData = {
     "settings.bookmark.openAction": { id: "Aksi Membuka Situs", en: "Bookmark Open Action", ja: "ブックマークを開くアクション" },
     "settings.bookmark.openAction.direct": { id: "Buka Langsung", en: "Open Directly", ja: "直接開く" },
     "settings.bookmark.openAction.newTab": { id: "Tab Baru", en: "New Tab", ja: "新しいタブ" },
-    "settings.bookmark.enableShortcutCtrlD": { id: "Gunakan Pintasan Keyboard CTRL + D untuk Tambah Bookmark", en: "Use CTRL + D Keyboard Shortcut to Add Bookmark", ja: "ブックマーク追加に CTRL + D ショートカットを使用" },
+    "settings.bookmark.enableShortcutCtrlD": { id: "Gunakan Pintasan Keyboard CTRL + D atau atau CMD + D untuk Tambah Bookmark", en: "Use CTRL + D or CMD + D Keyboard Shortcut to Add Bookmark", ja: "ブックマーク追加に （Ctrl + D、CMD + D） ショートカットを使用" },
     "settings.bookmark.shortcutHelp": { id: "Jika Anda selalu menambahkan bookmark menggunakan browser bawaan, matikan fitur ini.", en: "If you always add bookmarks using the default browser, turn off this feature.", ja: "常にデフォルトのブラウザを使用してブックマークを追加する場合は、この機能をオフにしてください。" },
     "settings.search.openAction": { id: "Aksi Membuka Situs", en: "Search Open Action", ja: "検索を開くアクション" },
     "data.search.title": { id: "Data di Bar Pencarian", en: "Data in Search Bar", ja: "検索バーのデータ" },

@@ -850,13 +850,6 @@ export function applyShowTodoList(show) {
         const rightMargin = 10;
         const gap = 0;
         
-        if (window.innerWidth >= 1920) {
-            const rightOffset = 15;
-            infoSection.style.right = `calc(15% + ${todoWidth}px + ${rightMargin + gap}px)`;
-        } else {
-            infoSection.style.right = `${todoWidth + rightMargin + gap}px`;
-        }
-        
     } else {
         infoSection.style.right = '';
     }
