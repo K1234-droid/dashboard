@@ -54,6 +54,11 @@ export function translateUI(lang) {
         bookmarkSearchInput.placeholder = placeholderText;
     }
 
+    const todoSearchInput = document.getElementById('todo-search-input');
+    if (todoSearchInput) {
+        todoSearchInput.placeholder = placeholderText;
+    }
+
     const charSearchInput = document.getElementById('character-search-input');
     const charPlaceholderText = i18nData["character.search.placeholder"]?.[lang] || i18nData["character.search.placeholder"]?.['id'] || '';
     if (charSearchInput) {
