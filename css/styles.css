@@ -4400,3 +4400,11 @@ body.dark-theme .todo-item-checkbox-modal {
     display: none;
   }
 }
+button, a, input, textarea, .menu-btn, .theme-btn, .prompt-item, .advanced-prompt-item, .bookmark-item, .todo-item, .avatar-logo, .modal-header-btn, .custom-select {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
