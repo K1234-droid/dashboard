@@ -2935,6 +2935,77 @@ pointer-events: all;
 }
 
 /* ==================== PENYESUAIAN LEBAR MODAL UNTUK RESOLUSI TINGGI ==================== */
+@media (min-width: 1530px) {
+  .info-section {
+    left: 7%;
+    right: 7%;
+  }
+  body.todo-list-visible .info-section {
+    right: auto;
+  }
+  #main-page-todo-container { 
+    right: 7%; 
+    left: auto;
+  }
+  .todo-modal-arrow-btn {
+    right: 0; 
+  }
+}
+@media (min-width: 1590px) {
+  .info-section {
+    left: 9%;
+    right: 9%;
+  }
+  body.todo-list-visible .info-section {
+    right: auto;
+  }
+  #main-page-todo-container { 
+    right: 8%; 
+    left: auto;
+  }
+  .todo-modal-arrow-btn {
+    right: 0; 
+  }
+}
+@media (min-width: 1635px) {
+  .info-section {
+    left: 10%;
+    right: 10%;
+  }
+  body.todo-list-visible .info-section {
+    right: auto;
+  }
+  #main-page-todo-container { 
+    right: 10%; 
+    left: auto;
+  }
+}
+@media (min-width: 1750px) {
+  .info-section {
+    left: 12%;
+    right: 12%;
+  }
+  body.todo-list-visible .info-section {
+    right: auto;
+  }
+  #main-page-todo-container { 
+    right: 12%; 
+    left: auto;
+  }
+}
+@media (min-width: 1850px) {
+  .info-section {
+    left: 14%;
+    right: 14%;
+  }
+  body.todo-list-visible .info-section {
+    right: auto;
+  }
+  #main-page-todo-container { 
+    right: 14%; 
+    left: auto;
+  }
+}
 @media (min-width: 1920px) {
   .info-section {
     left: 15%;
@@ -2946,9 +3017,6 @@ pointer-events: all;
   #main-page-todo-container { 
     right: 15%; 
     left: auto;
-  }
-  .todo-modal-arrow-btn {
-    right: 0; 
   }
   #prompt-modal-overlay .modal-content,
   #advanced-prompt-modal-overlay .modal-content,
