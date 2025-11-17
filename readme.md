@@ -16,29 +16,28 @@ This page is a homepage designed to provide a personal and enjoyable experience 
 * **Bookmark Management**:
   * Add, edit, delete, and search bookmarks.
   * Drag and drop sorting using **sortable.js**.
-  * Keyboard shortcut `Ctrl + D` for quick bookmark addition.
+  * Keyboard shortcut `Ctrl + D` or `CMD + D` for quick bookmark addition.
   * Choose to open links directly or in a new tab.
 * **To-do List**:
   * Add, edit, delete, and search to-do list.
   * Easily assign dates to each task.
 * **Search Bar**:
-  * Search through bookmarks, prompts, and browser history.
+  * Search through bookmarks, notes, and browser history.
   * Supports multiple search engines (Google, Bing, Yahoo!, DuckDuckGo).
   * Browser history search covers up to **1 year** (requires permission access).
 * **Data Management**:
   * Import/Export user data (username, theme, settings).
-  * Import/Export hidden feature data (prompt + PIN).
-  * Automatic cache management for wallpaper, bookmark favicons, and hidden feature images.
+  * Import/Export notes and images data.
+  * Automatic cache management for wallpaper, bookmark favicons, and images.
   * Manual cache clearing options.
 * **PIN Security**:
-  * Create/Change PINs for hidden and advanced features.
-  * Separate PINs for normal and advanced prompt management.
+  * Create/Change PINs for note and image features.
   * Option to merge or replace data when importing backups.
-* **Hidden & Advanced Features**:
-  * Hidden prompts: save, edit, delete, and search AI character prompts.
-  * Advanced prompts (Prompt Builder): create AI prompt templates with selectable characters.
+* **Note and Image Gallery**:
+  * Keyboard shortcut `Ctrl + Shift + H` or `CMD + Shift + H` for open notes list.
+  * Save, edit, delete, and search data.
   * All data is stored locally for privacy and security.
-* **Image Viewer**: View prompt images in fullscreen mode with navigation buttons.
+* **Image Viewer**: View images in fullscreen mode with navigation buttons.
 * **Toast Notifications**: Quick notifications for user actions.
 * **Update Checker**: Check for available dashboard updates directly from the interface.
 * **Multi-tab Settings Modal**: Organize settings under sections — General, Display, Data, and Other — for clarity and control.
