@@ -5,21 +5,71 @@ import {
     setAdvancedPrompts, setActivePromptMenu, setCurrentAdvancedPromptId, setConfirmationModalPurpose,
     setIsAdvancedManageModeActive, setSelectedAdvancedPromptIds, currentAdvancedPromptId,
     isAdvancedSearchModeActive, setIsAdvancedSearchModeActive, advancedSortableInstance,
-    confirmationModalPurpose, setCurrentImageNavList, cachedIconDataUrls, setCachedIconDataUrls
+    confirmationModalPurpose, setCurrentImageNavList, cachedIconDataUrls, setCachedIconDataUrls,
+    promptFolders, currentPromptFolderId, setCurrentPromptFolderId, promptFolderModal, addEditFolderModal,
+    currentEditFolderId, setCurrentEditFolderId, setPromptFolders, activeModalStack,
+    isFolderManageModeActive, setIsFolderManageModeActive, isFolderSearchModeActive, setIsFolderSearchModeActive,
+    selectedFolderIds, setSelectedFolderIds, folderSortableInstance, activePromptMenu, isAdvancedGridStale, 
+    setIsAdvancedGridStale
 } from './config.js';
-import { openModal, closeModal, showInfoModal } from './ui.js';
+import { openModal, closeModal, showInfoModal, isAdvancedModalSmallMode, showLoadingModal,
+    hideLoadingModal } from './ui.js';
 import { showToast, blobToDataURL } from './utils.js';
 import { saveSetting, getPromptBlob } from './storage.js';
-import { showPromptContextMenu, showFullImage, populateIconCacheIfNeeded } from './promptManager.js';
+import { showPromptContextMenu, showFullImage, populateIconCacheIfNeeded, closeAllPromptMenus, openCharacterPromptManager } from './promptManager.js';
 import { markSearchDataAsStale } from './search.js';
+
+export function openAdvancedPromptManager() {
+    showLoadingModal();
+    setTimeout(async () => {
+        await populateIconCacheIfNeeded();
+        const previousFolderId = currentPromptFolderId;
+        setCurrentPromptFolderId('all');
+        renderFolderTabs();
+        const isGridEmpty = advancedPromptModal.grid.children.length <= 1;
+        if (isAdvancedGridStale || previousFolderId !== 'all' || isGridEmpty) {
+            filterAndRenderAdvancedPrompts(); 
+            setIsAdvancedGridStale(false);
+        }
+        hideLoadingModal();
+        openModal(advancedPromptModal.overlay);
+    }, 50);
+}
 
 function getIconDataUrl(charId) {
     return cachedIconDataUrls[charId];
 }
 
+let selectedFolderId = 'all';
+
+export function showSidebarFolderContextMenu(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    closeAllPromptMenus();
+
+    const menu = document.getElementById('folder-sidebar-context-menu');
+    if (!menu) return;
+
+    const folderBtn = e.currentTarget;
+    const folderId = folderBtn.dataset.folderId;
+    if (folderId === 'all') {
+        return;
+    }
+    
+    menu.dataset.id = folderId;
+
+    const lang = languageSettings.ui;
+    menu.querySelector('[data-action="edit-folder"]').textContent = i18nData["prompt.menu.edit"][lang];
+    menu.querySelector('[data-action="delete-folder"]').textContent = i18nData["prompt.menu.delete"][lang];
+
+    menu.style.top = `${e.clientY}px`;
+    menu.style.left = `${e.clientX}px`;
+    menu.style.display = 'flex';
+
+    setActivePromptMenu(menu);
+}
+
 /**
- * Menemukan dan memperbarui HANYA ikon dari karakter tertentu di semua
- * item "Pembuat Prompt AI" yang menampilkannya.
  * @param {number} characterId - ID dari prompt karakter yang telah diperbarui.
  */
 export async function updateCharacterIconInBuilderItems(characterId) {
@@ -313,7 +363,31 @@ export async function updateSingleAdvancedPromptItem(updatedPrompt) {
     const item = advancedPromptModal.grid.querySelector(`.advanced-prompt-item[data-id="${updatedPrompt.id}"]`);
     if (!item) return;
 
-    const textElement = item.querySelector('p');
+    let textWrapper = item.querySelector('.advanced-prompt-text-wrapper');
+    if (!textWrapper) {
+        textWrapper = document.createElement('div');
+        textWrapper.className = 'advanced-prompt-text-wrapper';
+        item.insertBefore(textWrapper, item.querySelector('.advanced-prompt-item-chars'));
+    }
+
+    let titleElement = textWrapper.querySelector('.advanced-prompt-item-title');
+    if (updatedPrompt.title) {
+        if (!titleElement) {
+            titleElement = document.createElement('h5');
+            titleElement.className = 'advanced-prompt-item-title';
+            textWrapper.prepend(titleElement);
+        }
+        titleElement.textContent = updatedPrompt.title;
+    } else if (titleElement) {
+        titleElement.remove();
+    }
+
+    let textElement = textWrapper.querySelector('p');
+    if (!textElement) {
+        textElement = document.createElement('p');
+        textWrapper.appendChild(textElement);
+    }
+
     if (textElement) {
         const characterTexts = (updatedPrompt.characterIds || [])
             .map(charId => prompts.find(c => c.id === charId)?.text)
@@ -389,6 +463,16 @@ async function appendNewAdvancedPromptItem(newPrompt) {
     item.className = 'advanced-prompt-item';
     item.dataset.id = newPrompt.id;
 
+    const textWrapper = document.createElement('div');
+    textWrapper.className = 'advanced-prompt-text-wrapper';
+
+    if (newPrompt.title) {
+        const titleEl = document.createElement('h5');
+        titleEl.className = 'advanced-prompt-item-title';
+        titleEl.textContent = newPrompt.title;
+        textWrapper.appendChild(titleEl);
+    }
+
     const text = document.createElement('p');
     const characterTexts = (newPrompt.characterIds || [])
         .map(charId => prompts.find(c => c.id === charId)?.text)
@@ -401,7 +485,9 @@ async function appendNewAdvancedPromptItem(newPrompt) {
         combinedText = [newPrompt.text, ...characterTexts].filter(Boolean).join(' ');
     }
     text.textContent = combinedText;
-    item.appendChild(text);
+    textWrapper.appendChild(text);
+
+    item.appendChild(textWrapper);
 
     const charsContainer = document.createElement('div');
     charsContainer.className = 'advanced-prompt-item-chars';
@@ -473,7 +559,10 @@ async function appendNewAdvancedPromptItem(newPrompt) {
             return;
         }
         if (e.target.closest('.prompt-item-menu-btn')) { return; }
-        showAdvancedPromptViewer(newPrompt);
+        const currentPromptData = advancedPrompts.find(prompt => prompt.id === newPrompt.id);
+        if (currentPromptData) {
+            showAdvancedPromptViewer(currentPromptData);
+        }
     });
 
     item.addEventListener('contextmenu', (e) => {
@@ -503,6 +592,16 @@ export function renderAdvancedPrompts(promptsToRender = advancedPrompts) {
         item.className = 'advanced-prompt-item';
         item.dataset.id = p.id;
 
+        const textWrapper = document.createElement('div');
+        textWrapper.className = 'advanced-prompt-text-wrapper';
+
+        if (p.title) {
+            const titleEl = document.createElement('h5');
+            titleEl.className = 'advanced-prompt-item-title';
+            titleEl.textContent = p.title;
+            textWrapper.appendChild(titleEl);
+        }
+
         const text = document.createElement('p');
         const characterTexts = (p.characterIds && p.characterIds.length > 0)
             ? p.characterIds.map(charId => {
@@ -519,7 +618,9 @@ export function renderAdvancedPrompts(promptsToRender = advancedPrompts) {
         }
 
         text.textContent = combinedText;
-        item.appendChild(text);
+        textWrapper.appendChild(text);
+
+        item.appendChild(textWrapper);
 
         const charsContainer = document.createElement('div');
         charsContainer.className = 'advanced-prompt-item-chars';
@@ -599,7 +700,10 @@ export function renderAdvancedPrompts(promptsToRender = advancedPrompts) {
                 return;
             }
             if (e.target.closest('.prompt-item-menu-btn')) { return; }
-            showAdvancedPromptViewer(p);
+            const currentPromptData = advancedPrompts.find(prompt => prompt.id === p.id);
+            if (currentPromptData) {
+                showAdvancedPromptViewer(currentPromptData);
+            }
         });
 
         item.addEventListener('contextmenu', (e) => {
@@ -681,10 +785,22 @@ export function showAdvancedPromptViewer(prompt) {
 
     viewerBody.innerHTML = '';
 
+    const mainPromptBox = document.createElement('div');
+    mainPromptBox.className = 'viewer-prompt-text viewer-prompt-wrapper-box'; 
+
+    if (prompt.title) {
+        const titleEl = document.createElement('h5');
+        titleEl.className = 'advanced-prompt-viewer-title-in-box';
+        titleEl.textContent = prompt.title;
+        mainPromptBox.appendChild(titleEl);
+    }
+
     const mainPromptText = document.createElement('p');
-    mainPromptText.className = 'viewer-prompt-text';
+    mainPromptText.className = 'viewer-prompt-main-text';
     mainPromptText.textContent = prompt.text;
-    viewerBody.appendChild(mainPromptText);
+    mainPromptBox.appendChild(mainPromptText);
+
+    viewerBody.appendChild(mainPromptBox);
 
     if (prompt.characterIds && prompt.characterIds.length > 0) {
         const lang = languageSettings.ui;
@@ -800,6 +916,7 @@ export async function handleOpenAddAdvancedPromptModal() {
     const lang = languageSettings.ui;
     addEditAdvancedPromptModal.title.textContent = i18nData["advanced.prompt.addTitle"][lang];
     addEditAdvancedPromptModal.saveBtn.textContent = i18nData["settings.username.save"][lang];
+    addEditAdvancedPromptModal.titleInput.value = '';
     addEditAdvancedPromptModal.textInput.value = '';
     addEditAdvancedPromptModal.addCommaSwitch.checked = false;
 
@@ -815,6 +932,10 @@ export async function handleOpenAddAdvancedPromptModal() {
     addEditAdvancedPromptModal.textInput.scrollTop = 0;
     addEditAdvancedPromptModal.characterGrid.scrollTop = 0;
 
+    populateFolderDropdown();
+    selectedFolderId = (currentPromptFolderId === 'all') ? 'all' : currentPromptFolderId;
+    updateFolderDropdownDisplay();
+
     updateSelectionVisuals();
     openModal(addEditAdvancedPromptModal.overlay);
 }
@@ -829,6 +950,7 @@ export async function handleEditAdvancedPrompt(promptId) {
     
     addEditAdvancedPromptModal.title.textContent = i18nData["advanced.prompt.editTitle"][lang];
     addEditAdvancedPromptModal.saveBtn.textContent = i18nData["prompt.saveChanges"][lang];
+    addEditAdvancedPromptModal.titleInput.value = promptToEdit.title || '';
     addEditAdvancedPromptModal.textInput.value = promptToEdit.text;
     addEditAdvancedPromptModal.addCommaSwitch.checked = promptToEdit.useCommas || false;
 
@@ -844,11 +966,16 @@ export async function handleEditAdvancedPrompt(promptId) {
     addEditAdvancedPromptModal.textInput.scrollTop = 0;
     addEditAdvancedPromptModal.characterGrid.scrollTop = 0;
 
+    populateFolderDropdown();
+    selectedFolderId = promptToEdit.folderId || 'all';
+    updateFolderDropdownDisplay();
+
     updateSelectionVisuals();
     openModal(addEditAdvancedPromptModal.overlay);
 }
 
 export async function handleSaveAdvancedPrompt() {
+    const title = addEditAdvancedPromptModal.titleInput.value.trim();
     const text = addEditAdvancedPromptModal.textInput.value.trim();
     if (!text) {
         showInfoModal("info.attention.title", "advanced.prompt.add.fieldsRequired");
@@ -857,6 +984,7 @@ export async function handleSaveAdvancedPrompt() {
 
     const characterIds = [...selectionOrder];
     const useCommas = characterIds.length > 1 ? addEditAdvancedPromptModal.addCommaSwitch.checked : false;
+    const folderId = (selectedFolderId === 'all') ? null : selectedFolderId;
 
     const isEditing = !!currentAdvancedPromptId;
     let tempPrompts = [...advancedPrompts];
@@ -864,10 +992,10 @@ export async function handleSaveAdvancedPrompt() {
     if (isEditing) {
         const index = tempPrompts.findIndex(p => p.id === currentAdvancedPromptId);
         if (index > -1) {
-            tempPrompts[index] = { ...tempPrompts[index], text, characterIds, useCommas };
+            tempPrompts[index] = { ...tempPrompts[index], title, text, characterIds, useCommas, folderId };
         }
     } else {
-        const newPrompt = { id: Date.now(), text, characterIds, useCommas };
+        const newPrompt = { id: Date.now(), title, text, characterIds, useCommas, folderId };
         tempPrompts.push(newPrompt);
     }
     
@@ -882,6 +1010,11 @@ export async function handleSaveAdvancedPrompt() {
     closeModal(addEditAdvancedPromptModal.overlay);
 
     if (isAdvancedSearchModeActive) {
+        if (isEditing) {
+            await updateSingleAdvancedPromptItem(promptData);
+        } else {
+            await appendNewAdvancedPromptItem(promptData);
+        }
         handleAdvancedSearchInput();
     } else {
         if (isEditing) {
@@ -998,18 +1131,13 @@ export function handleAdvancedSelectAll() {
 
 function handleDirectBarSwap(outgoingContent, incomingContent, onComplete) {
     outgoingContent.style.opacity = '0'; 
-
     setTimeout(() => {
         outgoingContent.classList.add('hidden');
         outgoingContent.style.opacity = '1';
-
         incomingContent.classList.remove('hidden');
         incomingContent.style.opacity = '0';
-
         void incomingContent.offsetWidth; 
-
         incomingContent.style.opacity = '1';
-
         if (onComplete) {
             onComplete();
         }
@@ -1018,6 +1146,12 @@ function handleDirectBarSwap(outgoingContent, incomingContent, onComplete) {
 
 export function toggleAdvancedManageMode(forceState = null) {
     const newManageState = forceState !== null ? forceState : !isAdvancedManageModeActive;
+
+    if (newManageState) {
+        if (isAdvancedModalSmallMode() && advancedPromptModal.content.classList.contains('sidebar-open')) {
+            advancedPromptModal.content.classList.remove('sidebar-open');
+        }
+    }
 
     if (newManageState && isAdvancedSearchModeActive) {
         advancedPromptModal.searchInput.value = '';
@@ -1056,6 +1190,7 @@ export function toggleAdvancedManageMode(forceState = null) {
             item.classList.remove('selected');
         });
         updateAdvancedManageModeUI();
+        filterAndRenderAdvancedPrompts();
     }
 }
 
@@ -1071,6 +1206,12 @@ export function handleAdvancedDeleteSelected() {
 
 export function toggleAdvancedSearchMode(forceState = null) {
     const newSearchState = forceState !== null ? forceState : !isAdvancedSearchModeActive;
+
+    if (newSearchState) {
+        if (isAdvancedModalSmallMode() && advancedPromptModal.content.classList.contains('sidebar-open')) {
+            advancedPromptModal.content.classList.remove('sidebar-open');
+        }
+    }
 
     if (newSearchState && isAdvancedManageModeActive) {
         setSelectedAdvancedPromptIds([]);
@@ -1111,44 +1252,640 @@ export function toggleAdvancedSearchMode(forceState = null) {
         });
 
         advancedPromptModal.noResultsMessage.classList.add('hidden');
+        filterAndRenderAdvancedPrompts();
     }
 }
 
 export function handleAdvancedSearchInput() {
+    filterAndRenderAdvancedPrompts();
+}
+
+export function renderFolderTabs() {
+    const folderBar = document.getElementById('advanced-prompt-folder-bar');
+    if (!folderBar) return;
+
+    folderBar.querySelectorAll('.folder-tab-btn[data-folder-id]:not([data-folder-id="all"])').forEach(btn => btn.remove());
+    
+    const oldImagesBtn = folderBar.querySelector('.folder-tab-btn[data-type="images"]');
+    if (oldImagesBtn) oldImagesBtn.remove();
+
+    const allBtn = folderBar.querySelector('#advanced-prompt-folder-all');
+    const stickyWrapper = folderBar.querySelector('.folder-sidebar-sticky-buttons');
+    const foldersToRender = promptFolders;
+    const lang = languageSettings.ui;
+
+    const imagesBtn = document.createElement('button');
+    imagesBtn.className = 'folder-tab-btn';
+    imagesBtn.dataset.type = 'images';
+
+    const imgIconSpan = document.createElement('span');
+    imgIconSpan.className = 'folder-tab-icon';
+    imgIconSpan.textContent = '🖼️';
+
+    const imgNameSpan = document.createElement('span');
+    imgNameSpan.className = 'folder-tab-name';
+    imgNameSpan.textContent = i18nData["prompt.images"]?.[lang] || "Images";
+
+    imagesBtn.appendChild(imgIconSpan);
+    imagesBtn.appendChild(imgNameSpan);
+
+    imagesBtn.addEventListener('click', () => {
+        openCharacterPromptManager();
+    });
+
+    folderBar.insertBefore(imagesBtn, stickyWrapper);
+
+    foldersToRender.forEach(folder => {
+        const folderBtn = document.createElement('button');
+        folderBtn.className = 'folder-tab-btn';
+        folderBtn.dataset.folderId = folder.id;
+
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'folder-tab-icon';
+        iconSpan.textContent = '📁';
+
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'folder-tab-name';
+        nameSpan.textContent = folder.name;
+
+        folderBtn.appendChild(iconSpan);
+        folderBtn.appendChild(nameSpan);
+        
+        folderBtn.addEventListener('click', () => handleFolderTabClick(folder.id));
+        folderBtn.addEventListener('contextmenu', showSidebarFolderContextMenu);
+
+        if (folder.id === currentPromptFolderId) {
+            folderBtn.classList.add('active');
+        }
+
+        folderBar.insertBefore(folderBtn, stickyWrapper);
+    });
+
+    allBtn.classList.toggle('active', currentPromptFolderId === 'all');
+}
+
+export function filterAndRenderAdvancedPrompts() {
+    let promptsToRender;
+
+    if (currentPromptFolderId === 'all') {
+        promptsToRender = advancedPrompts;
+    } else {
+        promptsToRender = advancedPrompts.filter(p => p.folderId === currentPromptFolderId);
+    }
+
+    let visibleCount = promptsToRender.length;
     const searchTerm = advancedPromptModal.searchInput.value
         .toLowerCase()
         .trim()
         .replace(/\s+/g, ' ');
-    
-    const allPromptItems = advancedPromptModal.grid.querySelectorAll('.advanced-prompt-item:not(.add-prompt-item)');
-    let visibleCount = 0;
 
-    allPromptItems.forEach(item => {
-        const promptId = parseInt(item.dataset.id, 10);
-        const p = advancedPrompts.find(prompt => prompt.id === promptId);
+    if (isAdvancedSearchModeActive && searchTerm.length > 0) {
+        promptsToRender = promptsToRender.filter(p => {
+            const characterTexts = (p.characterIds || [])
+                .map(id => prompts.find(char => char.id === id)?.text)
+                .filter(Boolean);
 
-        if (!p) {
-            item.style.display = 'none';
-            return;
-        };
+            let combinedPromptText;
+            if (p.useCommas && characterTexts.length > 0) {
+                combinedPromptText = [p.text || '', ...characterTexts].filter(Boolean).join(', ');
+            } else {
+                combinedPromptText = [p.text || '', ...characterTexts].filter(Boolean).join(' ');
+            }
 
-        const characterTexts = (p.characterIds || [])
-            .map(id => prompts.find(char => char.id === id)?.text)
-            .filter(Boolean);
+            let searchableText = [p.title || '', combinedPromptText].filter(Boolean).join(' ');
+            const singleLineSearchableText = searchableText.replace(/\s+/g, ' ');
+            
+            return singleLineSearchableText.toLowerCase().includes(searchTerm);
+        });
+        visibleCount = promptsToRender.length;
+    }
 
-        let searchableText = [p.text || '', ...characterTexts].filter(Boolean).join(p.useCommas ? ', ' : ' ');
-        const singleLineSearchableText = searchableText.replace(/\s+/g, ' ');
-        const isMatch = singleLineSearchableText.toLowerCase().includes(searchTerm);
+    renderAdvancedPrompts(promptsToRender);
 
-        item.style.display = isMatch ? '' : 'none';
-        if (isMatch) {
-            visibleCount++;
-        }
-    });
-
-    if (visibleCount === 0 && searchTerm.length > 0) {
+    if (visibleCount === 0 && (isAdvancedSearchModeActive && searchTerm.length > 0)) {
         advancedPromptModal.noResultsMessage.classList.remove('hidden');
     } else {
         advancedPromptModal.noResultsMessage.classList.add('hidden');
+    }
+
+    advancedPromptModal.grid.querySelectorAll('.advanced-prompt-item:not(.add-prompt-item)').forEach(item => {
+        item.style.display = '';
+    });
+}
+
+export function handleFolderTabClick(folderId) {
+    if (folderId === currentPromptFolderId) {
+        return;
+    }
+    if (isAdvancedManageModeActive) {
+        toggleAdvancedManageMode(false);
+    }
+    if (isAdvancedSearchModeActive) {
+        toggleAdvancedSearchMode(false);
+    }
+
+    setCurrentPromptFolderId(folderId);
+
+    const folderBar = document.getElementById('advanced-prompt-folder-bar');
+    folderBar.querySelectorAll('.folder-tab-btn.active').forEach(btn => btn.classList.remove('active'));
+    const newActiveBtn = folderBar.querySelector(`.folder-tab-btn[data-folder-id="${folderId}"]`);
+    if (newActiveBtn) {
+        newActiveBtn.classList.add('active');
+    }
+
+    filterAndRenderAdvancedPrompts();
+
+    const isSmallScreen = window.matchMedia("(max-width: 1060px)").matches;
+    const modalContent = advancedPromptModal.content;
+
+    if (isSmallScreen && modalContent.classList.contains('sidebar-open')) {
+        modalContent.classList.remove('sidebar-open');
+    }
+}
+
+function renderFolderManagementGrid(foldersToRender = promptFolders) {
+    const grid = promptFolderModal.grid;
+    const addBtn = document.getElementById('add-folder-grid-btn');
+    const lang = languageSettings.ui;
+
+    grid.querySelectorAll('.folder-item, .add-bookmark-item').forEach(item => {
+        const menu = item.querySelector('.prompt-item-menu');
+        if (menu && menu.classList.contains('show')) {
+            closeAllPromptMenus(); 
+        }
+        item.remove();
+    });
+
+    foldersToRender.forEach(folder => {
+        const folderItem = document.createElement('div');
+        folderItem.className = 'folder-item';
+        folderItem.dataset.id = folder.id;
+
+        const icon = document.createElement('span');
+        icon.className = 'folder-item-icon';
+        icon.textContent = '📁';
+
+        const name = document.createElement('span');
+        name.className = 'folder-item-name';
+        name.textContent = folder.name;
+
+        folderItem.appendChild(icon);
+        folderItem.appendChild(name);
+
+        const menuBtn = document.createElement('button');
+        menuBtn.className = 'prompt-item-menu-btn';
+        menuBtn.innerHTML = '&#8942;';
+        menuBtn.onclick = (e) => {
+            e.stopPropagation();
+            showPromptContextMenu(e);
+        };
+        folderItem.appendChild(menuBtn);
+
+        const menuContainer = document.createElement('div');
+        menuContainer.className = 'prompt-item-menu';
+        menuContainer.dataset.id = folder.id;
+        menuContainer.innerHTML = `
+            <button class="prompt-menu-option" data-action="edit-folder">${i18nData["prompt.menu.edit"][lang]}</button>
+            <button class="prompt-menu-option" data-action="delete-folder">${i18nData["prompt.menu.delete"][lang]}</button>
+        `;
+        folderItem.appendChild(menuContainer);
+
+        folderItem.addEventListener('click', () => {
+            if (isFolderManageModeActive) {
+                toggleFolderSelection(folder.id);
+                return;
+            }
+            handleFolderTabClick(folder.id);
+            closeModal(promptFolderModal.overlay);
+        });
+
+        folderItem.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            if (isFolderManageModeActive) {
+                toggleFolderSelection(folder.id);
+            } else {
+                const menuBtn = folderItem.querySelector('.prompt-item-menu-btn');
+                if (menuBtn) {
+                    menuBtn.click();
+                }
+            }
+        });
+
+        grid.appendChild(folderItem);
+    });
+
+    const addBtnGrid = document.createElement('button');
+    addBtnGrid.id = 'add-folder-grid-btn';
+    addBtnGrid.className = 'bookmark-item add-bookmark-item';
+    addBtnGrid.innerHTML = '<span>+</span>';
+    addBtnGrid.onclick = () => openAddEditFolderModal(null);
+    grid.appendChild(addBtnGrid);
+}
+
+export function openFolderManagementModal() {
+    if (isAdvancedSearchModeActive) {
+        toggleAdvancedSearchMode(false);
+    }
+    if (isAdvancedManageModeActive) {
+        toggleAdvancedManageMode(false);
+    }
+    toggleFolderManageMode(false);
+    toggleFolderSearchMode(false);
+    renderFolderManagementGrid();
+    openModal(promptFolderModal.overlay);
+}
+
+export function openAddEditFolderModal(folderId = null) {
+    if (isAdvancedSearchModeActive) {
+        toggleAdvancedSearchMode(false);
+    }
+    if (isAdvancedManageModeActive) {
+        toggleAdvancedManageMode(false);
+    }
+    const lang = languageSettings.ui;
+    if (folderId) {
+        const folder = promptFolders.find(f => f.id === folderId);
+        if (!folder) return;
+        setCurrentEditFolderId(folderId);
+        addEditFolderModal.title.textContent = i18nData["folder.editTitle"][lang];
+        addEditFolderModal.input.value = folder.name;
+        addEditFolderModal.saveBtn.textContent = i18nData["prompt.saveChanges"][lang];
+        addEditFolderModal.saveBtn.setAttribute('data-i18n-key', 'prompt.saveChanges');
+    } else {
+        setCurrentEditFolderId(null);
+        addEditFolderModal.title.textContent = i18nData["folder.addTitle"][lang];
+        addEditFolderModal.input.value = '';
+        addEditFolderModal.saveBtn.textContent = i18nData["settings.username.save"][lang];
+        addEditFolderModal.saveBtn.setAttribute('data-i18n-key', 'settings.username.save');
+    }
+    openModal(addEditFolderModal.overlay);
+    addEditFolderModal.input.focus();
+}
+
+export async function handleSaveFolder() {
+    const isEditing = !!currentEditFolderId;
+    const folderName = addEditFolderModal.input.value.trim();
+    if (!folderName) {
+        showInfoModal("info.attention.title", "folder.error.nameRequired");
+        return;
+    }
+
+    let newFolders = [...promptFolders];
+
+    if (currentEditFolderId) {
+        if (newFolders.some(f => f.name.toLowerCase() === folderName.toLowerCase() && f.id !== currentEditFolderId)) {
+            showInfoModal("info.attention.title", "folder.error.nameExists");
+            return;
+        }
+        newFolders = newFolders.map(f => 
+            f.id === currentEditFolderId ? { ...f, name: folderName } : f
+        );
+    } else {
+        if (newFolders.some(f => f.name.toLowerCase() === folderName.toLowerCase())) {
+            showInfoModal("info.attention.title", "folder.error.nameExists");
+            return;
+        }
+        const newFolder = { id: Date.now(), name: folderName };
+        newFolders.push(newFolder);
+    }
+
+    setPromptFolders(newFolders);
+    await saveSetting('promptFolders', newFolders);
+
+    const parentModal = activeModalStack[activeModalStack.length - 2];
+
+    closeModal(addEditFolderModal.overlay);
+    showToast(isEditing ? "folder.edit.success" : "folder.save.success");
+    renderFolderTabs();
+
+    if (parentModal && parentModal === promptFolderModal.overlay) {
+        if (isFolderSearchModeActive) {
+            handleFolderSearchInput();
+        } else {
+            renderFolderManagementGrid();
+        }
+    }
+}
+
+export function confirmDeleteFolder(folderId) {
+    const folder = promptFolders.find(f => f.id === folderId);
+    if (!folder) return;
+
+    setCurrentEditFolderId(folderId);
+    setConfirmationModalPurpose('deleteFolder');
+
+    const lang = languageSettings.ui;
+    confirmationModal.title.textContent = i18nData["folder.delete.title"][lang];
+    let text = i18nData["folder.delete.text"][lang];
+    confirmationModal.text.textContent = text.replace('{name}', folder.name);
+
+    openModal(confirmationModal.overlay);
+}
+
+export async function handleDeleteFolder() {
+    let folderIdsToDelete = [];
+    let foldersToDeleteNames = [];
+
+    if (confirmationModalPurpose === 'deleteSelectedFolders') {
+        folderIdsToDelete = [...selectedFolderIds];
+        foldersToDeleteNames = promptFolders
+            .filter(f => folderIdsToDelete.includes(f.id))
+            .map(f => f.name);
+    } else if (confirmationModalPurpose === 'deleteFolder') {
+        if (!currentEditFolderId) return;
+        folderIdsToDelete = [currentEditFolderId];
+        const folder = promptFolders.find(f => f.id === currentEditFolderId);
+        if (folder) {
+            foldersToDeleteNames = [folder.name];
+        }
+    } else {
+        return;
+    }
+
+    if (folderIdsToDelete.length === 0) {
+        closeModal(confirmationModal.overlay);
+        return;
+    }
+
+    const newFolders = promptFolders.filter(f => !folderIdsToDelete.includes(f.id));
+    setPromptFolders(newFolders);
+    await saveSetting('promptFolders', newFolders);
+
+    let promptsModified = false;
+    const newAdvancedPrompts = advancedPrompts.map(p => {
+        if (p.folderId && folderIdsToDelete.includes(p.folderId)) {
+            promptsModified = true;
+            return { ...p, folderId: null };
+        }
+        return p;
+    });
+
+    if (promptsModified) {
+        setAdvancedPrompts(newAdvancedPrompts);
+        await saveSetting('advancedPrompts', newAdvancedPrompts);
+    }
+
+    closeModal(confirmationModal.overlay);
+    showToast("folder.delete.success");
+    renderFolderTabs();
+    
+    if (isFolderManageModeActive) {
+        toggleFolderManageMode(false);
+    }
+    
+    if (isFolderSearchModeActive) {
+        handleFolderSearchInput();
+    } else {
+        renderFolderManagementGrid();
+    }
+    
+    filterAndRenderAdvancedPrompts();
+    markSearchDataAsStale();
+}
+
+function updateFolderDropdownDisplay() {
+    const trigger = addEditAdvancedPromptModal.folderSelect;
+    if (!trigger) return;
+    const optionsContainer = addEditAdvancedPromptModal.folderSelectOptions;
+    const selectedTextSpan = trigger.querySelector('span:first-child');
+
+    let selectedOptionText;
+    let selectedOptionKey;
+
+    if (selectedFolderId === 'all') {
+        selectedOptionKey = "folder.noFolder";
+        selectedOptionText = i18nData[selectedOptionKey]?.[languageSettings.ui] || i18nData[selectedOptionKey]?.['id'];
+    } else {
+        const folder = promptFolders.find(f => f.id === selectedFolderId);
+        selectedOptionText = folder ? folder.name : (i18nData["folder.noFolder"]?.[languageSettings.ui] || i18nData["folder.noFolder"]?.['id']);
+    }
+
+    selectedTextSpan.textContent = selectedOptionText;
+    if (selectedOptionKey) {
+        selectedTextSpan.setAttribute('data-i18n-key', selectedOptionKey);
+    } else {
+        selectedTextSpan.removeAttribute('data-i18n-key');
+    }
+
+    optionsContainer.querySelectorAll('.custom-option').forEach(opt => opt.classList.remove('selected'));
+    const selectedOption = optionsContainer.querySelector(`[data-value="${selectedFolderId}"]`);
+    if (selectedOption) {
+        selectedOption.classList.add('selected');
+    }
+}
+
+export function populateFolderDropdown() {
+    const optionsContainer = addEditAdvancedPromptModal.folderSelectOptions;
+    if (!optionsContainer) return;
+
+    optionsContainer.innerHTML = '';
+    const lang = languageSettings.ui;
+
+    const allOption = document.createElement('div');
+    allOption.className = 'custom-option';
+    allOption.dataset.value = 'all';
+    allOption.textContent = i18nData["folder.noFolder"]?.[lang] || i18nData["folder.noFolder"]?.['id'];
+    allOption.setAttribute('data-i18n-key', 'folder.noFolder');
+    optionsContainer.appendChild(allOption);
+
+    promptFolders.forEach(folder => {
+        const option = document.createElement('div');
+        option.className = 'custom-option';
+        option.dataset.value = folder.id;
+        option.textContent = folder.name;
+        optionsContainer.appendChild(option);
+    });
+
+    updateFolderDropdownDisplay();
+}
+
+export function initFolderDropdownListener() {
+    const trigger = addEditAdvancedPromptModal.folderSelect;
+    const optionsContainer = addEditAdvancedPromptModal.folderSelectOptions;
+
+    if (trigger && optionsContainer) {
+        trigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (trigger.closest('.switch-container.disabled')) return;
+            document.querySelectorAll('.custom-select-options.show').forEach(openOption => {
+                if (openOption !== optionsContainer) {
+                    openOption.classList.remove('show');
+                    openOption.previousElementSibling.classList.remove('open');
+                }
+            });
+            const isShown = optionsContainer.classList.toggle('show');
+            trigger.classList.toggle('open', isShown);
+        });
+
+        optionsContainer.addEventListener('click', (e) => {
+            const option = e.target.closest('.custom-option');
+            if (option) {
+                const newValue = option.getAttribute('data-value');
+                selectedFolderId = (newValue === 'all') ? 'all' : parseInt(newValue, 10);
+                updateFolderDropdownDisplay();
+                optionsContainer.classList.remove('show');
+                trigger.classList.remove('open');
+            }
+        });
+    }
+}
+
+// --- Folder Manage & Search Mode ---
+
+export function updateFolderManageModeUI() {
+    const lang = languageSettings.ui;
+    const selectCountFormat = i18nData["prompt.selectCount"][lang] || i18nData["prompt.selectCount"]["id"];
+    promptFolderModal.selectCount.textContent = selectCountFormat.replace('{count}', selectedFolderIds.length);
+
+    const totalFolders = promptFolderModal.grid.querySelectorAll('.folder-item').length;
+    if (selectedFolderIds.length === totalFolders && totalFolders > 0) {
+        promptFolderModal.selectAllBtn.textContent = i18nData["prompt.deselectAll"][lang] || i18nData["prompt.deselectAll"]["id"];
+    } else {
+        promptFolderModal.selectAllBtn.textContent = i18nData["prompt.selectAll"][lang] || i18nData["prompt.selectAll"]["id"];
+    }
+
+    promptFolderModal.deleteSelectedBtn.disabled = selectedFolderIds.length === 0;
+}
+
+export function toggleFolderSelection(folderId) {
+    const idAsNumber = parseInt(folderId, 10);
+    const itemElement = promptFolderModal.grid.querySelector(`.folder-item[data-id="${idAsNumber}"]`);
+    
+    let currentSelectedIds = [...selectedFolderIds];
+    const index = currentSelectedIds.indexOf(idAsNumber);
+
+    if (index > -1) {
+        currentSelectedIds.splice(index, 1);
+        itemElement?.classList.remove('selected');
+    } else {
+        currentSelectedIds.push(idAsNumber);
+        itemElement?.classList.add('selected');
+    }
+    setSelectedFolderIds(currentSelectedIds);
+    updateFolderManageModeUI();
+}
+
+export function handleFolderSelectAll() {
+    const allFolderItems = promptFolderModal.grid.querySelectorAll('.folder-item');
+    if (selectedFolderIds.length === allFolderItems.length) {
+        setSelectedFolderIds([]);
+        allFolderItems.forEach(item => item.classList.remove('selected'));
+    } else {
+        const allFolderIds = Array.from(allFolderItems).map(item => parseInt(item.dataset.id, 10));
+        setSelectedFolderIds(allFolderIds);
+        allFolderItems.forEach(item => item.classList.add('selected'));
+    }
+    updateFolderManageModeUI();
+}
+
+export function handleFolderDeleteSelected() {
+    if (selectedFolderIds.length === 0) return;
+    setConfirmationModalPurpose('deleteSelectedFolders');
+    const lang = languageSettings.ui;
+    confirmationModal.title.textContent = i18nData["folder.delete.title"][lang];
+    const textFormat = i18nData["prompt.delete.selectedText"][lang];
+    confirmationModal.text.textContent = textFormat.replace('{count}', selectedFolderIds.length);
+    openModal(confirmationModal.overlay);
+}
+
+export function toggleFolderManageMode(forceState = null) {
+    const newManageState = forceState !== null ? forceState : !isFolderManageModeActive;
+
+    if (newManageState && isFolderSearchModeActive) {
+        promptFolderModal.searchInput.value = '';
+        handleFolderSearchInput();
+        setIsFolderSearchModeActive(false);
+        setIsFolderManageModeActive(true);
+        promptFolderModal.content.classList.remove('search-mode');
+        promptFolderModal.content.classList.add('manage-mode');
+
+        handleDirectBarSwap(promptFolderModal.searchContent, promptFolderModal.manageContent, () => {
+            if (folderSortableInstance) folderSortableInstance.option('disabled', true);
+            updateFolderManageModeUI();
+        });
+        return;
+    }
+
+    setIsFolderManageModeActive(newManageState);
+    promptFolderModal.content.classList.toggle('manage-mode', newManageState);
+    if (folderSortableInstance) folderSortableInstance.option('disabled', newManageState);
+
+    if (newManageState) {
+        closeAllPromptMenus();
+        promptFolderModal.searchContent.classList.add('hidden');
+        promptFolderModal.manageContent.classList.remove('hidden');
+        promptFolderModal.actionBar.classList.remove('hidden');
+        updateFolderManageModeUI();
+    } else {
+        promptFolderModal.searchInput.value = '';
+        handleFolderSearchInput();
+        promptFolderModal.actionBar.classList.add('hidden');
+        setTimeout(() => promptFolderModal.manageContent.classList.add('hidden'), 300);
+
+        setSelectedFolderIds([]);
+        promptFolderModal.grid.querySelectorAll('.folder-item.selected').forEach(item => {
+            item.classList.remove('selected');
+        });
+        updateFolderManageModeUI();
+    }
+}
+
+export function toggleFolderSearchMode(forceState = null) {
+    const newSearchState = forceState !== null ? forceState : !isFolderSearchModeActive;
+
+    if (newSearchState && isFolderManageModeActive) {
+        setSelectedFolderIds([]);
+        promptFolderModal.grid.querySelectorAll('.folder-item.selected').forEach(item => {
+            item.classList.remove('selected');
+        });
+
+        setIsFolderManageModeActive(false);
+        setIsFolderSearchModeActive(true);
+        promptFolderModal.content.classList.remove('manage-mode');
+        promptFolderModal.content.classList.add('search-mode');
+
+        handleDirectBarSwap(promptFolderModal.manageContent, promptFolderModal.searchContent, () => {
+            if (folderSortableInstance) folderSortableInstance.option('disabled', true);
+            promptFolderModal.searchInput.focus();
+        });
+        return;
+    }
+
+    setIsFolderSearchModeActive(newSearchState);
+    promptFolderModal.content.classList.toggle('search-mode', newSearchState);
+    if (folderSortableInstance) folderSortableInstance.option('disabled', newSearchState);
+
+    if (newSearchState) {
+        closeAllPromptMenus();
+        promptFolderModal.manageContent.classList.add('hidden');
+        promptFolderModal.searchContent.classList.remove('hidden');
+        promptFolderModal.actionBar.classList.remove('hidden');
+        promptFolderModal.searchInput.focus();
+    } else {
+        promptFolderModal.actionBar.classList.add('hidden');
+        setTimeout(() => promptFolderModal.searchContent.classList.add('hidden'), 300);
+        
+        promptFolderModal.searchInput.value = '';
+        handleFolderSearchInput();
+        promptFolderModal.noResultsMessage.classList.add('hidden');
+    }
+}
+
+export function handleFolderSearchInput() {
+    const searchTerm = promptFolderModal.searchInput.value.toLowerCase().trim();
+    const filtered = promptFolders.filter(f => f.name.toLowerCase().includes(searchTerm));
+    renderFolderManagementGrid(filtered);
+
+    if (filtered.length === 0 && searchTerm.length > 0) {
+        promptFolderModal.noResultsMessage.classList.remove('hidden');
+    } else {
+        promptFolderModal.noResultsMessage.classList.add('hidden');
+    }
+}
+
+export function closeSidebarContextMenu() {
+    if (activePromptMenu && activePromptMenu.id === 'folder-sidebar-context-menu') {
+        activePromptMenu.style.display = 'none';
+        setActivePromptMenu(null);
     }
 }

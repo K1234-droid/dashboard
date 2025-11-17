@@ -1,10 +1,10 @@
 import {
     elements, menu, usernameModal, themeModal, otherSettingsModal, aboutModal,
-    pinSettings, createPinModal, createAdvancedPinModal, pinEnterModal, promptModal, promptViewerModal,
+    pinSettings, createPinModal, pinEnterModal, promptModal, promptViewerModal,
     addEditPromptModal, confirmationModal, infoModal, howItWorksModal, imageViewerModal,
-    updatePinChoiceModal, advancedPromptModal, addEditAdvancedPromptModal, advancedPromptViewerModal,
-    settingSwitches, i18nData, userPIN, advancedPIN, prompts, advancedPrompts,
-    currentUser, setCurrentUser, setUserPIN, setAdvancedPIN, setPrompts, setAdvancedPrompts, languageSettings, setLanguageSettings,
+    advancedPromptModal, addEditAdvancedPromptModal, advancedPromptViewerModal,
+    settingSwitches, i18nData, userPIN, prompts, advancedPrompts,
+    currentUser, setCurrentUser, setUserPIN, setPrompts, setAdvancedPrompts, languageSettings, setLanguageSettings,
     activeModalStack, activePromptMenu, confirmationModalPurpose, setConfirmationModalPurpose,
     isManageModeActive, isAdvancedManageModeActive, isSearchModeActive, isAdvancedSearchModeActive,
     currentPromptId, setAnimationFrameId, setSortableInstance, setAdvancedSortableInstance, setPinModalPurpose, currentAdvancedPromptId,
@@ -18,7 +18,9 @@ import {
     setIsPromptGridStale, dataDeletion, colorScheme, setColorScheme, customThemeOverrides, setCustomThemeOverrides,
     isDataOperationInProgress, setIsDataOperationInProgress, todoList, setTodoList, todoListModal, todoModal,
     setTodoSortableInstance, activeTodoMenu, mainPageTodoContainer, isTodoSearchModeActive, isTodoManageModeActive,
-    setIsDraggingTodo, todoSortableInstance, isDraggingTodo
+    setIsDraggingTodo, todoSortableInstance, isDraggingTodo, setCurrentPromptFolderId, setPromptFolders,
+    promptFolderModal, addEditFolderModal, promptFolders, isFolderManageModeActive, isFolderSearchModeActive, folderSortableInstance,
+    setFolderSortableInstance
 } from './config.js';
 
 import { debounce, getBrowserLanguage, showToast, formatBytes, log } from './utils.js';
@@ -32,7 +34,7 @@ import {
     applyMenuBlur, applyFooterBlur, updateUsernameDisplay, updateSecurityFeaturesUI, applyEnableAnimation, applyShowContent,
     applyShowBookmark, applyBookmarkBlur, applyShowSearchBar, updateBookmarkDropdownState, updateLanguageControlsState,
     updateSearchEngineDisplay, applyColorScheme, applyCustomBackground, removeCustomBackground, applyThemeOverrides,
-    updateCustomThemeSettingsVisibility, updateThemeOverrideButtons
+    updateCustomThemeSettingsVisibility, updateThemeOverrideButtons, isAdvancedModalSmallMode
 } from './ui.js';
 import {
     initializeBookmarks, confirmDeleteBookmark, closeAllBookmarkMenus as closeAllBookmarkMenus_bookmark, renderMainPageBookmarks,
@@ -45,7 +47,7 @@ import {
     closeAllContainerTodoMenus_main
 } from './todoList.js';
 import { initializeSearch, closeSearch, initializeData as reinitializeSearchData } from './search.js';
-import { startPinUpdate, handleSaveInitialPin, handleSaveInitialAdvancedPin, handleDisableFeature, handlePinSubmit } from './pinManager.js';
+import { startPinUpdate, handleSaveInitialPin, handleDisableFeature, handlePinSubmit } from './pinManager.js';
 import {
     renderPrompts, handleOpenAddPromptModal, handleEditPrompt, handleDeletePrompt,
     copyPromptTextFromViewer, showFullImage, copyPromptTextFromItem,
@@ -65,7 +67,11 @@ import {
     copyAdvancedPromptText, handleDeleteAdvancedPrompt, handleEditAdvancedPrompt,
     copyAdvancedPromptTextFromViewer, confirmAdvancedDelete, handleCharacterSearchInput,
     copyAdvancedCharacterText, adjustVisibleIcons, updateCharacterIconInBuilderItems, reorderAdvancedPromptGrid,
-    handleCharacterDeletionInBuilder, updateSingleAdvancedPromptItem
+    handleCharacterDeletionInBuilder, updateSingleAdvancedPromptItem, handleFolderTabClick, openFolderManagementModal,
+    filterAndRenderAdvancedPrompts, renderFolderTabs, openAddEditFolderModal, handleSaveFolder, handleDeleteFolder,
+    initFolderDropdownListener, confirmDeleteFolder, toggleFolderManageMode, toggleFolderSearchMode,
+    handleFolderSearchInput, handleFolderSelectAll, handleFolderDeleteSelected, closeSidebarContextMenu,
+    openAdvancedPromptManager
 } from './promptBuilder.js';
 import {
     exportUserData, exportHiddenData, importUserData, importHiddenData,
@@ -225,14 +231,11 @@ function initializeDragAndDrop() {
             onEnd: async function(evt) {
                 const incompleteTodos = todoList.filter(t => !t.completed);
                 const completedTodos = todoList.filter(t => t.completed);
-
                 const movedItem = incompleteTodos.splice(evt.oldIndex, 1)[0];
                 incompleteTodos.splice(evt.newIndex, 0, movedItem);
-
                 const newTodos = [...incompleteTodos, ...completedTodos];
                 setTodoList(newTodos);
                 await saveSetting('todoList', newTodos);
-                
                 renderMainPageTodoList();
                 setTimeout(() => {
                     setIsDraggingTodo(false);
@@ -240,6 +243,32 @@ function initializeDragAndDrop() {
             },
         });
         setTodoSortableInstance(todoSortable);
+    }
+    if (promptFolderModal.grid) {
+        const folderSortable = new Sortable(promptFolderModal.grid, {
+            animation: 150,
+            ghostClass: 'sortable-ghost',
+            chosenClass: 'sortable-chosen',
+            filter: '.add-bookmark-item',
+            preventOnFilter: true,
+            delay: 200,
+            delayOnTouchOnly: true,
+            onStart: function() {
+                closeAllPromptMenus();
+            },
+            onMove: function (evt) {
+                return !evt.related.classList.contains('add-bookmark-item');
+            },
+            onEnd: async function(evt) {
+                const newFolders = [...promptFolders];
+                const movedItem = newFolders.splice(evt.oldIndex, 1)[0];
+                newFolders.splice(evt.newIndex, 0, movedItem);
+                setPromptFolders(newFolders);
+                await saveSetting('promptFolders', newFolders);
+                renderFolderTabs(); 
+            },
+        });
+        setFolderSortableInstance(folderSortable);
     }
 }
 
@@ -343,44 +372,23 @@ function setupDropdown(type) {
 }
 
 function handleAvatarDoubleClick() {
+    if (!userPIN) return;
     if (themeModal.previewCheckbox && themeModal.previewCheckbox.checked) {
       return;
     }
     menu.container.classList.remove("show-menu");
-    
-    const isHiddenEnabled = !!userPIN;
-    const isAdvancedEnabled = !!advancedPIN;
-    const lang = languageSettings.ui;
-
-    if (!isHiddenEnabled && !isAdvancedEnabled) return;
-
-    let purpose = '';
-    if (isHiddenEnabled && isAdvancedEnabled) {
-        purpose = 'loginChoice';
-    } else if (isHiddenEnabled) {
-        purpose = 'loginHidden';
-    } else if (isAdvancedEnabled) {
-        purpose = 'loginAdvanced';
-    }
-
-    setPinModalPurpose(purpose);
-    pinEnterModal.title.textContent = i18nData["pin.enter.title"][lang];
-    pinEnterModal.label.textContent = i18nData["pin.enter.label"][lang];
-    
-    pinEnterModal.input.value = '';
-    
-    openModal(pinEnterModal.overlay);
-    pinEnterModal.input.focus();
+    openAdvancedPromptManager();
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
     const keysToLoad = [
         "username", "theme", "showSeconds", "menuBlur", "footerBlur",
-        "languageSettings", "userPIN", "advancedPIN", "advancedPrompts", "enablePopupFinder",
+        "languageSettings", "userPIN", "advancedPrompts", "enablePopupFinder",
         "promptOrder", "enableAnimation", "showContent", "showGreeting", "showDescription", "showDate", "showTime",
         "showUsername", "bookmarks", "showBookmark", "bookmarkBlur", "enableSearchBar", "bookmarkOpenAction", "searchEngine",
         "searchOpenAction", "enableHistorySearch", "enableBookmarkSearch", "enableBookmarkPopupFinder", "enablePromptSearch",
-        "enableShortcutCtrlD", "colorScheme", "customBackground", "customThemeOverrides", "todoList", "showTodoList"
+        "enableShortcutCtrlD", "colorScheme", "customBackground", "customThemeOverrides", "todoList", "showTodoList",
+        "promptFolders"
     ];
 
     const settings = await loadSettings(keysToLoad);
@@ -418,8 +426,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     
     setCurrentUser(settings.username || "K1234");
     setUserPIN(settings.userPIN || null);
-    setAdvancedPIN(settings.advancedPIN || null);
     setAdvancedPrompts(settings.advancedPrompts || []);
+    setPromptFolders(settings.promptFolders || []);
     setBookmarks(settings.bookmarks || []);
     setTodoList(settings.todoList || []);
     setColorScheme(settings.colorScheme || 'default');
@@ -972,7 +980,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         const target = e.target;
         if (target.matches('.prompt-menu-option')) {
             const action = target.dataset.action;
-            const id = parseInt(target.closest('.prompt-item-menu').dataset.id, 10);
+            const parentMenu = target.closest('.prompt-item-menu') || target.closest('#folder-sidebar-context-menu');
+            if (!parentMenu) {
+                return;
+            }
+            const id = parseInt(parentMenu.dataset.id, 10);
+            closeSidebarContextMenu();
             closeAllPromptMenus();
             if (action === 'view-image') {
                 const isFromBuilder = target.closest('#advanced-prompt-viewer-modal-overlay');
@@ -993,6 +1006,12 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (action === 'copy-char-advanced') copyAdvancedCharacterText(id);
             if (action === 'edit-advanced') handleEditAdvancedPrompt(id);
             if (action === 'delete-advanced') handleDeleteAdvancedPrompt(id);
+            if (action === 'edit-folder') {
+                openAddEditFolderModal(id);
+            }
+            if (action === 'delete-folder') {
+                confirmDeleteFolder(id);
+            }
         }
     });
     if (addEditAdvancedPromptModal.searchInput) {
@@ -1047,9 +1066,27 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const targetElement = mutation.target;
                 const isNowVisible = !targetElement.classList.contains('hidden');
                 const wasPreviouslyHidden = mutation.oldValue && mutation.oldValue.includes('hidden');
-
+    
                 if (isNowVisible && wasPreviouslyHidden) {
+                    const modalContent = advancedPromptModal.content;
+                    
+                    if (isAdvancedModalSmallMode()) { 
+                        modalContent.classList.remove('sidebar-open');
+                    } 
+                    else { 
+                        if (!isAdvancedManageModeActive && !isAdvancedSearchModeActive) {
+                            modalContent.classList.add('sidebar-open');
+                        } else {
+                            modalContent.classList.remove('sidebar-open');
+                        }
+                    }
+    
+                    renderFolderTabs();
+                    filterAndRenderAdvancedPrompts();
                     adjustVisibleIcons();
+                    setTimeout(() => {
+                        adjustVisibleIcons();
+                    }, 300);
                 }
             }
         }
@@ -1178,6 +1215,136 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     });
 
+    const addFolderBtn = document.getElementById('advanced-prompt-add-folder-btn');
+    if (addFolderBtn) {
+        addFolderBtn.addEventListener('click', () => {
+            openAddEditFolderModal(null);
+        });
+    }
+
+    // Tombol "Lainnya" (untuk membuka modal manajemen folder)
+    const moreFoldersBtn = document.getElementById('advanced-prompt-more-folders-btn');
+    if (moreFoldersBtn) {
+        moreFoldersBtn.addEventListener('click', () => {
+            openFolderManagementModal();
+        });
+    }
+
+    // Tombol "Tambah" di dalam grid modal folder
+    const addFolderGridBtn = document.getElementById('add-folder-grid-btn');
+    if (addFolderGridBtn) {
+          addFolderGridBtn.addEventListener('click', () => {
+            openAddEditFolderModal(null);
+          });
+    }
+
+    const closeFolderModalBtn = document.getElementById('close-prompt-folder-modal-btn');
+    if (closeFolderModalBtn) {
+        closeFolderModalBtn.addEventListener('click', () => {
+            toggleFolderManageMode(false);
+            toggleFolderSearchMode(false);
+            closeModal(promptFolderModal.overlay);
+            renderFolderTabs();
+        });
+    }
+
+    if (promptFolderModal.addBtn) {
+        promptFolderModal.addBtn.addEventListener('click', () => openAddEditFolderModal(null));
+    }
+    if (promptFolderModal.manageBtn) {
+        promptFolderModal.manageBtn.addEventListener('click', () => toggleFolderManageMode());
+    }
+    if (promptFolderModal.cancelManageBtn) {
+        promptFolderModal.cancelManageBtn.addEventListener('click', () => toggleFolderManageMode(false));
+    }
+    if (promptFolderModal.selectAllBtn) {
+        promptFolderModal.selectAllBtn.addEventListener('click', handleFolderSelectAll);
+    }
+    if (promptFolderModal.deleteSelectedBtn) {
+        promptFolderModal.deleteSelectedBtn.addEventListener('click', handleFolderDeleteSelected);
+    }
+    if (promptFolderModal.searchBtn) {
+        promptFolderModal.searchBtn.addEventListener('click', () => toggleFolderSearchMode());
+    }
+    if (promptFolderModal.cancelSearchBtn) {
+        promptFolderModal.cancelSearchBtn.addEventListener('click', () => toggleFolderSearchMode(false));
+    }
+    if (promptFolderModal.searchInput) {
+        promptFolderModal.searchInput.addEventListener('input', handleFolderSearchInput);
+    }
+
+    const allFoldersBtn = document.getElementById('advanced-prompt-folder-all');
+    if (allFoldersBtn) {
+        allFoldersBtn.addEventListener('click', () => {
+            handleFolderTabClick('all');
+        });
+    }
+
+    const closeAddEditFolderBtn = document.getElementById('close-add-edit-folder-modal-btn');
+    if (closeAddEditFolderBtn) {
+        closeAddEditFolderBtn.addEventListener('click', () => closeModal(addEditFolderModal.overlay));
+    }
+
+    const saveFolderBtn = document.getElementById('save-folder-btn');
+    if (saveFolderBtn) {
+        saveFolderBtn.addEventListener('click', handleSaveFolder);
+    }
+
+    const folderNameInput = document.getElementById('folder-name-input');
+    if (folderNameInput) {
+        folderNameInput.addEventListener('keydown', (e) => {
+            if (e.key === "Enter") {
+                handleSaveFolder();
+            }
+        });
+    }
+
+    initFolderDropdownListener();
+
+    const toggleSidebarBtn = document.getElementById('advanced-prompt-toggle-sidebar-btn');
+    if (toggleSidebarBtn) {
+        toggleSidebarBtn.addEventListener('click', () => {
+            const modalContent = advancedPromptModal.overlay.querySelector('.modal-content');
+            if (modalContent) {
+                modalContent.classList.toggle('sidebar-open');
+                setTimeout(() => {
+                    adjustVisibleIcons();
+                }, 300);
+            }
+        });
+    }
+
+    const advancedPromptMainArea = document.querySelector('#advanced-prompt-modal-overlay .advanced-prompt-main-area');
+    if (advancedPromptMainArea) {
+        advancedPromptModal.mainArea = advancedPromptMainArea;
+    }
+
+    if (advancedPromptModal.content) {
+        advancedPromptModal.content.addEventListener('click', (e) => {
+            const isSmallModeActive = isAdvancedModalSmallMode();
+            const modalContent = advancedPromptModal.content;
+    
+            if (e.target.closest('#advanced-prompt-toggle-sidebar-btn')) {
+                return; 
+            }
+    
+            if (isSmallModeActive && modalContent.classList.contains('sidebar-open')) {
+                if (e.target.closest('#advanced-prompt-folder-bar') === null) {
+                    modalContent.classList.remove('sidebar-open');
+                }
+            }
+        });
+    }
+
+    if (advancedPromptModal.overlay && !window.advancedModalObserverAttached) {
+        advancedModalObserver.observe(advancedPromptModal.overlay, {
+            attributes: true,
+            attributeOldValue: true,
+            attributeFilter: ['class']
+        });
+        window.advancedModalObserverAttached = true;
+    }
+
     document.body.classList.add('loaded');
 });
 
@@ -1188,6 +1355,7 @@ window.addEventListener("click", (e) => {
         if (container && !container.contains(e.target)) { options.classList.remove('show'); options.previousElementSibling.classList.remove('open'); }
     });
     if (activePromptMenu && !activePromptMenu.contains(e.target) && !e.target.closest('.prompt-item-menu-btn')) {
+        closeSidebarContextMenu();
         closeAllPromptMenus();
     }
     if (activeBookmarkMenu && !activeBookmarkMenu.contains(e.target) && !e.target.closest('.bookmark-menu-btn')) {
@@ -1217,6 +1385,19 @@ window.addEventListener("resize", () => {
     if (settingSwitches.showTodoList?.checked) {
         renderMainPageTodoList();
     }
+
+    if (!advancedPromptModal.overlay.classList.contains('hidden')) {
+        const isSmallModeActive = isAdvancedModalSmallMode();
+        const modalContent = advancedPromptModal.content;
+
+        if (isSmallModeActive) {
+            if (isAdvancedManageModeActive || isAdvancedSearchModeActive) {
+                if (modalContent.classList.contains('sidebar-open')) {
+                    modalContent.classList.remove('sidebar-open');
+                }
+            }
+        }
+    }
 });
 
 window.addEventListener("keydown", (event) => {
@@ -1224,6 +1405,26 @@ window.addEventListener("keydown", (event) => {
                               activeModalStack[activeModalStack.length - 1] === imageViewerModal.overlay;
 
     if (event.key === "Escape") {
+        const sidebarContextMenu = document.getElementById('folder-sidebar-context-menu');
+        if (sidebarContextMenu && sidebarContextMenu.style.display === 'flex') {
+            event.preventDefault();
+            event.stopPropagation();
+            closeSidebarContextMenu();
+            return;
+        }
+
+        if (activeModalStack.length > 0 && activeModalStack[activeModalStack.length - 1] === advancedPromptModal.overlay) {
+            const isSmallModeActive = isAdvancedModalSmallMode();
+            const modalContent = advancedPromptModal.content;
+
+            if (isSmallModeActive && modalContent.classList.contains('sidebar-open')) {
+                event.preventDefault();
+                event.stopPropagation();
+                modalContent.classList.remove('sidebar-open');
+                return;
+            }
+        }
+        
         const contextMenu = document.getElementById('image-viewer-context-menu');
 
         if (contextMenu && contextMenu.style.display === 'flex') {
@@ -1253,7 +1454,11 @@ window.addEventListener("keydown", (event) => {
             return;
         }
 
-        if (activePromptMenu) { closeAllPromptMenus(); return; }
+        if (activePromptMenu) { 
+            closeSidebarContextMenu();
+            closeAllPromptMenus(); 
+            return; 
+        }
         if (menu.container.classList.contains('show-menu')) { menu.container.classList.remove('show-menu'); return; }
         const openSelects = document.querySelectorAll('.custom-select-options.show');
         if (openSelects.length > 0) {
@@ -1343,6 +1548,17 @@ window.addEventListener("keydown", (event) => {
                 }
             }
 
+            if (lastModal === promptFolderModal.overlay) {
+                if (isFolderSearchModeActive) {
+                    toggleFolderSearchMode(false);
+                    return;
+                }
+                if (isFolderManageModeActive) {
+                    toggleFolderManageMode(false);
+                    return;
+                }
+            }
+
             if (lastModal === addEditAdvancedPromptModal.overlay) {
                 if (addEditAdvancedPromptModal.searchInput && addEditAdvancedPromptModal.searchInput.value !== '') {
                     addEditAdvancedPromptModal.searchInput.value = '';
@@ -1379,9 +1595,10 @@ window.addEventListener("keydown", (event) => {
     const isControlOrCommand = event.ctrlKey || event.metaKey;
     const isHKey = event.key === 'h' || event.key === 'H';
     if (isControlOrCommand && event.shiftKey && isHKey && activeModalStack.length === 0) {
+        if (!userPIN) return; 
         event.preventDefault();
         closeSearch();
-        handleAvatarDoubleClick();
+        handleAvatarDoubleClick(); 
         return;
     }
     const isDKey = event.key === 'd' || event.key === 'D';
@@ -1422,6 +1639,11 @@ function handleModalSearchShortcut(event) {
             event.preventDefault();
             if (!isTodoManageModeActive) {
                 toggleTodoSearchMode(true);
+            }
+        } else if (topModal === promptFolderModal.overlay) {
+            event.preventDefault();
+            if (!isFolderManageModeActive) {
+                toggleFolderSearchMode(true);
             }
         }
     }
@@ -1487,15 +1709,7 @@ const handleUpdatePinClick = () => {
         showToast("settings.pin.feedback.error");
         return;
     }
-
-    if (userPIN && advancedPIN) {
-        updatePinChoiceModal.advancedBtn.disabled = false;
-        openModal(updatePinChoiceModal.overlay);
-    } else if (userPIN) {
-        startPinUpdate('hidden');
-    } else if (advancedPIN) {
-        startPinUpdate('advanced');
-    }
+    startPinUpdate('hidden');
 };
 
 if (pinSettings.updateBtn) pinSettings.updateBtn.addEventListener('click', handleUpdatePinClick);
@@ -1503,24 +1717,9 @@ if (pinSettings.input) pinSettings.input.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') handleUpdatePinClick();
 });
 
-
-if (updatePinChoiceModal.closeBtn) updatePinChoiceModal.closeBtn.addEventListener('click', () => closeModal(updatePinChoiceModal.overlay));
-if (updatePinChoiceModal.hiddenBtn) updatePinChoiceModal.hiddenBtn.addEventListener('click', () => {
-    closeModal(updatePinChoiceModal.overlay);
-    startPinUpdate('hidden');
-});
-if (updatePinChoiceModal.advancedBtn) updatePinChoiceModal.advancedBtn.addEventListener('click', () => {
-    closeModal(updatePinChoiceModal.overlay);
-    startPinUpdate('advanced');
-});
-
 if (createPinModal.saveBtn) createPinModal.saveBtn.addEventListener('click', handleSaveInitialPin);
 if (createPinModal.input) createPinModal.input.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSaveInitialPin(); });
 if (createPinModal.closeBtn) createPinModal.closeBtn.addEventListener('click', () => { closeModal(createPinModal.overlay); settingSwitches.hiddenFeature.checked = false; });
-
-if (createAdvancedPinModal.saveBtn) createAdvancedPinModal.saveBtn.addEventListener('click', handleSaveInitialAdvancedPin);
-if (createAdvancedPinModal.input) createAdvancedPinModal.input.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSaveInitialAdvancedPin(); });
-if (createAdvancedPinModal.closeBtn) createAdvancedPinModal.closeBtn.addEventListener('click', () => { closeModal(createAdvancedPinModal.overlay); settingSwitches.continueFeature.checked = false; });
 
 if (pinEnterModal.closeBtn) pinEnterModal.closeBtn.addEventListener("click", () => {
     pinEnterModal.input.blur();
@@ -1573,6 +1772,15 @@ if (advancedPromptModal.closeBtn) advancedPromptModal.closeBtn.addEventListener(
     toggleAdvancedManageMode(false);
     toggleAdvancedSearchMode(false);
     advancedPromptModal.content.classList.remove('manage-mode', 'search-mode');
+    setCurrentPromptFolderId('all');
+    const folderBar = document.getElementById('advanced-prompt-folder-bar');
+    if (folderBar) {
+        folderBar.scrollTop = 0;
+    }
+    const promptGrid = document.getElementById('advanced-prompt-grid');
+    if (promptGrid) {
+        promptGrid.parentElement.scrollTop = 0; 
+    }
     closeModal(advancedPromptModal.overlay);
 });
 if (advancedPromptModal.addBtn) {
@@ -1639,6 +1847,8 @@ if (confirmationModal.confirmBtn) confirmationModal.confirmBtn.addEventListener(
         confirmDelete();
     } else if (purpose === 'deleteAdvancedPrompt' || purpose === 'deleteSelectedAdvancedPrompts') {
         confirmAdvancedDelete();
+    } else if (purpose === 'deleteFolder' || purpose === 'deleteSelectedFolders') {
+        handleDeleteFolder();
     } else if (purpose === 'deleteBookmark' || purpose === 'deleteSelectedBookmarks') {
         confirmDeleteBookmark();
     } else if (purpose === 'deleteTodo' || purpose === 'deleteSelectedTodos' || purpose === 'deleteTodoListData') {
@@ -1899,26 +2109,7 @@ if (settingSwitches.hiddenFeature) {
             setConfirmationModalPurpose('disableHiddenFeature');
             const lang = languageSettings.ui;
             confirmationModal.title.textContent = i18nData["settings.hidden.disableWarningTitle"][lang];
-            confirmationModal.text.textContent = i18nData[advancedPIN ? "settings.hidden.disableWarningText_extended" : "settings.hidden.disableWarningText"][lang];
-            openModal(confirmationModal.overlay);
-        }
-    });
-}
-if (settingSwitches.continueFeature) {
-    settingSwitches.continueFeature.addEventListener('change', (e) => {
-        if (e.target.checked) {
-            if (!advancedPIN) {
-                e.preventDefault();
-                createAdvancedPinModal.input.value = '';
-                openModal(createAdvancedPinModal.overlay);
-                createAdvancedPinModal.input.focus();
-            }
-        } else {
-            e.preventDefault();
-            setConfirmationModalPurpose('disableContinueFeature');
-            const lang = languageSettings.ui;
-            confirmationModal.title.textContent = i18nData["settings.continue.disableWarningTitle"][lang];
-            confirmationModal.text.textContent = i18nData["settings.continue.disableWarningText"][lang];
+            confirmationModal.text.textContent = i18nData["settings.hidden.disableWarningText_extended"][lang];
             openModal(confirmationModal.overlay);
         }
     });

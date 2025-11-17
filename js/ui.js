@@ -1,6 +1,6 @@
 import {
     elements, usernameModal, themeModal, aboutModal, otherSettingsModal, infoModal, activeModalStack, currentUser, setCurrentUser,
-    languageSettings, i18nData, menu, pinSettings, settingSwitches, setActiveModalStack, userPIN, advancedPIN, feedbackTimeout,
+    languageSettings, i18nData, menu, pinSettings, settingSwitches, setActiveModalStack, userPIN, feedbackTimeout,
     setFeedbackTimeout, dataManagement, progressModal, loadingModal, setIsBlockingModalActive, updateModal, footerSearch, searchEngine,
     colorScheme, setColorScheme, customThemeOverrides, setCustomThemeOverrides, mainPageTodoContainer
 } from './config.js';
@@ -11,6 +11,12 @@ import { applyShowTodoList, closeAllTodoMenus, closeAllContainerTodoMenus_main }
 
 let hoverTimeout;
 let currentWallpaperUrl = null;
+
+export function isAdvancedModalSmallMode() {
+    const isSmallScreen = window.matchMedia("(max-width: 1060px)").matches;
+    const isVeryShortScreen = window.matchMedia("(max-height: 435px)").matches;
+    return isSmallScreen || isVeryShortScreen; 
+}
 
 export async function applyCustomBackground(imageBlob) {
     if (!imageBlob) return;
@@ -449,7 +455,6 @@ export function applyShowContent(show) { elements.body.classList.toggle("content
 
 export function updateSecurityFeaturesUI() {
     const isHiddenEnabled = !!userPIN;
-    const isAdvancedEnabled = !!advancedPIN;
     const lang = languageSettings.ui;
     const manageHiddenContainer = document.getElementById('manage-hidden-data-container');
     const popupFinderHelpText = document.getElementById('enable-popup-finder-help-text');
@@ -464,10 +469,7 @@ export function updateSecurityFeaturesUI() {
 
     settingSwitches.hiddenFeature.checked = isHiddenEnabled;
 
-    settingSwitches.continueFeature.checked = isAdvancedEnabled;
-    settingSwitches.continueFeature.disabled = !isHiddenEnabled;
-
-    if (isHiddenEnabled || isAdvancedEnabled) {
+    if (isHiddenEnabled) {
         pinSettings.container.classList.remove('hidden');
         pinSettings.updateBtn.textContent = i18nData["settings.hidden.updatePin"][lang] || "Update PIN";
     } else {

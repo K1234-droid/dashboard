@@ -59,6 +59,11 @@ export function translateUI(lang) {
         todoSearchInput.placeholder = placeholderText;
     }
 
+    const folderSearchInput = document.getElementById('folder-search-input');
+    if (folderSearchInput) {
+        folderSearchInput.placeholder = placeholderText;
+    }
+
     const charSearchInput = document.getElementById('character-search-input');
     const charPlaceholderText = i18nData["character.search.placeholder"]?.[lang] || i18nData["character.search.placeholder"]?.['id'] || '';
     if (charSearchInput) {

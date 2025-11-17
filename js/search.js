@@ -71,6 +71,7 @@ export async function initializeData() {
             const characterData = (characterPrompts || []).map(p => ({
                 id: `char-${p.id}`,
                 text: p.text,
+                copyText: p.text,
                 type: getTranslation('popup.type.character'),
                 originalData: p,
                 resultType: 'local'
@@ -92,9 +93,17 @@ export async function initializeData() {
                     combinedText = [p.text, ...characterTexts].filter(Boolean).join(' ');
                 }
 
+                let displayText;
+                if (p.title && p.title.trim() !== '') {
+                    displayText = `${p.title.trim()} - ${combinedText}`;
+                } else {
+                    displayText = combinedText;
+                }
+
                 return {
                     id: `bldr-${p.id}`,
-                    text: combinedText,
+                    text: displayText,
+                    copyText: combinedText,
                     type: getTranslation('popup.type.builder'),
                     originalData: p,
                     resultType: 'local'
@@ -389,7 +398,8 @@ export function initializeSearch() {
             const itemToCopy = searchableData.find(item => item.id === itemId);
             if (itemToCopy) {
                 try {
-                    await navigator.clipboard.writeText(itemToCopy.text);
+                    const textToCopy = itemToCopy.copyText !== undefined ? itemToCopy.copyText : itemToCopy.text;
+                    await navigator.clipboard.writeText(textToCopy);
                     showToast('popup.copy.success');
                     closeSearch();
                 } catch (err) {

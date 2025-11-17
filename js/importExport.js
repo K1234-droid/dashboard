@@ -3,7 +3,7 @@ import {
 } from './storage.js';
 import { showToast, resizeImage, log } from './utils.js';
 import {
-    userPIN, advancedPIN, setPinModalPurpose, languageSettings, i18nData, pinEnterModal, confirmationMergeReplaceModal,
+    userPIN, setPinModalPurpose, languageSettings, i18nData, pinEnterModal, confirmationMergeReplaceModal,
     setTempImportData, tempImportData, advancedPrompts, currentUser, bookmarks, confirmationBookmarkMergeModal, setTempUserImportData,
     tempUserImportData, setIsDataOperationInProgress, todoList
 } from './config.js';
@@ -272,14 +272,15 @@ export async function proceedWithHiddenDataExport() {
     try {
         const zipWriter = new zip.ZipWriter(new zip.BlobWriter("application/zip"));
 
-        const settings = await getAllSettings(['userPIN', 'advancedPIN', 'advancedPrompts', 'enablePopupFinder', 'promptOrder', 'enablePromptSearch']); 
+        const settings = await getAllSettings(['userPIN', 'advancedPrompts', 'enablePopupFinder',
+            'promptOrder', 'enablePromptSearch', 'promptFolders']);
         const promptMetadataList = await getAllPromptMetadata();
 
         const metadata = {
             userPIN: settings.userPIN,
-            advancedPIN: settings.advancedPIN,
             enablePopupFinder: settings.enablePopupFinder,
             promptOrder: settings.promptOrder || [],
+            promptFolders: settings.promptFolders || [],
             prompts: [],
             advancedPrompts: settings.advancedPrompts,
             enablePromptSearch: settings.enablePromptSearch
@@ -366,9 +367,11 @@ async function applyImportedData(importData, replace = false) {
 
         const metadataString = await dataFileEntry.getData(new zip.TextWriter());
         const data = JSON.parse(metadataString);
-        const existingSettings = await getAllSettings(['promptOrder', 'advancedPrompts']);
+
+        const existingSettings = await getAllSettings(['promptOrder', 'advancedPrompts', 'promptFolders']);
         let finalPromptOrder = existingSettings.promptOrder || [];
         let existingAdvancedPrompts = existingSettings.advancedPrompts || [];
+        let existingFolders = existingSettings.promptFolders || [];
 
         if (replace) {
             const oldMetadata = await getAllPromptMetadata();
@@ -421,8 +424,8 @@ async function applyImportedData(importData, replace = false) {
             finalPromptOrder = data.promptOrder || [];
             await saveSetting('promptOrder', finalPromptOrder);
             await saveSetting('userPIN', data.userPIN || userPIN);
-            await saveSetting('advancedPIN', data.advancedPIN || advancedPIN);
             await saveSetting('advancedPrompts', data.advancedPrompts || []);
+            await saveSetting('promptFolders', data.promptFolders || []);
             if (typeof data.enablePopupFinder !== 'undefined') await saveSetting('enablePopupFinder', data.enablePopupFinder);
             if (typeof data.enablePromptSearch !== 'undefined') await saveSetting('enablePromptSearch', data.enablePromptSearch);
 
@@ -430,13 +433,19 @@ async function applyImportedData(importData, replace = false) {
             finalPromptOrder.push(...newPromptIds);
             await saveSetting('promptOrder', finalPromptOrder);
             await saveSetting('userPIN', data.userPIN || userPIN);
-            await saveSetting('advancedPIN', data.advancedPIN || advancedPIN);
             
             if (Array.isArray(data.advancedPrompts) && data.advancedPrompts.length > 0) {
                 const existingIds = new Set(existingAdvancedPrompts.map(p => p.id));
                 const newPromptsToAdd = data.advancedPrompts.filter(p => !existingIds.has(p.id));
                 const finalAdvancedPrompts = [...existingAdvancedPrompts, ...newPromptsToAdd];
                 await saveSetting('advancedPrompts', finalAdvancedPrompts);
+            }
+
+            if (Array.isArray(data.promptFolders) && data.promptFolders.length > 0) {
+                const existingFolderIds = new Set(existingFolders.map(f => f.id));
+                const newFoldersToAdd = data.promptFolders.filter(f => !existingFolderIds.has(f.id));
+                const finalFolders = [...existingFolders, ...newFoldersToAdd];
+                await saveSetting('promptFolders', finalFolders);
             }
 
             if (typeof data.enablePopupFinder !== 'undefined') await saveSetting('enablePopupFinder', data.enablePopupFinder);

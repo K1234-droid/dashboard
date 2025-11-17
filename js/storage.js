@@ -431,9 +431,9 @@ export async function clearHiddenData() {
         await deleteAllPrompts();
         const hiddenKeysToDelete = [
             "userPIN",
-            "advancedPIN",
             "advancedPrompts",
             "promptOrder",
+            "promptFolders",
             "enablePopupFinder",
             "enablePromptSearch"
         ];

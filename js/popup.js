@@ -107,6 +107,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 characterData = (characterPrompts || []).map(p => ({
                     id: `char-${p.id}`,
                     text: p.text,
+                    copyText: p.text,
                     type: getTranslation('popup.type.character'),
                     dataType: 'prompt',
                     subType: 'character'
@@ -119,9 +120,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                     const combinedText = [p.text, ...characterTexts].filter(Boolean).join(p.useCommas ? ', ' : ' ');
 
+                    let displayText;
+                    if (p.title && p.title.trim() !== '') {
+                        displayText = `${p.title.trim()} - ${combinedText}`;
+                    } else {
+                        displayText = combinedText;
+                    }
+
                     return {
                         id: `bldr-${p.id}`,
-                        text: combinedText,
+                        text: displayText,
+                        copyText: combinedText,
                         type: getTranslation('popup.type.builder'),
                         dataType: 'prompt',
                         subType: 'builder'
@@ -291,7 +300,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             window.close();
         } else {
             try {
-                await navigator.clipboard.writeText(clickedItem.text);
+                const textToCopy = clickedItem.copyText !== undefined ? clickedItem.copyText : clickedItem.text;
+                await navigator.clipboard.writeText(textToCopy);
                 const originalTextEl = resultItem.querySelector('.result-text');
                 const originalText = originalTextEl.textContent;
                 originalTextEl.textContent = getTranslation('popup.copy.success');

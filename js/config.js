@@ -5,7 +5,7 @@
  */
 
 // ==================== PENGATURAN PEMBARUAN ====================
-export const CURRENT_VERSION = 'v4.6.1';
+export const CURRENT_VERSION = 'v4.7.0';
 export const GITHUB_OWNER = 'K1234-droid';
 export const GITHUB_REPO = 'dashboard';
 // ==============================================================
@@ -252,21 +252,6 @@ export const createPinModal = {
     feedbackText: document.getElementById('create-pin-feedback'),
 };
 
-export const createAdvancedPinModal = {
-    overlay: document.getElementById('create-advanced-pin-modal-overlay'),
-    closeBtn: document.getElementById('close-create-advanced-pin-modal-btn'),
-    input: document.getElementById('create-advanced-pin-input'),
-    saveBtn: document.getElementById('save-initial-advanced-pin-btn'),
-    feedbackText: document.getElementById('create-advanced-pin-feedback'),
-};
-
-export const updatePinChoiceModal = {
-    overlay: document.getElementById('update-pin-choice-modal-overlay'),
-    closeBtn: document.getElementById('close-update-pin-choice-modal-btn'),
-    hiddenBtn: document.getElementById('update-pin-hidden-choice-btn'),
-    advancedBtn: document.getElementById('update-pin-advanced-choice-btn'),
-};
-
 export const pinEnterModal = {
     overlay: document.getElementById('pin-enter-modal-overlay'),
     closeBtn: document.getElementById('close-pin-enter-modal-btn'),
@@ -303,6 +288,7 @@ export const advancedPromptModal = {
     addBtn: document.getElementById('advanced-prompt-add-btn-header'),
     grid: document.getElementById('advanced-prompt-grid'),
     content: document.querySelector('#advanced-prompt-modal-overlay .modal-content'),
+    mainArea: document.querySelector('#advanced-prompt-modal-overlay .advanced-prompt-main-area'),
     manageBtn: document.getElementById('advanced-prompt-manage-btn'),
     selectCount: document.getElementById('advanced-prompt-select-count'),
     selectAllBtn: document.getElementById('advanced-prompt-select-all-btn'),
@@ -315,6 +301,34 @@ export const advancedPromptModal = {
     actionBar: document.getElementById('advanced-prompt-action-bar'),
     manageContent: document.getElementById('advanced-prompt-manage-content'),
     searchContent: document.getElementById('advanced-prompt-search-content'),
+};
+
+export const promptFolderModal = {
+    overlay: document.getElementById('prompt-folder-modal-overlay'),
+    closeBtn: document.getElementById('close-prompt-folder-modal-btn'),
+    grid: document.getElementById('prompt-folder-grid'),
+    addBtn: document.getElementById('folder-add-btn-header'),
+    noResultsMessage: document.getElementById('prompt-folder-no-results'),
+    manageBtn: document.getElementById('folder-manage-btn'),
+    selectCount: document.getElementById('folder-select-count'),
+    selectAllBtn: document.getElementById('folder-select-all-btn'),
+    deleteSelectedBtn: document.getElementById('folder-delete-selected-btn'),
+    cancelManageBtn: document.getElementById('folder-cancel-manage-btn'),
+    searchBtn: document.getElementById('folder-search-btn'),
+    searchInput: document.getElementById('folder-search-input'),
+    cancelSearchBtn: document.getElementById('folder-cancel-search-btn'),
+    actionBar: document.getElementById('folder-action-bar'),
+    manageContent: document.getElementById('folder-manage-content'),
+    searchContent: document.getElementById('folder-search-content'),
+    content: document.querySelector('#prompt-folder-modal-overlay .modal-content'),
+};
+
+export const addEditFolderModal = {
+    overlay: document.getElementById('add-edit-folder-modal-overlay'),
+    closeBtn: document.getElementById('close-add-edit-folder-modal-btn'),
+    title: document.getElementById('add-edit-folder-title'),
+    input: document.getElementById('folder-name-input'),
+    saveBtn: document.getElementById('save-folder-btn'),
 };
 
 export const promptViewerModal = {
@@ -353,12 +367,16 @@ export const addEditAdvancedPromptModal = {
     overlay: document.getElementById('add-edit-advanced-prompt-modal-overlay'),
     closeBtn: document.getElementById('close-add-edit-advanced-prompt-modal-btn'),
     title: document.getElementById('add-edit-advanced-prompt-title'),
+    titleInput: document.getElementById('advanced-prompt-title-input'),
     textInput: document.getElementById('advanced-prompt-text-input'),
     characterGrid: document.getElementById('advanced-prompt-character-selection-grid'),
     addCommaSwitch: document.getElementById('add-comma-switch'),
     addCommaSwitchContainer: document.getElementById('add-comma-switch-container'),
     saveBtn: document.getElementById('save-advanced-prompt-btn'),
     searchInput: document.getElementById('character-search-input'),
+    folderSelectContainer: document.getElementById('prompt-folder-select-container'),
+    folderSelect: document.getElementById('prompt-folder-select'),
+    folderSelectOptions: document.getElementById('prompt-folder-select-options'),
 };
   
 export const confirmationModal = {
@@ -411,7 +429,6 @@ export const settingSwitches = {
     footerBlur: document.getElementById("blur-footer-switch"),
     applyToAll: document.getElementById("apply-to-all-switch"),
     hiddenFeature: document.getElementById('hidden-feature-switch'),
-    continueFeature: document.getElementById('continue-feature-switch'),
     enablePopupFinder: document.getElementById('enable-popup-finder-switch'),
     enableHistorySearch: document.getElementById('enable-history-search-switch'),
     enableBookmarkSearch: document.getElementById("enable-bookmark-search-switch"),
@@ -437,15 +454,17 @@ export const progressModal = {
 // --- State & Data ---
 export let currentUser = "K1234";
 export let userPIN = null;
-export let advancedPIN = null;
 export let prompts = [];
 export let advancedPrompts = [];
+export let promptFolders = [];
+export let currentPromptFolderId = 'all';
 export let bookmarks = [];
 export let todoList = [];
 export let currentPromptId = null;
 export let currentImageViewerId = null;
 export let imageViewerSource = 'grid';
 export let currentAdvancedPromptId = null;
+export let currentEditFolderId = null;
 export let activePromptMenu = null;
 export let activeBookmarkMenu = null;
 export let activeTodoMenu = null;
@@ -471,6 +490,10 @@ export let selectedPromptIds = [];
 export let isAdvancedManageModeActive = false;
 export let isAdvancedSearchModeActive = false;
 export let selectedAdvancedPromptIds = [];
+export let isFolderManageModeActive = false;
+export let isFolderSearchModeActive = false;
+export let selectedFolderIds = [];
+export let folderSortableInstance = null;
 export let sortableInstance = null;
 export let advancedSortableInstance = null;
 export let isBlockingModalActive = false;
@@ -521,13 +544,15 @@ export function setBookmarks(value) { bookmarks = value; }
 export function setTodoList(value) { todoList = value; }
 export function setCurrentUser(value) { currentUser = value; }
 export function setUserPIN(value) { userPIN = value; }
-export function setAdvancedPIN(value) { advancedPIN = value; }
 export function setPrompts(value) { prompts = value; }
 export function setAdvancedPrompts(value) { advancedPrompts = value; }
+export function setPromptFolders(value) { promptFolders = value; }
+export function setCurrentPromptFolderId(value) { currentPromptFolderId = value; }
 export function setCurrentPromptId(value) { currentPromptId = value; }
 export function setCurrentImageViewerId(value) { currentImageViewerId = value; }
 export function setImageViewerSource(value) { imageViewerSource = value; }
 export function setCurrentAdvancedPromptId(value) { currentAdvancedPromptId = value; }
+export function setCurrentEditFolderId(value) { currentEditFolderId = value; }
 export function setActivePromptMenu(value) { activePromptMenu = value; }
 export function setActiveBookmarkMenu(value) { activeBookmarkMenu = value; }
 export function setActiveTodoMenu(value) { activeTodoMenu = value; }
@@ -552,6 +577,10 @@ export function setSelectedPromptIds(value) { selectedPromptIds = value; }
 export function setIsAdvancedManageModeActive(value) { isAdvancedManageModeActive = value; }
 export function setIsAdvancedSearchModeActive(value) { isAdvancedSearchModeActive = value; }
 export function setSelectedAdvancedPromptIds(value) { selectedAdvancedPromptIds = value; }
+export function setIsFolderManageModeActive(value) { isFolderManageModeActive = value; }
+export function setIsFolderSearchModeActive(value) { isFolderSearchModeActive = value; }
+export function setSelectedFolderIds(value) { selectedFolderIds = value; }
+export function setFolderSortableInstance(value) { folderSortableInstance = value; }
 export function setSortableInstance(value) { sortableInstance = value; }
 export function setAdvancedSortableInstance(value) { advancedSortableInstance = value; }
 export function setIsBlockingModalActive(value) { isBlockingModalActive = value; }
@@ -661,9 +690,9 @@ export const i18nData = {
     "pin.enter.label": { id: "PIN 4 Digit", en: "4-Digit PIN", ja: "4桁のPIN" },
     "pin.enter.submit": { id: "Masuk", en: "Enter", ja: "入力" },
     "prompt.delete.title": { id: "Konfirmasi Hapus", en: "Confirm Deletion", ja: "削除の確認" },
-    "prompt.delete.text": { id: "Apakah Anda yakin ingin menghapus prompt ini? Tindakan ini tidak dapat diurungkan.", en: "Are you sure you want to delete this prompt? This action cannot be undone.", ja: "このプロンプトを削除してもよろしいですか？この操作は元に戻せません。" },
-    "prompt.delete.inUseError": { id: "Prompt ini tidak dapat dihapus karena digunakan oleh Pembuat Prompt. Mohon hapus data dari Pembuat Prompt terlebih dahulu.", en: "This prompt cannot be deleted because it is being used by the Prompt Builder. Please remove it from the Prompt Builder data first.", ja: "このプロンプトはプロンプトビルダーで使用されているため削除できません。まずプロンプトビルダーのデータから削除してください。" },
-    "prompt.delete.selectedText": { id: "Apakah Anda yakin ingin menghapus {count} prompt yang dipilih? Tindakan ini tidak dapat diurungkan.", en: "Are you sure you want to delete the {count} selected prompts? This action cannot be undone.", ja: "選択した{count}個のプロンプトを削除してもよろしいですか？この操作は元に戻せません。" },
+    "prompt.delete.text": { id: "Apakah Anda yakin ingin menghapus gambar ini? Tindakan ini tidak dapat diurungkan.", en: "Are you sure you want to delete this image? This action cannot be undone.", ja: "この画像を削除してもよろしいですか？この操作は元に戻せません。" },
+    "prompt.delete.inUseError": { id: "Gambar ini tidak dapat dihapus karena digunakan di dalam Catatan. Mohon hapus dari Catatan terlebih dahulu.", en: "This image cannot be deleted because it is used in a Note. Please remove it from the Note first.", ja: "この画像はノートで使用されているため削除できません。まずノートから削除してください。" },
+    "prompt.delete.selectedText": { id: "Apakah Anda yakin ingin menghapus {count} item yang dipilih? Tindakan ini tidak dapat diurungkan.", en: "Are you sure you want to delete the {count} selected items? This action cannot be undone.", ja: "選択した{count}個の項目を削除してもよろしいですか？この操作は元に戻せません。" },
     "prompt.delete.cancel": { id: "Batal", en: "Cancel", ja: "キャンセル" },
     "prompt.delete.confirm": { id: "Ya, Hapus", en: "Yes, Delete", ja: "はい、削除します" },
     "settings.pin.feedback.saved": { id: "PIN berhasil disimpan!", en: "PIN saved successfully!", ja: "PINを保存しました！" },
@@ -672,29 +701,29 @@ export const i18nData = {
     "settings.pin.feedback.wrong": { id: "PIN salah. Coba lagi.", en: "Incorrect PIN. Try again.", ja: "PINが間違っています。もう一度お試しください。" },
     "pin.feedback.used": { id: "PIN sudah digunakan. Silakan pilih PIN lain.", en: "PIN is already in use. Please choose another PIN.", ja: "このPINは既に使用されています。別のPINを選択してください。" },
     "prompt.copy.success": { id: "Teks berhasil disalin!", en: "Text copied successfully!", ja: "テキストをコピーしました！" },
-    "prompt.copy.noChar": { id: "Tidak ada karakter untuk disalin.", en: "No characters to copy.", ja: "コピーするキャラクターがいません。" },
-    "prompt.save.success": { id: "Prompt berhasil disimpan!", en: "Prompt saved successfully!", ja: "プロンプトが正常に保存されました！" },
-    "prompt.edit.success": { id: "Prompt berhasil diedit!", en: "Prompt edited successfully!", ja: "プロンプトが正常に編集されました！" },
-    "prompt.delete.success": { id: "Prompt berhasil dihapus!", en: "Prompt deleted successfully!", ja: "プロンプトが正常に削除されました！" },
-    "prompt.listTitle": { id: "Prompt Karakter AI", en: "AI Character Prompts", ja: "AIキャラクタープロンプト" },
-    "advanced.prompt.listTitle": { id: "Pembuat Prompt AI", en: "AI Prompt Builder", ja: "AIプロンプトビルダー" },
-    "prompt.detailTitle": { id: "Detail Prompt", en: "Prompt Details", ja: "プロンプト詳細" },
-    "advanced.prompt.detailTitle": { id: "Detail Pembuat Prompt", en: "Prompt Builder Details", ja: "プロンプトビルダー詳細" },
-    "prompt.addTitle": { id: "Tambah Prompt Baru", en: "Add New Prompt", ja: "新しいプロンプトを追加" },
-    "advanced.prompt.addTitle": { id: "Tambah Pembuat Prompt Baru", en: "Add New Prompt Builder", ja: "新しいプロンプトビルダーを追加" },
-    "prompt.editTitle": { id: "Edit Prompt", en: "Edit Prompt", ja: "プロンプトを編集" },
-    "advanced.prompt.editTitle": { id: "Edit Pembuat Prompt", en: "Edit Prompt Builder", ja: "プロンプトビルダーを編集" },
+    "prompt.copy.noChar": { id: "Tidak ada deskripsi gambar untuk disalin.", en: "No image description to copy.", ja: "コピーする画像の説明がありません。" },
+    "prompt.save.success": { id: "Data berhasil disimpan!", en: "Data saved successfully!", ja: "データが正常に保存されました！" },
+    "prompt.edit.success": { id: "Data berhasil diperbarui!", en: "Data successfully updated!", ja: "データが正常に更新されました！" },
+    "prompt.delete.success": { id: "Data berhasil dihapus!", en: "Data deleted successfully!", ja: "データが正常に削除されました！" },
+    "prompt.listTitle": { id: "Galeri Gambar", en: "Image Gallery", ja: "画像ギャラリー" },
+    "advanced.prompt.listTitle": { id: "Daftar Catatan", en: "Notes List", ja: "ノートリスト" },
+    "prompt.detailTitle": { id: "Detail Gambar", en: "Image Details", ja: "画像の詳細" },
+    "advanced.prompt.detailTitle": { id: "Detail Catatan", en: "Note Details", ja: "ノートの詳細" },
+    "prompt.addTitle": { id: "Tambah Gambar Baru", en: "Add New Image", ja: "新しい画像を追加" },
+    "advanced.prompt.addTitle": { id: "Tambah Catatan Baru", en: "Add New Note", ja: "新しいノートを追加" },
+    "prompt.editTitle": { id: "Edit Gambar", en: "Edit Image", ja: "画像を編集" },
+    "advanced.prompt.editTitle": { id: "Edit Catatan", en: "Edit Note", ja: "ノートを編集" },
     "prompt.saveChanges": { id: "Simpan Perubahan", en: "Save Changes", ja: "変更を保存" },
     "prompt.saving": { id: "Menyimpan...", en: "Saving...", ja: "保存中..." },
     "prompt.edit.imageLabel": { id: "Pilih File Gambar dari perangkat", en: "Select Image File from device", ja: "デバイスから画像ファイルを選択" },
-    "prompt.edit.imageHelp": { id: "Kosongkan jika tidak ingin mengubah gambar sampul.", en: "Leave empty if you don't want to change the cover image.", ja: "カバー画像を変更しない場合は空のままにしてください。" },
-    "prompt.edit.textLabel": { id: "Teks Prompt", en: "Prompt Text", ja: "プロンプトテキスト" },
-    "advanced.prompt.textLabel": { id: "Teks Prompt", en: "Prompt Text", ja: "プロンプトテキスト" },
-    "advanced.prompt.characterLabel": { id: "Pilih Karakter AI", en: "Select AI Character", ja: "AIキャラクターを選択" },
+    "prompt.edit.imageHelp": { id: "Kosongkan jika tidak ingin mengubah gambar.", en: "Leave empty if you don't want to change the image.", ja: "画像を変更しない場合は空のままにしてください。" },
+    "prompt.edit.textLabel": { id: "Deskripsi Gambar", en: "Image Description", ja: "画像の説明" },
+    "advanced.prompt.textLabel": { id: "Isi Catatan", en: "Note Content", ja: "ノートの内容" },
+    "advanced.prompt.characterLabel": { id: "Pilih Gambar", en: "Select Image", ja: "画像を選択" },
     "advanced.prompt.addComma": { id: "Tambahkan Koma", en: "Add Commas", ja: "コンマを追加" },
     "prompt.menu.copy": { id: "Salin Teks", en: "Copy Text", ja: "テキストをコピー" },
     "prompt.menu.saveImage": { id: "Simpan Gambar", en: "Save Image", ja: "画像を保存" },
-    "prompt.menu.copyChar": { id: "Salin Karakter", en: "Copy Characters", ja: "キャラクターをコピー" },
+    "prompt.menu.copyChar": { id: "Salin Deskripsi Gambar", en: "Copy Image Description", ja: "画像の説明をコピー" },
     "prompt.menu.edit": { id: "Edit", en: "Edit", ja: "編集" },
     "prompt.menu.delete": { id: "Hapus", en: "Delete", ja: "削除" },
     "prompt.manage": { id: "Kelola", en: "Manage", ja: "管理" },
@@ -706,24 +735,22 @@ export const i18nData = {
     "prompt.deselectAll": { id: "Batal Pilih Semua", en: "Deselect All", ja: "選択をすべて解除" },
     "info.success.title": { id: "Berhasil", en: "Success", ja: "成功" },
     "info.attention.title": { id: "Perhatian", en: "Attention", ja: "注意" },
-    "prompt.add.fieldsRequired": { id: "Gambar dan teks prompt tidak boleh kosong.", en: "Image and prompt text cannot be empty.", ja: "画像とプロンプトテキストは空にできません。" },
-    "advanced.prompt.add.fieldsRequired": { id: "Teks prompt tidak boleh kosong.", en: "Prompt text cannot be empty.", ja: "プロンプトテキストは空にできません。" },
-    "prompt.edit.textRequired": { id: "Teks prompt tidak boleh kosong.", en: "Prompt text cannot be empty.", ja: "プロンプトテキストは空にできません。" },
+    "prompt.add.fieldsRequired": { id: "Gambar dan deskripsi tidak boleh kosong.", en: "Image and description cannot be empty.", ja: "画像と説明は空にできません。" },
+    "advanced.prompt.add.fieldsRequired": { id: "Isi catatan tidak boleh kosong.", en: "Note content cannot be empty.", ja: "ノートの内容は空にできません。" },
+    "prompt.edit.textRequired": { id: "Deskripsi/Isi tidak boleh kosong.", en: "Description/Content cannot be empty.", ja: "説明/内容は空にできません。" },
     "prompt.save.fileError": { id: "Terjadi kesalahan saat memproses file.", en: "An error occurred while processing the file.", ja: "ファイルの処理中にエラーが発生しました。" },
+    "advanced.prompt.label.title": { id: "Judul Catatan (Opsional)", en: "Note Title (Optional)", ja: "ノートのタイトル（任意）" },
     "prompt.save.storageError": { id: "Gagal menyimpan. Penyimpanan browser penuh. Coba gunakan gambar yang lebih kecil atau hapus prompt lama.", en: "Save failed. Browser storage is full. Try using smaller images or deleting old prompts.", ja: "保存に失敗しました。ブラウザのストレージがいっぱいです。小さい画像を使用するか、古いプロンプトを削除してください。" },
-    "settings.hidden.title": { id: "Fitur Tersembunyi", en: "Hidden Feature", ja: "隠し機能" },
-    "settings.hidden.enable": { id: "Aktifkan Fitur Tersembunyi", en: "Enable Hidden Feature", ja: "隠し機能を有効にする" },
-    "settings.continue.enable": { id: "Aktifkan Fitur Lanjutan", en: "Enable Advanced Feature", ja: "高度な機能を有効にする" },
+    "settings.hidden.title": { id: "Catatan", en: "Notes", ja: "ノート" },
+    "settings.hidden.enable": { id: "Aktifkan Keamanan Catatan", en: "Enable Note Security", ja: "ノートのセキュリティを有効にする" },
     "settings.hidden.updatePin": { id: "Perbarui PIN", en: "Update PIN", ja: "PINを更新" },
     "settings.hidden.createPin": { id: "Buat PIN", en: "Create PIN", ja: "PINを作成" },
-    "hiddenFeature.howItWorks.title": { id: "Cara Kerja Fitur Tersembunyi", en: "How the Hidden Feature Works", ja: "隠し機能の仕組み" },
+    "hiddenFeature.howItWorks.title": { id: "Cara Kerja Catatan", en: "How Notes Work", ja: "ノートの仕組み" },
     "hiddenFeature.howItWorks.button": { id: "Cara Kerja", en: "How it Works", ja: "仕組み" },
     "hiddenFeature.howItWorks.p1": { id: "Klik dua kali pada avatar pojok kanan bawah atau gunakan pintasan keyboard Ctrl + Shift + H di Windows atau CMD + Shift + H di macOS.", en: "Double-click on the bottom right corner avatar or use the keyboard shortcut Ctrl + Shift + H on Windows or CMD + Shift + H on macOS.", ja: "右下のアバターをダブルクリックするか、キーボードショートカット（Windowsの場合はCtrl + Shift + H、macOSの場合はCMD + Shift + H）を使用します。" },
-    "settings.hidden.disableWarningTitle": { id: "Nonaktifkan Fitur Tersembunyi?", en: "Disable Hidden Feature?", ja: "隠し機能を無効にしますか？" },
-    "settings.hidden.disableWarningText": { id: "Menonaktifkan fitur ini akan menghapus PIN dan semua prompt karakter Anda secara permanen. Apakah Anda yakin?", en: "Disabling this feature will permanently delete your PIN and all character prompts. Are you sure?", ja: "この機能を無効にすると、PINとすべてのキャラクタープロンプトが完全に削除されます。よろしいですか？" },
-    "settings.hidden.disableWarningText_extended": { id: "Menonaktifkan fitur ini akan menghapus PIN dan semua data (Prompt Karakter & Pembuat Prompt) secara permanen. Apakah Anda yakin?", en: "Disabling this feature will permanently delete your PIN and all data (Character & Builder Prompts). Are you sure?", ja: "この機能を無効にすると、PINとすべてのデータ（キャラクタープロンプトとビルダープロンプト）が完全に削除されます。よろしいですか？" },
-    "settings.continue.disableWarningTitle": { id: "Nonaktifkan Fitur Lanjutan?", en: "Disable Advanced Feature?", ja: "高度な機能を無効にする？" },
-    "settings.continue.disableWarningText": { id: "Ini akan menghapus PIN dan semua data Pembuat Prompt AI secara permanen. Yakin?", en: "This will permanently delete the PIN and all AI Prompt Builder data. Are you sure?", ja: "これにより、PINとAIプロンプトビルダーのすべてのデータが完全に削除されます。よろしいですか？" },
+    "settings.hidden.disableWarningTitle": { id: "Nonaktifkan Keamanan Catatan?", en: "Disable Note Security?", ja: "ノートのセキュリティを無効にしますか？" },
+    "settings.hidden.disableWarningText": { id: "Menonaktifkan fitur ini akan menghapus PIN dan semua gambar Anda secara permanen. Apakah Anda yakin?", en: "Disabling this feature will permanently delete your PIN and all images. Are you sure?", ja: "この機能を無効にすると、PINとすべての画像が完全に削除されます。よろしいですか？" },
+    "settings.hidden.disableWarningText_extended": { id: "Tindakan ini akan menghapus semua data catatan dan PIN Anda secara permanen. Apakah Anda yakin?", en: "This action will permanently delete all your notes data and PIN. Are you sure?", ja: "この操作により、すべてのノートデータとPINが完全に削除されます。よろしいですか？" },
     "settings.hidden.pinUpdated": { id: "PIN berhasil diperbarui!", en: "PIN updated successfully!", ja: "PINが正常に更新されました！" },
     "settings.hidden.disabled": { id: "Fitur dinonaktifkan dan semua data telah dihapus.", en: "Feature disabled and all data has been deleted.", ja: "機能が無効になり、すべてのデータが削除されました。" },
     "pin.enter.confirmUpdate": { id: "Konfirmasi PIN Lama", en: "Confirm Old PIN", ja: "古いPINの確認" },
@@ -731,30 +758,23 @@ export const i18nData = {
     "pin.enter.confirmDisable": { id: "Konfirmasi Penghapusan", en: "Confirm Deletion", ja: "削除の確認" },
     "pin.enter.confirmDisableLabel": { id: "Masukkan PIN untuk menghapus semua data", en: "Enter PIN to delete all data", ja: "すべてのデータを削除するにはPINを入力してください" },
     "pin.create.title": { id: "Buat PIN Keamanan", en: "Create Security PIN", ja: "セキュリティPINの作成" },
-    "pin.create.description": { id: "PIN akan digunakan untuk melindungi dan mengakses fitur tersembunyi.", en: "The PIN will be used to protect and access hidden features.", ja: "PINは隠し機能の保護とアクセスに使用されます。" },
-    "pin.create.advanced.title": { id: "Buat PIN Fitur Lanjutan", en: "Create Advanced Feature PIN", ja: "高度な機能のPINを作成" },
-    "pin.create.advanced.description": { id: "PIN ini akan digunakan untuk mengakses Pembuat Prompt AI.", en: "This PIN will be used to access the AI Prompt Builder.", ja: "この PIN は AI プロンプト ビルダーにアクセスするために使用されます。" },
-    "pin.update.choice.title": { id: "Pilih Penerapan PIN", en: "Choose PIN Application", ja: "PINの適用を選択" },
-    "pin.update.choice.text": { id: "Anda ingin memperbarui PIN untuk fitur yang mana?", en: "Which feature's PIN do you want to update?", ja: "どの機能のPINを更新しますか？" },
-    "pin.update.choice.hidden": { id: "Fitur Tersembunyi", en: "Hidden Feature", ja: "隠し機能" },
-    "pin.update.choice.advanced": { id: "Fitur Lanjutan", en: "Advanced Feature", ja: "高度な機能" },
+    "pin.create.description": { id: "PIN akan digunakan untuk melindungi catatan ketika melakukan ekspor, hapus seluruh data, dan perubahan fitur.", en: "PIN will be used to protect notes when exporting, deleting all data, and changing features.", ja: "PINは、エクスポート、全データの削除、および機能の変更時にノートを保護するために使用されます。" },
     "prompt.dnd.notImage": { id: "Hanya file gambar yang didukung.", en: "Only image files are supported.", ja: "画像ファイルのみがサポートされています。" },
-    "prompt.dnd.dropHere": { id: "Jatuhkan gambar untuk menambah prompt baru", en: "Drop image to add a new prompt", ja: "画像をドロップして新しいプロンプトを追加" },
+    "prompt.dnd.dropHere": { id: "Jatuhkan gambar untuk menambah gambar baru", en: "Drop image to add a new image", ja: "画像をドロップして新しい画像を追加" },
     "info.longPath.title": { id: "Gagal Memuat File", en: "Failed to Load File", ja: "ファイルの読み込みに失敗しました" },
     "info.longPath.text": { id: "File tidak bisa dimuat karena lokasinya terlalu dalam (nama folder atau path terlalu panjang).\nSilakan gunakan tombol 'Pilih File' untuk membuka gambar ini.", en: "The file could not be loaded because its location is too deep (the folder name or path is too long).\nPlease use the 'Choose File' button to open this image.", ja: "場所が深すぎる（フォルダ名またはパスが長すぎます）ため、ファイルを読み込めませんでした。\n「ファイルを選択」ボタンを使用してこの画像を開いてください。" },
-    "advanced.prompt.characterLabel": { id: "Pilih Karakter AI", en: "Select AI Character", ja: "AIキャラクターを選択" },
     "advanced.prompt.addComma": { id: "Tambahkan Koma", en: "Add Commas", ja: "コンマを追加" },
-    "advanced.prompt.noCharacters": { id: "Karakter AI Kosong", en: "No AI Characters Available", ja: "AIキャラクターがいません" },
+    "advanced.prompt.noCharacters": { id: "Gambar Kosong", en: "No Images Available", ja: "画像がありません" },
     "prompt.menu.view": { id: "Lihat Gambar", en: "View Image", ja: "画像を表示" },
-    "character.search.placeholder": { id: "Cari karakter...", en: "Search characters...", ja: "キャラクターを検索..." },
-    "character.search.noResults": { id: "Karakter tidak ditemukan", en: "No characters found", ja: "キャラクターが見つかりません" },
-    "prompt.menu.copyCharText": { id: "Salin Teks Karakter", en: "Copy Character Text", ja: "キャラクターテキストをコピー" },
+    "character.search.placeholder": { id: "Cari gambar...", en: "Search images...", ja: "画像を検索..." },
+    "character.search.noResults": { id: "Gambar tidak ditemukan", en: "No images found", ja: "画像が見つかりません" },
+    "prompt.menu.copyCharText": { id: "Salin Deskripsi Gambar", en: "Copy Image Description", ja: "画像の説明をコピー" },
     "settings.tabs.general": { id: "Umum", en: "General", ja: "一般" },
     "settings.tabs.display": { id: "Tampilan", en: "Display", ja: "表示" },
-    "settings.tabs.other": { id: "Lainnya", en: "Other", ja: "その他" },
+    "settings.tabs.other": { id: "Keamanan", en: "Security", ja: "安全" },
     "data.searchPopup.title": { id: "Data di Pencarian Pop-up Dashboard", en: "Data in Pop-up Dashboard Search", ja: "ダッシュボードのポップアップ検索のデータ" },
-    "settings.search.enableHelp": { id: "Dengan mengaktifkan fitur ini, maka data prompt Anda akan mudah dicari melalui bar pencarian.", en: "By activating this feature, your prompt data will be easy to search through the search bar.", ja: "この機能を有効にすると、検索バーからプロンプト データを簡単に検索できるようになります。" },
-    "settings.popup.enableHelp": { id: "Dengan mengaktifkan fitur ini, maka data prompt Anda akan mudah dicari melalui Pop-up Dashboard.", en: "By activating this feature, your prompt data will be easy to search via the Pop-up Dashboard.", ja: "この機能を有効にすると、ポップアップ ダッシュボードからプロンプト データを簡単に検索できるようになります。" },
+    "settings.search.enableHelp": { id: "Dengan mengaktifkan fitur ini, maka data catatan dan gambar Anda akan mudah dicari melalui bar pencarian.", en: "By activating this feature, your note and image data will be easy to search through the search bar.", ja: "この機能を有効にすると、検索バーからノートと画像データを簡単に検索できるようになります。" },
+    "settings.popup.enableHelp": { id: "Dengan mengaktifkan fitur ini, maka data catatan dan gambar Anda akan mudah dicari melalui Pop-up Dashboard.", en: "By activating this feature, your note and image data will be easy to search via the Pop-up Dashboard.", ja: "この機能を有効にすると、ポップアップ ダッシュボードからノートと画像データを簡単に検索できるようになります。" },
     "search.historyType": { id: "Riwayat", en: "History", ja: "履歴" },
     "toast.historyEnabled": { id: "Histori browser diaktifkan untuk pencarian.", en: "Browser history enabled for search.", ja: "検索のためにブラウザ履歴が有効になりました。" },
     "toast.historyDisabled": { id: "Histori browser dinonaktifkan untuk pencarian.", en: "Browser history disabled for search.", ja: "検索のためにブラウザ履歴が無効になりました。" },
@@ -792,7 +812,7 @@ export const i18nData = {
     "settings.search.openAction": { id: "Aksi Membuka Situs", en: "Search Open Action", ja: "検索を開くアクション" },
     "data.search.title": { id: "Data di Bar Pencarian", en: "Data in Search Bar", ja: "検索バーのデータ" },
     "data.searchHelp": { id: "Bar pencarian perlu diaktifkan terlebih dahulu di menu tampilan sebelum melakukan perubahan fitur dibawah.", en: "The search bar needs to be enabled first in the display menu before making any feature changes below.", ja: "以下の機能変更を行う前に、まず表示メニューで検索バーを有効にする必要があります。" },
-    "settings.search.enablePrompt": { id: "Prompt Karakter dan Pembuat Prompt", en: "Character and Builder Prompts", ja: "キャラクターとビルダープロンプト" },
+    "settings.search.enablePrompt": { id: "Gambar dan Catatan", en: "Images and Notes", ja: "画像とノート" },
     "settings.search.enableHistory": { id: "Histori Browser", en: "Browser History", ja: "ブラウザ履歴" },
     "settings.search.enableHistoryHelp": { id: "Histori browser Anda akan mudah dicari melalui bar pencarian hingga 1 tahun terakhir. Mohon pertimbangkan sebelum mengaktifkan nya.", en: "Your browser history will be easy to search via the search bar for up to the last 1 year. Please consider before activating it.", ja: "検索バーを使用すると、過去 1 年間までのブラウザ履歴を簡単に検索できます。有効化する前に検討してください。" },
     "settings.search.enableHistoryHelp2": { id: "Untuk keamanan, opsi ini tidak akan di ekspor.", en: "For security reasons, this option will not be exported.", ja: "セキュリティ上の理由から、このオプションはエクスポートされません。" },
@@ -819,25 +839,43 @@ export const i18nData = {
     "todo.delete.selectedTitle": { id: "Hapus Daftar Tugas yang Dipilih?", en: "Delete Selected To-dos?", ja: "選択したタスクリストを削除？" },
     "todo.delete.selectedText": { id: "Apakah Anda yakin ingin menghapus {count} item daftar tugas yang dipilih? Tindakan ini tidak dapat diurungkan.", en: "Are you sure you want to delete the {count} selected to-do items? This action cannot be undone.", ja: "選択した {count} 件のタスクリスト項目を削除してもよろしいですか？この操作は元に戻せません。" },
     "todo.completedTitle": { id: "Tugas Selesai", en: "Completed Tasks", ja: "完了したタスク" },
+    // Prompt Builder Folder
+    "prompt.all": { id: "Semua", en: "All", ja: "すべて" },
+    "prompt.more": { id: "Lainnya", en: "More", ja: "その他" },
+    "prompt.addFolder": { id: "Tambah Folder", en: "Add Folder", ja: "フォルダーを追加" },
+    "folder.title": { id: "Folder", en: "Folders", ja: "フォルダー" },
+    "folder.addTitle": { id: "Tambah Folder Baru", en: "Add New Folder", ja: "新しいフォルダーを追加" },
+    "folder.editTitle": { id: "Edit Folder", en: "Edit Folder", ja: "フォルダを編集" },
+    "folder.label.name": { id: "Nama", en: "Name", ja: "名前" },
+    "folder.error.nameRequired": { id: "Nama folder tidak boleh kosong.", en: "Folder name cannot be empty.", ja: "フォルダー名は空にできません。" },
+    "folder.error.nameExists": { id: "Nama folder sudah ada.", en: "Folder name already exists.", ja: "フォルダー名はすでに存在します。" },
+    "folder.save.success": { id: "Folder berhasil disimpan!", en: "Folder saved successfully!", ja: "フォルダーが正常に保存されました！" },
+    "folder.edit.success": { id: "Folder berhasil diperbarui!", en: "Folder updated successfully!", ja: "フォルダーが正常に更新されました！" },
+    "folder.delete.title": { id: "Hapus Folder?", en: "Delete Folder?", ja: "フォルダーを削除しますか？" },
+    "folder.delete.text": { id: "Anda yakin ingin menghapus folder \"{name}\"? Catatan di dalamnya tidak akan dihapus, tetapi akan dipindahkan ke \"Semua\".", en: "Are you sure you want to delete the \"{name}\" folder? Notes inside it will not be deleted, but will be moved to \"All\".", ja: "「{name}」フォルダーを削除してもよろしいですか？ 中のノートは削除されず、「すべて」に移動します。" },
+    "folder.delete.success": { id: "Folder berhasil dihapus!", en: "Folder deleted successfully!", ja: "フォルダーが正常に削除されました！" },
+    "folder.label.select": { id: "Folder", en: "Folder", ja: "フォルダー" },
+    "folder.noFolder": { id: "Tidak ada folder", en: "No Folder", ja: "フォルダーなし" },
+    "prompt.images": { id: "Gambar", en: "Images", ja: "画像" },
     // Import and Export Data
     "settings.tabs.data": { id: "Data", en: "Data", ja: "データ" },
     "data.manageData.title": { id: "Impor dan Ekspor", en: "Import and Export", ja: "輸入と輸出" },
     "data.manageData.desc": { id: "Setiap kali Anda melakukan impor, halaman akan memuat ulang secara otomatis.", en: "Every time you import, the page will reload automatically.", ja: "インポートするたびに、ページは自動的にリロードされます。" },
     "data.manageUser.title": { id: "Data Pengguna", en: "User Data", ja: "ユーザーデータ" },
     "data.manageUser.desc": { id: "Username, pilihan tema, bookmark, daftar tugas, dan pengaturan.", en: "Username, theme choices, bookmarks, to-do list, and settings.", ja: "ユーザー名、テーマの選択、ブックマーク、タスク一覧、設定。" },
-    "data.manageHidden.title": { id: "Data Fitur Tersembunyi", en: "Hidden Feature Data", ja: "隠れた特徴データ" },
-    "data.manageHidden.desc": { id: "Prompt karakter dan pembuat prompt beserta PIN nya.", en: "Character prompt and prompt builder, including PINs.", ja: "PIN を含む、文字プロンプトとプロンプト ビルダー。" },
+    "data.manageHidden.title": { id: "Data Catatan & Gambar", en: "Notes & Images Data", ja: "ノートと画像データ" },
+    "data.manageHidden.desc": { id: "Data gambar dan catatan beserta PIN nya.", en: "Image and note data, including PINs.", ja: "PIN を含む、画像とノートのデータ。" },
     "data.button.import": { id: "Impor", en: "Import", ja: "輸入" },
     "data.button.export": { id: "Ekspor", en: "Export", ja: "エクスポルト" },
     "pin.enter.confirmExport": { id: "Konfirmasi Ekspor", en: "Confirm Export", ja: "エクスポートの確認" },
-    "pin.enter.confirmExportLabel": { id: "Masukkan PIN Fitur Tersembunyi untuk melanjutkan", en: "Enter Hidden Feature PIN to continue", ja: "続行するには隠し機能のPINを入力してください" },
+    "pin.enter.confirmExportLabel": { id: "Masukkan PIN Catatan untuk melanjutkan", en: "Enter Notes PIN to continue", ja: "続行するにはノートPINを入力してください" },
     "export.success": { id: "Data berhasil diekspor!", en: "Data exported successfully!", ja: "データが正常にエクスポートされました！" },
     "export.failed": { id: "Gagal mengekspor data.", en: "Failed to export data.", ja: "データのエクスポートに失敗しました。" },
     "import.success": { id: "Data berhasil diimpor! Memuat ulang halaman.", en: "Data imported successfully! Reload the page.", ja: "データが正常にインポートされました！ ページを再読み込みしてください。" },
     "import.failed": { id: "Gagal mengimpor data. File mungkin rusak atau tidak valid.", en: "Failed to import data. The file may be corrupt or invalid.", ja: "データのインポートに失敗しました。ファイルが破損しているか、無効な可能性があります。" },
     "import.noData": { id: "Tidak ada data yang ditemukan untuk diimpor.", en: "No data found to import.", ja: "インポートするデータが見つかりません。" },
     "confirm.import.user.title": { id: "Impor Data Pengguna", en: "Import User Data", ja: "ユーザーデータのインポート" },
-    "confirm.import.mergeTitle": { id: "Impor Data Fitur Tersembunyi", en: "Import Hidden Feature Data", ja: "隠し機能データをインポート" },
+    "confirm.import.mergeTitle": { id: "Impor Data Catatan & Gambar", en: "Import Notes & Images Data", ja: "ノートと画像データをインポート" },
     "confirm.import.mergeText": { id: "File cadangan terdeteksi. Apa yang ingin Anda lakukan dengan data yang ada saat ini?", en: "Backup file detected. What would you like to do with the current data?", ja: "バックアップファイルが検出されました。現在のデータをどうしますか？" },
     "confirm.import.mergeBtn": { id: "Gabungkan", en: "Merge", ja: "マージ" },
     "confirm.import.replaceBtn": { id: "Gantikan Semua", en: "Replace All", ja: "すべて置き換える" },
@@ -852,37 +890,37 @@ export const i18nData = {
     // Delete Website Data
     "data.cache.title": { id: "Data dan Cache", en: "Data and Cache", ja: "データとキャッシュ" },
     "data.button.deleteUserData": { id: "Hapus Data Pengguna", en: "Delete User Data", ja: "ユーザーデータを削除" },
-    "data.button.deleteHiddenData": { id: "Hapus Data Fitur Tersembunyi", en: "Delete Hidden Feature Data", ja: "隠し機能データを削除" },
+    "data.button.deleteHiddenData": { id: "Hapus Data Catatan & Gambar", en: "Delete Notes & Images Data", ja: "ノートと画像データを削除" },
     "data.button.deleteTodoListData": { id: "Hapus Data Daftar Tugas", en: "Delete To-do List Data", ja: "タスクリストのデータ削除" },
     "confirm.delete.user.title": { id: "Hapus Semua Data Pengguna?", en: "Delete All User Data?", ja: "すべてのユーザーデータを削除しますか？" },
     "confirm.delete.user.text": { id: "Tindakan ini akan menghapus semua pengaturan, bookmark, dan username Anda secara permanen. Apakah Anda yakin?", en: "This will permanently delete all your settings, bookmarks, and username. Are you sure?", ja: "これにより、すべての設定、ブックマーク、およびユーザー名が完全に削除されます。よろしいですか？" },
-    "confirm.delete.hidden.pinLabel": { id: "Masukkan PIN untuk menghapus semua data fitur tersembunyi", en: "Enter PIN to delete all hidden feature data", ja: "すべての隠し機能データを削除するにはPINを入力してください" },
+    "confirm.delete.hidden.pinLabel": { id: "Masukkan PIN untuk menghapus semua data catatan & gambar", en: "Enter PIN to delete all notes & images data", ja: "すべてのノートと画像データを削除するにはPINを入力してください" },
     "data.delete.user.success": { id: "Data pengguna berhasil dihapus! Memuat ulang halaman.", en: "User data deleted successfully! Reload the page.", ja: "ユーザーデータを正常に削除しました！ページを再読み込みしてください。" },
-    "data.delete.hidden.success": { id: "Data fitur tersembunyi berhasil dihapus! Memuat ulang halaman.", en: "Hidden feature data deleted successfully! Reload the page.", ja: "隠し機能データを正常に削除しました！ページを再読み込みしてください。" },
+    "data.delete.hidden.success": { id: "Data catatan & gambar berhasil dihapus! Memuat ulang halaman.", en: "Notes & images data deleted successfully! Reload the page.", ja: "ノートと画像データが正常に削除されました！ページを再読み込みしてください。" },
     "data.cache.clearedReloadSuccess": { id: "Cache berhasil dihapus! Memuat ulang halaman.", en: "Cache cleared successfully! Reload the page.", ja: "キャッシュが正常にクリアされました！ページを再読み込みしてください。" },
     "data.cache.bookmarkLabel": { id: "Cache bookmark (favicon):", en: "Bookmark cache (favicons):", ja: "ブックマークキャッシュ（ファビコン）:" },
-    "data.cache.hiddenFeatureLabel": { id: "Cache data fitur tersembunyi (gambar):", en: "Hidden feature data cache (images):", ja: "隠し機能データキャッシュ（画像）:" },
+    "data.cache.hiddenFeatureLabel": { id: "Cache galeri gambar:", en: "Image gallery cache:", ja: "画像ギャラリーのキャッシュ:" },
     "data.button.clearBookmarkCache": { id: "Hapus Cache Bookmark", en: "Clear Bookmark Cache", ja: "ブックマークキャッシュをクリア" },
-    "data.button.clearHiddenCache": { id: "Hapus Cache Fitur Tersembunyi", en: "Clear Hidden Feature Cache", ja: "隠し機能キャッシュをクリア" },
+    "data.button.clearHiddenCache": { id: "Hapus Cache Galeri Gambar", en: "Clear Image Gallery Cache", ja: "画像ギャラリーのキャッシュをクリアする" },
     "data.calculating": { id: "Menghitung...", en: "Calculating...", ja: "計算中..." },
-    "confirm.delete.hidden.title": { id: "Hapus Semua Data Fitur Tersembunyi?", en: "Delete All Hidden Feature Data?", ja: "すべての隠し機能データを削除しますか？" },
-    "confirm.delete.hidden.text": { id: "Tindakan ini akan menghapus semua data prompt dan PIN Anda secara permanen. Apakah Anda yakin?", en: "This will permanently delete all your prompt data and PINs. Are you sure?", ja: "これにより、すべてのプロンプトデータとPINが完全に削除されます。よろしいですか？" },
-    "settings.hidden.notEnabled": { id: "Anda belum mengaktifkan fitur tersembunyi.", en: "You haven't enabled the hidden feature yet.", ja: "まだ隠し機能を有効にしていません。" },
+    "confirm.delete.hidden.title": { id: "Hapus Semua Data Catatan & Gambar?", en: "Delete All Notes & Images Data?", ja: "すべてのノートと画像データを削除しますか？" },
+    "confirm.delete.hidden.text": { id: "Tindakan ini akan menghapus semua data catatan dan PIN Anda secara permanen. Apakah Anda yakin?", en: "This will permanently delete all your note data and PINs. Are you sure?", ja: "これにより、すべてのノートデータとPINが完全に削除されます。よろしいですか？" },
+    "settings.hidden.notEnabled": { id: "Anda belum mengaktifkan fitur keamanan catatan.", en: "You haven't enabled the note security feature yet.", ja: "メモのセキュリティ機能がまだ有効になっていません。" },
     "confirm.delete.todo.title": { id: "Hapus Semua Data Daftar Tugas?", en: "Delete All To-do Data?", ja: "すべてのタスクリストデータを削除？" },
     "confirm.delete.todo.text": { id: "Tindakan ini akan menghapus semua data daftar tugas Anda secara permanen. Apakah Anda yakin?", en: "This will permanently delete all your to-do list data. Are you sure?", ja: "この操作により、すべてのタスクリストデータが完全に削除されます。よろしいですか？" },
     "data.delete.todo.success": { id: "Data daftar tugas berhasil dihapus! Memuat ulang halaman.", en: "To-do List data deleted successfully! Reload the page.", ja: "タスクリストのデータが正常に削除されました！ページを再読み込みしてください。" },
     // Pop-up Feature
     "pin.enter.confirmFeatureTitle": { id: "Konfirmasi Fitur", en: "Feature Confirmation", ja: "機能の確認" },
-    "pin.enter.confirmFeatureLabel": { id: "Masukkan PIN Fitur Tersembunyi untuk melanjutkan", en: "Enter Hidden Feature PIN to continue", ja: "続行するには隠し機能のPINを入力してください" },
-    "prompt.search.success.enabled": { id: "Pencarian Prompt berhasil diaktifkan!", en: "Prompt search enabled successfully!", ja: "プロンプト検索が正常に有効化されました！" },
-    "prompt.search.success.disabled": { id: "Pencarian Prompt dinonaktifkan.", en: "Prompt search disabled.", ja: "プロンプト検索が無効になりました。" },
-    "popup.success.enabled": { id: "Pop-up pencari prompt berhasil diaktifkan!", en: "Prompt finder pop-up enabled successfully!", ja: "プロンプト検索ポップアップが正常に有効化されました！" },
-    "popup.success.disabled": { id: "Pop-up pencari prompt dinonaktifkan.", en: "Prompt finder pop-up disabled.", ja: "プロンプト検索ポップアップが無効になりました。" },
+    "pin.enter.confirmFeatureLabel": { id: "Masukkan PIN Catatan untuk melanjutkan", en: "Enter Notes PIN to continue", ja: "続行するにはノートPINを入力してください" },
+    "prompt.search.success.enabled": { id: "Pencarian Gambar & Catatan berhasil diaktifkan!", en: "Image & Note search enabled successfully!", ja: "画像とノートの検索が正常に有効化されました！" },
+    "prompt.search.success.disabled": { id: "Pencarian Gambar & Catatan dinonaktifkan.", en: "Image & Note search disabled.", ja: "画像とノートの検索が無効になりました。" },
+    "popup.success.enabled": { id: "Pop-up pencari catatan & gambar berhasil diaktifkan!", en: "Note & image finder pop-up enabled successfully!", ja: "ノートと画像の検索ポップアップが正常に有効化されました！" },
+    "popup.success.disabled": { id: "Pop-up pencari catatan & gambar dinonaktifkan.", en: "Note & image finder pop-up disabled.", ja: "ノートと画像の検索ポップアップが無効になりました。" },
     "popup.featureDisabled.title": { id: "Fitur Dinonaktifkan", en: "Feature Disabled", ja: "機能が無効です" },
     "popup.featureDisabled.message": { id: "Fitur pop-up pencari dinonaktifkan. Silakan aktifkan melalui \"Pengaturan\" di menu data.", en: "The search pop-up feature is disabled. Please enable it via \"Settings\" in the data menu.", ja: "検索ポップアップ機能は無効になっています。データメニューの「設定」から有効にしてください。" },
-    "popup.search.placeholder": { id: "Cari data prompt...", en: "Search for prompt data...", ja: "プロンプトデータを検索..." },
-    "popup.type.character": { id: "Karakter", en: "Character", ja: "キャラクター" },
-    "popup.type.builder": { id: "Prompt AI", en: "AI Prompt", ja: "AIプロンプト" },
+    "popup.search.placeholder": { id: "Cari gambar atau catatan...", en: "Search for images or notes...", ja: "画像またはノートを検索..." },
+    "popup.type.character": { id: "Deskripsi Gambar", en: "Image Description", ja: "画像の説明" },
+    "popup.type.builder": { id: "Catatan", en: "Note", ja: "ノート" },
     "settings.search.enableBookmark": { id: "Bookmark", en: "Bookmark", ja: "ブックマーク" },
     "popup.type.bookmark": { id: "Bookmark", en: "Bookmark", ja: "ブックマーク" },
     "popup.error.loadFailed": { id: "Gagal memuat data", en: "Failed to load data", ja: "データの読み込みに失敗しました" },
@@ -904,15 +942,15 @@ export const i18nData = {
     "log.error.db.clearStore": { id: "Gagal membersihkan penyimpanan \"{storeName}\":", en: "Error clearing store \"{storeName}\":", ja: "ストア「{storeName}」のクリアに失敗しました：" },
     "log.error.bookmarkMergeFailed": { id: "Penggabungan bookmark gagal:", en: "Bookmark merge failed:", ja: "ブックマークのマージに失敗しました：" },
     "log.error.bookmarkReplaceFailed": { id: "Penggantian bookmark gagal:", en: "Bookmark replace failed:", ja: "ブックマークの置換に失敗しました：" },
-    "log.error.exportHiddenFailed": { id: "Ekspor data tersembunyi gagal:", en: "Export hidden data failed:", ja: "非表示データの書き出しに失敗しました：" },
+    "log.error.exportHiddenFailed": { id: "Ekspor data catatan gagal:", en: "Notes data export failed:", ja: "ノートデータのエクスポートに失敗しました：" },
     "log.error.importInitial": { id: "Impor gagal pada tahap awal:", en: "Import failed at initial stage:", ja: "初期段階でインポートに失敗しました：" },
     "log.error.applyImportFailed": { id: "Penerapan data impor gagal:", en: "Apply imported data failed:", ja: "インポートデータの適用に失敗しました：" },
     "log.error.popupInitFailed": { id: "Gagal menginisialisasi data pop-up:", en: "Failed to initialize pop-up data:", ja: "ポップアップデータの初期化に失敗しました：" },
     "log.error.copyLinkFailed": { id: "Gagal menyalin tautan:", en: "Failed to copy link:", ja: "リンクのコピーに失敗しました：" },
-    "log.warn.viewerBlobMissing": { id: "imageBlobViewer tidak ditemukan untuk prompt {id}, menggunakan fallback.", en: "imageBlobViewer not found for prompt {id}, using fallback.", ja: "プロンプト{id}のimageBlobViewerが見つかりません。フォールバックを使用します。" },
+    "log.warn.viewerBlobMissing": { id: "imageBlobViewer tidak ditemukan untuk gambar {id}, menggunakan fallback.", en: "imageBlobViewer not found for image {id}, using fallback.", ja: "画像{id}のimageBlobViewerが見つかりません。フォールバックを使用します。" },
     "log.error.createViewerFallbackFailed": { id: "Gagal membuat gambar viewer (fallback):", en: "Failed to create viewer image (fallback):", ja: "ビューア画像の作成に失敗しました（フォールバック）：" },
     "log.error.copyFailed": { id: "Gagal menyalin teks:", en: "Failed to copy text:", ja: "テキストのコピーに失敗しました：" },
-    "log.error.copyCharTextFailed": { id: "Gagal menyalin teks karakter:", en: "Failed to copy character text:", ja: "キャラクターテキストのコピーに失敗しました：" },
+    "log.error.copyCharTextFailed": { id: "Gagal menyalin deskripsi gambar:", en: "Failed to copy image description:", ja: "画像の説明のコピーに失敗しました：" },
     "log.error.getBlobFromCacheFailed": { id: "Gagal mengambil blob dari cache:", en: "Error fetching blob from cache:", ja: "キャッシュからのブロブの取得に失敗しました：" },
     "log.error.saveBlobToCacheFailed": { id: "Gagal menyimpan blob ke cache:", en: "Error saving blob to cache:", ja: "キャッシュへのブロブの保存に失敗しました：" },
     "log.error.deleteBlobFromCacheFailed": { id: "Gagal menghapus blob dari cache:", en: "Error deleting blob from cache:", ja: "キャッシュからのブロブの削除に失敗しました：" },
@@ -920,8 +958,8 @@ export const i18nData = {
     "log.error.saveFaviconFailed": { id: "Gagal menyimpan favicon ke cache:", en: "Failed to save favicon to cache:", ja: "キャッシュへのファビコンの保存に失敗しました：" },
     "log.error.getFaviconFailed": { id: "Gagal mengambil favicon dari cache:", en: "Failed to get favicon from cache:", ja: "キャッシュからのファビコンの取得に失敗しました：" },
     "log.error.deleteFaviconFailed": { id: "Gagal menghapus favicon dari cache:", en: "Failed to delete favicon from cache:", ja: "キャッシュからのファビコンの削除に失敗しました：" },
-    "log.info.allPromptsDeleted": { id: "Semua data prompt berhasil dihapus dari IndexedDB.", en: "All prompt data successfully deleted from IndexedDB.", ja: "すべてのプロンプトデータがIndexedDBから正常に削除されました。" },
-    "log.error.deleteAllPromptsFailed": { id: "Gagal menghapus semua data prompt:", en: "Failed to delete all prompt data:", ja: "すべてのプロンプトデータの削除に失敗しました：" },
+    "log.info.allPromptsDeleted": { id: "Semua data berhasil dihapus dari IndexedDB.", en: "All data successfully deleted from IndexedDB.", ja: "すべてのデータがIndexedDBから正常に削除されました。" },
+    "log.error.deleteAllPromptsFailed": { id: "Gagal menghapus semua data:", en: "Failed to delete all data:", ja: "すべてのデータの削除に失敗しました：" },
     "log.info.cacheStorageDeleted": { id: "Cache Storage \"{cacheName}\" berhasil dihapus.", en: "Cache Storage \"{cacheName}\" successfully deleted.", ja: "キャッシュストレージ「{cacheName}」が正常に削除されました。" },
     "log.error.deleteCacheStorageFailed": { id: "Gagal menghapus Cache Storage:", en: "Failed to delete Cache Storage:", ja: "キャッシュストレージの削除に失敗しました：" },
     "log.error.deleteFaviconCacheFailed": { id: "Gagal menghapus Cache Storage Favicon:", en: "Failed to delete Favicon Cache Storage:", ja: "ファビコンキャッシュストレージの削除に失敗しました：" },
@@ -931,8 +969,8 @@ export const i18nData = {
     "log.error.clearCacheFailed": { id: "Terjadi kesalahan saat menghapus cache \"{cacheName}\":", en: "An error occurred while deleting cache \"{cacheName}\":", ja: "キャッシュ「{cacheName}」の削除中にエラーが発生しました：" },
     "log.info.userDataCleared": { id: "Data pengguna berhasil dihapus.", en: "User data successfully cleared.", ja: "ユーザーデータが正常にクリアされました。" },
     "log.error.clearUserDataFailed": { id: "Gagal menghapus data pengguna:", en: "Failed to clear user data:", ja: "ユーザーデータのクリアに失敗しました：" },
-    "log.info.hiddenDataCleared": { id: "Data fitur tersembunyi berhasil dihapus.", en: "Hidden feature data successfully cleared.", ja: "非表示機能データが正常にクリアされました。" },
-    "log.error.clearHiddenDataFailed": { id: "Gagal menghapus data fitur tersembunyi:", en: "Failed to clear hidden feature data:", ja: "非表示機能データのクリアに失敗しました：" },
+    "log.info.hiddenDataCleared": { id: "Data catatan & gambar berhasil dihapus.", en: "Notes & images data successfully cleared.", ja: "ノートと画像データが正常にクリアされました。" },
+    "log.error.clearHiddenDataFailed": { id: "Gagal menghapus data catatan & gambar:", en: "Failed to clear notes & images data:", ja: "ノートと画像データのクリアに失敗しました：" },
     "log.error.saveWallpaperFailed": { id: "Gagal menyimpan wallpaper ke cache:", en: "Failed to save wallpaper to cache:", ja: "壁紙をキャッシュに保存できませんでした：" },
     "log.error.takeWallpaperFailed": { id: "Gagal mengambil wallpaper dari cache:", en: "Failed to fetch wallpaper from cache:", ja: "キャッシュから壁紙を取得できませんでした：" },
     "log.error.deleteWallpaperFailed": { id: "Gagal menghapus cache wallpaper:", en: "Failed to clear wallpaper cache:", ja: "壁紙のキャッシュをクリアできませんでした：" },

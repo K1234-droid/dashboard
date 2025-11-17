@@ -6,13 +6,27 @@ import {
     setIsManageModeActive, setSelectedPromptIds, currentPromptId, sortableInstance,
     isSearchModeActive, setIsSearchModeActive, setCurrentImageViewerId, setImageViewerSource,
     uiHideTimeout, setUiHideTimeout, imageViewerSource, currentImageViewerId, currentImageNavList,
-    setCharacterDataStale, cachedIconDataUrls, setCachedIconDataUrls, cachedThumbnailDataUrls, setCachedThumbnailDataUrls
+    setCharacterDataStale, cachedIconDataUrls, setCachedIconDataUrls, cachedThumbnailDataUrls,
+    setCachedThumbnailDataUrls, isPromptGridStale, setIsPromptGridStale
 } from './config.js';
-import { openModal, closeModal, showInfoModal } from './ui.js';
+import { openModal, closeModal, showInfoModal, showLoadingModal, hideLoadingModal } from './ui.js';
 import { showToast, resizeImage, blobToDataURL, log } from './utils.js';
 import { saveSetting, getPromptBlob, savePrompt as savePromptToDB, deletePromptDB, getFullPrompt, deletePromptBlobFromCache } from './storage.js';
 import { markSearchDataAsStale } from './search.js';
 import { updateSingleCharacterItem } from './promptBuilder.js';
+
+export function openCharacterPromptManager() {
+    showLoadingModal();
+    setTimeout(async () => {
+        await populateThumbnailCacheIfNeeded();
+        if (isPromptGridStale) {
+            await renderPrompts();
+            setIsPromptGridStale(false);
+        }
+        hideLoadingModal();
+        openModal(promptModal.overlay);
+    }, 50);
+}
 
 export async function populateThumbnailCacheIfNeeded() {
     if (Object.keys(cachedThumbnailDataUrls).length > 0) {

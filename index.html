@@ -154,7 +154,7 @@
                 <button id="settings-tab-general" class="nav-tab-btn active" data-i18n-key="settings.tabs.general">Umum</button>
                 <button id="settings-tab-display" class="nav-tab-btn" data-i18n-key="settings.tabs.display">Tampilan</button>
                 <button id="settings-tab-data" class="nav-tab-btn" data-i18n-key="settings.tabs.data">Data</button>
-                <button id="settings-tab-other" class="nav-tab-btn" data-i18n-key="settings.tabs.other">Lainnya</button>
+                <button id="settings-tab-other" class="nav-tab-btn" data-i18n-key="settings.tabs.other">Keamanan</button>
             </div>
             <div class="modal-body">
                 <div id="settings-panel-general" class="tab-panel active">
@@ -390,9 +390,9 @@
                         <div class="data-section">
                             <div class="data-section-info">
                                 <div class="switch-container">
-                                    <label for="manage-user-title" class="switch-label" data-i18n-key="data.manageHidden.title">Data Fitur Tersembunyi</label>
+                                    <label for="manage-user-title" class="switch-label" data-i18n-key="data.manageHidden.title">Data Catatan & Gambar</label>
                                 </div>
-                                <p class="setting-help-text" data-i18n-key="data.manageHidden.desc">Prompt karakter dan pembuat prompt beserta PIN nya.</p>
+                                <p class="setting-help-text" data-i18n-key="data.manageHidden.desc">Data gambar dan catatan beserta PIN nya.</p>
                             </div>
                             <div class="data-actions">
                                 <button id="import-hidden-data-btn" class="modal-secondary-btn" data-i18n-key="data.button.import">Impor</button>
@@ -411,7 +411,7 @@
                             </label>
                         </div>
                         <div class="switch-container">
-                            <label for="enable-prompt-search-switch" class="switch-label" data-i18n-key="settings.search.enablePrompt">Prompt Karakter dan Pembuat Prompt</label>
+                            <label for="enable-prompt-search-switch" class="switch-label" data-i18n-key="settings.search.enablePrompt">Gambar dan Catatan</label>
                             <label class="switch">
                                 <input type="checkbox" id="enable-prompt-search-switch">
                                 <span class="slider"></span>
@@ -451,32 +451,25 @@
                             <p id="bookmark-cache-usage-text" class="cache-usage-value"></p>
                         </div>
                         <div class="cache-info">
-                            <label class="switch-label" data-i18n-key="data.cache.hiddenFeatureLabel">Cache data fitur tersembunyi (gambar):</label>
+                            <label class="switch-label" data-i18n-key="data.cache.hiddenFeatureLabel">Cache galeri gambar:</label>
                             <p id="hidden-cache-usage-text" class="cache-usage-value"></p>
                         </div>
                         <div class="data-actions-column">
                             <button id="clear-bookmark-cache-btn" class="modal-secondary-btn" type="button" data-i18n-key="data.button.clearBookmarkCache">Hapus Cache Bookmark</button>
-                            <button id="clear-hidden-cache-btn" class="modal-secondary-btn" type="button" data-i18n-key="data.button.clearHiddenCache">Hapus Cache Fitur Tersembunyi</button>
+                            <button id="clear-hidden-cache-btn" class="modal-secondary-btn" type="button" data-i18n-key="data.button.clearHiddenCache">Hapus Cache Galeri Gambar</button>
                             <button id="delete-user-data-btn" class="modal-danger-btn" type="button" data-i18n-key="data.button.deleteUserData">Hapus Data Pengguna</button>
                             <button id="delete-todo-list-data-btn" class="modal-danger-btn" type="button" data-i18n-key="data.button.deleteTodoListData">Hapus Data Daftar Tugas</button>
-                            <button id="delete-hidden-data-btn" class="modal-danger-btn" type="button" data-i18n-key="data.button.deleteHiddenData">Hapus Data Fitur Tersembunyi</button>
+                            <button id="delete-hidden-data-btn" class="modal-danger-btn" type="button" data-i18n-key="data.button.deleteHiddenData">Hapus Data Catatan & Gambar</button>
                        </div>
                     </div>
                 </div>
     
                 <div id="settings-panel-other" class="tab-panel">
-                    <h4 class="sub-judul" data-i18n-key="settings.hidden.title">Fitur Tersembunyi</h4>
+                    <h4 class="sub-judul" data-i18n-key="settings.hidden.title">Catatan</h4>
                     <div class="switch-container">
-                        <label for="hidden-feature-switch" class="switch-label" data-i18n-key="settings.hidden.enable">Aktifkan Fitur Tersembunyi</label>
+                        <label for="hidden-feature-switch" class="switch-label" data-i18n-key="settings.hidden.enable">Aktifkan Keamanan Catatan</label>
                         <label class="switch">
                             <input type="checkbox" id="hidden-feature-switch">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                    <div class="switch-container">
-                        <label for="continue-feature-switch" class="switch-label" data-i18n-key="settings.continue.enable">Aktifkan Fitur Lanjutkan</label>
-                        <label class="switch">
-                            <input type="checkbox" id="continue-feature-switch">
                             <span class="slider"></span>
                         </label>
                     </div>
@@ -548,7 +541,7 @@
     <div id="confirmation-merge-replace-modal-overlay" class="modal-overlay hidden">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="confirmation-merge-replace-modal-title" data-i18n-key="confirm.import.mergeTitle">Impor Data Fitur Tersembunyi</h3>
+                <h3 id="confirmation-merge-replace-modal-title" data-i18n-key="confirm.import.mergeTitle">Impor Data Catatan & Gambar</h3>
                 <button id="close-confirmation-merge-replace-modal-btn" class="close-btn">&times;</button>
             </div>
             <div class="modal-body">
@@ -583,7 +576,7 @@
     <div id="prompt-modal-overlay" class="modal-overlay hidden">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 data-i18n-key="prompt.listTitle">Prompt Karakter AI</h3>
+                <h3 data-i18n-key="prompt.listTitle">Galeri Gambar</h3>
                 <div>
                     <button id="prompt-add-btn-header" class="modal-header-btn add-btn">+</button>
                     <button id="prompt-search-btn" class="modal-header-btn" data-i18n-key="prompt.search">Cari</button>
@@ -618,7 +611,7 @@
     <div id="prompt-viewer-modal-overlay" class="modal-overlay hidden">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 data-i18n-key="prompt.detailTitle">Detail Prompt</h3>
+                <h3 data-i18n-key="prompt.detailTitle">Detail Gambar</h3>
                 <button id="close-prompt-viewer-modal-btn" class="close-btn">&times;</button>
             </div>
             <div class="modal-body-top-actions">
@@ -639,7 +632,7 @@
     <div id="add-edit-prompt-modal-overlay" class="modal-overlay hidden">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="add-edit-prompt-title">Tambah Prompt Baru</h3>
+                <h3 id="add-edit-prompt-title">Tambah Gambar Baru</h3>
                 <button id="close-add-edit-prompt-modal-btn" class="close-btn">&times;</button>
             </div>
             <div class="modal-body">
@@ -655,10 +648,10 @@
                     <img id="prompt-image-preview-single" src="" alt="Pratinjau Gambar" class="image-preview hidden">
                 
                     <input type="file" id="prompt-image-file-input" class="modal-input-file" accept="image/*">
-                    <p id="prompt-image-help-text" class="setting-help-text" data-i18n-key="prompt.edit.imageHelp">Kosongkan jika tidak ingin mengubah gambar sampul.</p>
+                    <p id="prompt-image-help-text" class="setting-help-text" data-i18n-key="prompt.edit.imageHelp">Kosongkan jika tidak ingin mengubah gambar.</p>
                 </div>
                 <div class="setting-item-column">
-                    <label for="prompt-text-input" class="modal-label" data-i18n-key="prompt.edit.textLabel">Teks Prompt</label>
+                    <label for="prompt-text-input" class="modal-label" data-i18n-key="prompt.edit.textLabel">Deskripsi Gambar</label>
                     <textarea id="prompt-text-input" class="modal-input" rows="5"></textarea>
                 </div>
             </div>
@@ -739,43 +732,14 @@
         </div>
     </div>
 
-    <div id="create-advanced-pin-modal-overlay" class="modal-overlay hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 data-i18n-key="pin.create.advanced.title">Buat PIN Fitur Lanjutan</h3>
-                <button id="close-create-advanced-pin-modal-btn" class="close-btn">&times;</button>
-            </div>
-            <div class="modal-body">
-                <p class="modal-description" data-i18n-key="pin.create.advanced.description">PIN ini akan digunakan untuk mengakses Pembuat Prompt AI.</p>
-                <div class="setting-item-column">
-                    <label for="create-advanced-pin-input" class="modal-label" data-i18n-key="pin.enter.label">PIN 4 Digit</label>
-                    <input type="password" id="create-advanced-pin-input" class="modal-input pin-input-field" maxlength="4" inputmode="numeric">
-                </div>
-                <button id="save-initial-advanced-pin-btn" class="modal-save-btn" data-i18n-key="settings.username.save">Simpan</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="update-pin-choice-modal-overlay" class="modal-overlay hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 data-i18n-key="pin.update.choice.title">Pilih Penerapan PIN</h3>
-                <button id="close-update-pin-choice-modal-btn" class="close-btn">&times;</button>
-            </div>
-            <div class="modal-body">
-                <p data-i18n-key="pin.update.choice.text">Anda ingin memperbarui PIN untuk fitur yang mana?</p>
-                <div class="modal-button-group-column">
-                    <button id="update-pin-hidden-choice-btn" class="modal-save-btn" data-i18n-key="pin.update.choice.hidden">Fitur Tersembunyi</button>
-                    <button id="update-pin-advanced-choice-btn" class="modal-save-btn" data-i18n-key="pin.update.choice.advanced">Fitur Lanjutan</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div id="advanced-prompt-modal-overlay" class="modal-overlay hidden">
-        <div class="modal-content">
+        <div class="modal-content sidebar-open">
             <div class="modal-header">
-                <h3 data-i18n-key="advanced.prompt.listTitle">Pembuat Prompt AI</h3>
+                <div>
+                    <button id="advanced-prompt-toggle-sidebar-btn" class="modal-header-btn" data-tooltip="Folder" data-i18n-key="folder.title" aria-label="Toggle Folder Sidebar">&#9776;</button>
+                    <h3 data-i18n-key="advanced.prompt.listTitle">Daftar Catatan</h3>
+                </div>
+                
                 <div>
                     <button id="advanced-prompt-add-btn-header" class="modal-header-btn add-btn">+</button>
                     <button id="advanced-prompt-search-btn" class="modal-header-btn" data-i18n-key="prompt.search">Cari</button>
@@ -797,10 +761,20 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-body">
-                <div id="advanced-prompt-grid" class="prompt-grid">
+            <div class="advanced-prompt-body-container">
+                <div id="advanced-prompt-folder-bar">
+                    <button id="advanced-prompt-folder-all" class="folder-tab-btn active" data-folder-id="all">
+                        <span class="folder-tab-name" data-i18n-key="prompt.all">Semua</span>
+                    </button>
+                    </div>
+                <div class="folder-sidebar-sticky-buttons">
+                    <button id="advanced-prompt-add-folder-btn" class="folder-tab-btn add-btn" data-i18n-key="prompt.addFolder" data-tooltip="Tambah Folder">+</button>
+                    <button id="advanced-prompt-more-folders-btn" class="folder-tab-btn more-btn" data-i18n-key="prompt.more" data-tooltip="Lainnya">&#8943;</button>
                 </div>
-                <p id="advanced-prompt-no-results" class="prompt-no-results hidden" data-i18n-key="prompt.search.noResults">Tidak ditemukan hasil</p>
+                <div class="advanced-prompt-main-area">
+                    <div id="advanced-prompt-grid" class="prompt-grid"></div>
+                    <p id="advanced-prompt-no-results" class="prompt-no-results hidden" data-i18n-key="prompt.search.noResults">Tidak ditemukan hasil</p>
+                </div>
             </div>
         </div>
     </div>
@@ -808,7 +782,7 @@
     <div id="advanced-prompt-viewer-modal-overlay" class="modal-overlay hidden">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 data-i18n-key="advanced.prompt.detailTitle">Detail Pembuat Prompt</h3>
+                <h3 data-i18n-key="advanced.prompt.detailTitle">Detail Catatan</h3>
                 <button id="close-advanced-prompt-viewer-modal-btn" class="close-btn">&times;</button>
             </div>
             <div class="modal-body-top-actions">
@@ -828,16 +802,30 @@
     <div id="add-edit-advanced-prompt-modal-overlay" class="modal-overlay hidden">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="add-edit-advanced-prompt-title" data-i18n-key="advanced.prompt.addTitle">Tambah Pembuat Prompt Baru</h3>
+                <h3 id="add-edit-advanced-prompt-title" data-i18n-key="advanced.prompt.addTitle">Tambah Catatan Baru</h3>
                 <button id="close-add-edit-advanced-prompt-modal-btn" class="close-btn">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="setting-item-column">
-                    <label for="advanced-prompt-text-input" class="modal-label" data-i18n-key="advanced.prompt.textLabel">Teks Prompt</label>
+                    <label for="advanced-prompt-title-input" class="modal-label" data-i18n-key="advanced.prompt.label.title">Judul Catatan (Opsional)</label>
+                    <input type="text" id="advanced-prompt-title-input" class="modal-input">
+                </div>
+                <div class="setting-item-column">
+                    <label for="advanced-prompt-text-input" class="modal-label" data-i18n-key="advanced.prompt.textLabel">Isi Catatan</label>
                     <textarea id="advanced-prompt-text-input" class="modal-input" rows="5"></textarea>
                 </div>
                 <div class="setting-item-column">
-                    <label class="modal-label" data-i18n-key="advanced.prompt.characterLabel">Pilih Karakter AI</label>
+                    <label class="modal-label" data-i18n-key="folder.label.select">Folder</label>
+                    <div class="custom-select-container" id="prompt-folder-select-container">
+                        <div id="prompt-folder-select" class="custom-select" tabindex="0">
+                            <span data-i18n-key="prompt.all">Semua</span><span class="select-arrow"></span>
+                        </div>
+                        <div id="prompt-folder-select-options" class="custom-select-options">
+                            </div>
+                    </div>
+                </div>
+                <div class="setting-item-column">
+                    <label class="modal-label" data-i18n-key="advanced.prompt.characterLabel">Pilih Gambar</label>
                     <input type="text" id="character-search-input" class="modal-input" placeholder="Cari karakter...">
                     <div id="advanced-prompt-character-selection-grid" class="prompt-grid character-selection-grid">
                         </div>
@@ -1029,6 +1017,60 @@
         </div>
     </div>
 
+    <div id="prompt-folder-modal-overlay" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-i18n-key="folder.title">Folder</h3>
+                <div>
+                    <button id="folder-add-btn-header" class="modal-header-btn add-btn">+</button>
+                    <button id="folder-search-btn" class="modal-header-btn" data-i18n-key="prompt.search">Cari</button>
+                    <button id="folder-manage-btn" class="modal-header-btn" data-i18n-key="prompt.manage">Kelola</button>
+                    <button id="close-prompt-folder-modal-btn" class="close-btn">&times;</button>
+                </div>
+            </div>
+            
+            <div id="folder-action-bar" class="prompt-action-bar hidden">
+                <div id="folder-search-content" class="action-bar-content hidden">
+                    <input type="text" id="folder-search-input" class="modal-input" placeholder=" " data-i18n-key="prompt.search.placeholder" aria-label="Search Folders">
+                    <button id="folder-cancel-search-btn" class="modal-secondary-btn" data-i18n-key="prompt.delete.cancel">Batal</button>
+                </div>
+            
+                <div id="folder-manage-content" class="action-bar-content hidden">
+                    <span id="folder-select-count" class="prompt-select-count-text">Pilih (0)</span>
+                    <div class="prompt-manage-actions">
+                        <button id="folder-select-all-btn" class="modal-secondary-btn" data-i18n-key="prompt.selectAll">Pilih Semua</button>
+                        <button id="folder-delete-selected-btn" class="modal-danger-btn" data-i18n-key="prompt.menu.delete" disabled>Hapus</button>
+                        <button id="folder-cancel-manage-btn" class="modal-secondary-btn" data-i18n-key="prompt.delete.cancel">Batal</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div id="prompt-folder-grid" class="bookmark-grid">
+                    <button id="add-folder-grid-btn" class="bookmark-item add-bookmark-item">
+                        <span>+</span>
+                    </button>
+                </div>
+                <p id="prompt-folder-no-results" class="prompt-no-results hidden" data-i18n-key="prompt.search.noResults">Tidak ditemukan hasil</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="add-edit-folder-modal-overlay" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="add-edit-folder-title" data-i18n-key="folder.addTitle">Tambah Folder Baru</h3>
+                <button id="close-add-edit-folder-modal-btn" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-item-column">
+                    <label for="folder-name-input" class="modal-label" data-i18n-key="folder.label.name">Nama</label>
+                    <input type="text" id="folder-name-input" class="modal-input">
+                </div>
+                <button id="save-folder-btn" class="modal-save-btn" data-i18n-key="settings.username.save">Simpan</button>
+            </div>
+        </div>
+    </div>
+
     <div id="bookmark-context-menu-main" class="prompt-item-menu">
         <button class="bookmark-menu-option" data-action="copy-link" data-i18n-key="bookmark.menu.copyLink">Salin Tautan</button>
         <button class="bookmark-menu-option" data-action="edit" data-i18n-key="bookmark.menu.edit">Edit</button>
@@ -1043,6 +1085,11 @@
     <div id="todo-container-context-menu" class="prompt-item-menu">
         <button class="bookmark-menu-option" data-action="add-new" data-i18n-key="todo.add">Tambah To-do</button>
         <button class="bookmark-menu-option" data-action="view-all" data-i18n-key="todo.open">Lihat Semua</button>
+    </div>
+
+    <div id="folder-sidebar-context-menu" class="prompt-item-menu">
+        <button class="prompt-menu-option" data-action="edit-folder" data-i18n-key="prompt.menu.edit">Edit</button>
+        <button class="prompt-menu-option" data-action="delete-folder" data-i18n-key="prompt.menu.delete">Hapus</button>
     </div>
 
     <div class="hover-dead-zone"></div>
