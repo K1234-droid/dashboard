@@ -1880,7 +1880,7 @@ body.dark-theme .switch input:checked + .slider:before {
 
 /* ==================== STYLE UNTUK FITUR PIN & PROMPT ==================== */
 #pin-update-label {
-  padding-top: 0.9rem;
+  padding-top: 0.5rem;
 }
 
 .pin-input-field {
@@ -2402,6 +2402,10 @@ body.dark-theme .modal-input-file::file-selector-button {
 }
 .image-viewer-close-btn:hover {
   background-color: rgba(0, 0, 0, 0.7);
+}
+
+#settings-panel-display .modal-button-group {
+  margin-top: 0.42rem;
 }
 
 /* ==================== TOAST NOTIFICATION ==================== */

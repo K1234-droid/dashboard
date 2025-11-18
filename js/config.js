@@ -5,7 +5,7 @@
  */
 
 // ==================== PENGATURAN PEMBARUAN ====================
-export const CURRENT_VERSION = 'v4.7.0';
+export const CURRENT_VERSION = 'v4.7.1';
 export const GITHUB_OWNER = 'K1234-droid';
 export const GITHUB_REPO = 'dashboard';
 // ==============================================================
@@ -742,13 +742,13 @@ export const i18nData = {
     "advanced.prompt.label.title": { id: "Judul Catatan (Opsional)", en: "Note Title (Optional)", ja: "ノートのタイトル（任意）" },
     "prompt.save.storageError": { id: "Gagal menyimpan. Penyimpanan browser penuh. Coba gunakan gambar yang lebih kecil atau hapus prompt lama.", en: "Save failed. Browser storage is full. Try using smaller images or deleting old prompts.", ja: "保存に失敗しました。ブラウザのストレージがいっぱいです。小さい画像を使用するか、古いプロンプトを削除してください。" },
     "settings.hidden.title": { id: "Catatan", en: "Notes", ja: "ノート" },
-    "settings.hidden.enable": { id: "Aktifkan Keamanan Catatan", en: "Enable Note Security", ja: "ノートのセキュリティを有効にする" },
+    "settings.hidden.enable": { id: "Aktifkan Catatan", en: "Enable Notes", ja: "メモを有効にする" },
     "settings.hidden.updatePin": { id: "Perbarui PIN", en: "Update PIN", ja: "PINを更新" },
     "settings.hidden.createPin": { id: "Buat PIN", en: "Create PIN", ja: "PINを作成" },
     "hiddenFeature.howItWorks.title": { id: "Cara Kerja Catatan", en: "How Notes Work", ja: "ノートの仕組み" },
     "hiddenFeature.howItWorks.button": { id: "Cara Kerja", en: "How it Works", ja: "仕組み" },
     "hiddenFeature.howItWorks.p1": { id: "Klik dua kali pada avatar pojok kanan bawah atau gunakan pintasan keyboard Ctrl + Shift + H di Windows atau CMD + Shift + H di macOS.", en: "Double-click on the bottom right corner avatar or use the keyboard shortcut Ctrl + Shift + H on Windows or CMD + Shift + H on macOS.", ja: "右下のアバターをダブルクリックするか、キーボードショートカット（Windowsの場合はCtrl + Shift + H、macOSの場合はCMD + Shift + H）を使用します。" },
-    "settings.hidden.disableWarningTitle": { id: "Nonaktifkan Keamanan Catatan?", en: "Disable Note Security?", ja: "ノートのセキュリティを無効にしますか？" },
+    "settings.hidden.disableWarningTitle": { id: "Nonaktifkan Catatan?", en: "Disable Notes?", ja: "メモを無効にしますか？" },
     "settings.hidden.disableWarningText": { id: "Menonaktifkan fitur ini akan menghapus PIN dan semua gambar Anda secara permanen. Apakah Anda yakin?", en: "Disabling this feature will permanently delete your PIN and all images. Are you sure?", ja: "この機能を無効にすると、PINとすべての画像が完全に削除されます。よろしいですか？" },
     "settings.hidden.disableWarningText_extended": { id: "Tindakan ini akan menghapus semua data catatan dan PIN Anda secara permanen. Apakah Anda yakin?", en: "This action will permanently delete all your notes data and PIN. Are you sure?", ja: "この操作により、すべてのノートデータとPINが完全に削除されます。よろしいですか？" },
     "settings.hidden.pinUpdated": { id: "PIN berhasil diperbarui!", en: "PIN updated successfully!", ja: "PINが正常に更新されました！" },

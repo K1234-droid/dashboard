@@ -93,7 +93,7 @@
     <div id="theme-modal-overlay" class="modal-overlay hidden">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 data-i18n-key="settings.theme.title">Pilih Tampilan</h3>
+                <h3 data-i18n-key="menu.adjustTheme">Sesuaikan Tema</h3>
                 <button id="close-theme-modal-btn" class="close-btn">&times;</button>
             </div>
             <div class="modal-body">
@@ -308,6 +308,17 @@
                             <span class="slider"></span>
                         </label>
                     </div>
+                    <h4 class="sub-judul" data-i18n-key="settings.hidden.title">Catatan</h4>
+                    <div class="switch-container">
+                        <label for="hidden-feature-switch" class="switch-label" data-i18n-key="settings.hidden.enable">Aktifkan Catatan</label>
+                        <label class="switch">
+                            <input type="checkbox" id="hidden-feature-switch">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="modal-button-group">
+                        <button id="how-it-works-btn" class="modal-save-btn" data-i18n-key="hiddenFeature.howItWorks.button">Cara Kerja</button>
+                    </div>
                     <h4 class="sub-judul" data-i18n-key="settings.other.search">Pencarian</h4>
                     <div class="switch-container">
                         <label for="enable-search-bar-switch" class="switch-label" data-i18n-key="settings.other.enableSearchBar">Aktifkan Bar Pencarian</label>
@@ -466,20 +477,12 @@
     
                 <div id="settings-panel-other" class="tab-panel">
                     <h4 class="sub-judul" data-i18n-key="settings.hidden.title">Catatan</h4>
-                    <div class="switch-container">
-                        <label for="hidden-feature-switch" class="switch-label" data-i18n-key="settings.hidden.enable">Aktifkan Keamanan Catatan</label>
-                        <label class="switch">
-                            <input type="checkbox" id="hidden-feature-switch">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
                     <div id="pin-settings-container" class="hidden">
                         <div class="setting-item-column">
                             <label for="pin-input" id="pin-update-label" class="switch-label" data-i18n-key="settings.security.changePinLabel">Ubah PIN Keamanan (4 digit)</label>
                             <input type="password" id="pin-input" class="modal-input pin-input-field" maxlength="4" placeholder="••••" inputmode="numeric">
                         </div>
                         <div class="modal-button-group">
-                            <button id="how-it-works-btn" class="modal-secondary-btn" data-i18n-key="hiddenFeature.howItWorks.button">Cara Kerja</button>
                             <button id="update-pin-btn" class="modal-save-btn" data-i18n-key="settings.hidden.updatePin">Perbarui PIN</button>
                         </div>
                     </div>
@@ -693,7 +696,7 @@
                 <button id="close-create-pin-modal-btn" class="close-btn">&times;</button>
             </div>
             <div class="modal-body">
-                <p class="modal-description" data-i18n-key="pin.create.description">PIN akan digunakan untuk melindungi dan mengakses fitur tersembunyi.</p>
+                <p class="modal-description" data-i18n-key="pin.create.description">PIN akan digunakan untuk melindungi catatan ketika melakukan ekspor, hapus seluruh data, dan perubahan fitur.</p>
                 <div class="setting-item-column">
                     <label for="create-pin-input" class="modal-label" data-i18n-key="pin.enter.label">PIN 4 Digit</label>
                     <input type="password" id="create-pin-input" class="modal-input pin-input-field" maxlength="4" inputmode="numeric">
@@ -722,7 +725,7 @@
     <div id="how-it-works-modal-overlay" class="modal-overlay hidden">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 data-i18n-key="hiddenFeature.howItWorks.title">Cara Kerja Fitur Tersembunyi</h3>
+                <h3 data-i18n-key="hiddenFeature.howItWorks.title">Cara Kerja Catatan</h3>
                 <button id="close-how-it-works-modal-btn" class="close-btn">&times;</button>
             </div>
             <div class="modal-body how-it-works-body">
