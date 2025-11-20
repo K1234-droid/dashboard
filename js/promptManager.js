@@ -11,7 +11,9 @@ import {
 } from './config.js';
 import { openModal, closeModal, showInfoModal, showLoadingModal, hideLoadingModal } from './ui.js';
 import { showToast, resizeImage, blobToDataURL, log } from './utils.js';
-import { saveSetting, getPromptBlob, savePrompt as savePromptToDB, deletePromptDB, getFullPrompt, deletePromptBlobFromCache } from './storage.js';
+import { saveSetting, getPromptBlob, savePrompt as savePromptToDB, deletePromptDB, getFullPrompt, deletePromptBlobFromCache,
+    saveBlobToCache
+ } from './storage.js';
 import { markSearchDataAsStale } from './search.js';
 import { updateSingleCharacterItem } from './promptBuilder.js';
 
@@ -677,6 +679,16 @@ export async function handleSavePrompt() {
         
         await savePromptToDB(promptData);
 
+        if (newIconBlobForCache) {
+            await saveBlobToCache(promptData.id, 'imageBlobIcon', newIconBlobForCache);
+        }
+        if (promptData.imageBlobThumbnail) {
+            await saveBlobToCache(promptData.id, 'imageBlobThumbnail', promptData.imageBlobThumbnail);
+        }
+        if (promptData.imageBlobViewer) {
+            await saveBlobToCache(promptData.id, 'imageBlobViewer', promptData.imageBlobViewer);
+        }
+
         const { imageBlobOriginal: _, imageBlobViewer: _1, imageBlobThumbnail: _2, imageBlobIcon: _3, ...metadata } = promptData;
 
         if (newIconBlobForCache) {
@@ -699,6 +711,9 @@ export async function handleSavePrompt() {
             }
         } else {
             tempPromptsMetadata.unshift(metadata);
+            const currentIds = prompts.map(p => p.id);
+            const newOrder = [metadata.id, ...currentIds];
+            await saveSetting('promptOrder', newOrder);
         }
 
         setPrompts(tempPromptsMetadata);

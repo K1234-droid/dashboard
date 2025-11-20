@@ -75,7 +75,7 @@ async function getBlobFromCache(promptId, blobType) {
  * @param {Blob} blob - Blob yang akan disimpan.
  * @returns {Promise<void>}
  */
-async function saveBlobToCache(promptId, blobType, blob) {
+export async function saveBlobToCache(promptId, blobType, blob) {
     if (!('caches' in window)) return;
 
     const cacheKey = `${promptId}-${blobType}`;
@@ -83,9 +83,7 @@ async function saveBlobToCache(promptId, blobType, blob) {
     const dummyUrl = `https://dummy-cache-key.local/${cacheKey}`;
 
     try {
-        const cache = await caches.open(PROMPT_BLOB_CACHE_NAME);
-        
-        // 1. Buat Response dari Blob
+        const cache = await caches.open('prompt-blob-cache');
         const response = new Response(blob, {
             status: 200,
             statusText: 'OK',
@@ -98,7 +96,7 @@ async function saveBlobToCache(promptId, blobType, blob) {
         await cache.put(dummyUrl, response);
 
     } catch (error) {
-        log('error', 'log.error.saveBlobToCacheFailed', {}, error);
+        console.error('Error saving blob to cache:', error);
     }
 }
 
