@@ -5,7 +5,7 @@
  */
 
 // ==================== PENGATURAN PEMBARUAN ====================
-export const CURRENT_VERSION = 'v4.7.1';
+export const CURRENT_VERSION = 'v4.8.0';
 export const GITHUB_OWNER = 'K1234-droid';
 export const GITHUB_REPO = 'dashboard';
 // ==============================================================
@@ -30,6 +30,7 @@ export const elements = {
     mainPageBookmarkContainer: document.getElementById('main-page-bookmark-container'),
     mainPageBookmarkControls: document.getElementById('main-page-bookmark-controls'),
     mainPageTodoContainer: document.getElementById('main-page-todo-container'),
+    hiddenFeatureAccessTip: document.getElementById('hidden-feature-access-tip'),
 };
   
 // Elemen terkait status koneksi.
@@ -143,6 +144,8 @@ export const todoListModal = {
     manageContent: document.getElementById('todo-manage-content'),
     searchContent: document.getElementById('todo-search-content'),
     content: document.querySelector('#todo-list-modal-overlay .modal-content'),
+    moreBtn: document.getElementById('todo-more-btn-header'),
+    headerMenu: document.getElementById('todo-header-menu'),
 };
 
 export const mainPageTodoContainer = {
@@ -188,6 +191,8 @@ export const bookmarkListModal = {
     manageContent: document.getElementById('bookmark-manage-content'),
     searchContent: document.getElementById('bookmark-search-content'),
     content: document.querySelector('#bookmark-list-modal-overlay .modal-content'),
+    moreBtn: document.getElementById('bookmark-more-btn-header'),
+    headerMenu: document.getElementById('bookmark-header-menu'),
 };
 
 // Elemen terkait Modal Pembaruan.
@@ -268,6 +273,8 @@ export const promptModal = {
     addBtn: document.getElementById('prompt-add-btn-header'),
     grid: document.getElementById('prompt-grid'),
     content: document.querySelector('#prompt-modal-overlay .modal-content'),
+    moreBtn: document.getElementById('prompt-more-btn-header'),
+    headerMenu: document.getElementById('prompt-header-menu'),
     manageBtn: document.getElementById('prompt-manage-btn'),
     selectCount: document.getElementById('prompt-select-count'),
     selectAllBtn: document.getElementById('prompt-select-all-btn'),
@@ -288,11 +295,14 @@ export const advancedPromptModal = {
     addBtn: document.getElementById('advanced-prompt-add-btn-header'),
     grid: document.getElementById('advanced-prompt-grid'),
     content: document.querySelector('#advanced-prompt-modal-overlay .modal-content'),
+    moreBtn: document.getElementById('advanced-prompt-more-btn-header'),
+    headerMenu: document.getElementById('advanced-prompt-header-menu'),
     mainArea: document.querySelector('#advanced-prompt-modal-overlay .advanced-prompt-main-area'),
     manageBtn: document.getElementById('advanced-prompt-manage-btn'),
     selectCount: document.getElementById('advanced-prompt-select-count'),
     selectAllBtn: document.getElementById('advanced-prompt-select-all-btn'),
     deleteSelectedBtn: document.getElementById('advanced-prompt-delete-selected-btn'),
+    moveSelectedBtn: document.getElementById('advanced-prompt-move-selected-btn'),
     cancelManageBtn: document.getElementById('advanced-prompt-cancel-manage-btn'),
     searchBtn: document.getElementById('advanced-prompt-search-btn'),
     searchInput: document.getElementById('advanced-prompt-search-input'),
@@ -321,6 +331,8 @@ export const promptFolderModal = {
     manageContent: document.getElementById('folder-manage-content'),
     searchContent: document.getElementById('folder-search-content'),
     content: document.querySelector('#prompt-folder-modal-overlay .modal-content'),
+    moreBtn: document.getElementById('folder-more-btn-header'),
+    headerMenu: document.getElementById('folder-header-menu'),
 };
 
 export const addEditFolderModal = {
@@ -408,6 +420,16 @@ export const imageViewerModal = {
     prevBtn: document.getElementById('prev-image-btn'),
     nextBtn: document.getElementById('next-image-btn'),
     controls: document.getElementById('image-viewer-controls'),
+};
+
+export const moveFolderModal = {
+    overlay: document.getElementById('move-folder-modal-overlay'),
+    closeBtn: document.getElementById('close-move-folder-modal-btn'),
+    title: document.getElementById('move-folder-modal-title'),
+    folderSelect: document.getElementById('move-prompt-folder-select'),
+    folderSelectOptions: document.getElementById('move-prompt-folder-select-options'),
+    addFolderBtn: document.getElementById('add-folder-from-move-btn'),
+    saveBtn: document.getElementById('move-prompt-save-btn'),
 };
 // ===================================================================================
   
@@ -506,12 +528,17 @@ export let isAdvancedGridStale = true;
 export let isShortcutCtrlDEnabled = true;
 export let isPromptGridStale = true;
 export let colorScheme = 'default';
+export let selectedMoveFolderId = 'all';
+export let promptsToMove = [];
 
 export let customThemeOverrides = {
     infoSection: 'default',
     footer: 'default',
     shadow: 'default',
 };
+
+export let activeHeaderMenu = null;
+export function setActiveHeaderMenu(value) { activeHeaderMenu = value; }
 
 export let currentImageNavList = [];
 export let uiHideTimeout = null;
@@ -520,6 +547,8 @@ export function setCurrentImageNavList(value) { currentImageNavList = value; }
 export function setIsPromptSearchEnabled(value) { isPromptSearchEnabled = value; }
 export function setIsPromptGridStale(value) { isPromptGridStale = value; }
 export function setIsDraggingTodo(value) { isDraggingTodo = value; }
+export function setSelectedMoveFolderId(value) { selectedMoveFolderId = value; }
+export function setPromptsToMove(value) { promptsToMove = value; }
 
 export let cachedIconDataUrls = {}; 
 export function setCachedIconDataUrls(value) { cachedIconDataUrls = value; }
@@ -857,6 +886,11 @@ export const i18nData = {
     "folder.label.select": { id: "Folder", en: "Folder", ja: "フォルダー" },
     "folder.noFolder": { id: "Tidak ada folder", en: "No Folder", ja: "フォルダーなし" },
     "prompt.images": { id: "Gambar", en: "Images", ja: "画像" },
+    "prompt.archive": { id: "Arsip", en: "Archive", ja: "アーカイブ" },
+    "prompt.archived": { id: "Diarsipkan!", en: "Archived!", ja: "アーカイブ済み！" },
+    "prompt.unarchive": { id: "Batal Arsip", en: "Unarchive", ja: "アーカイブ解除" },
+    "prompt.menu.move": { id: "Pindahkan", en: "Move", ja: "移動" },
+    "move.error.targetRequired": { id: "Anda harus memilih folder tujuan yang valid.", en: "You must select a valid destination folder.", ja: "有効な移動先フォルダを選択する必要があります。" },
     // Import and Export Data
     "settings.tabs.data": { id: "Data", en: "Data", ja: "データ" },
     "data.manageData.title": { id: "Impor dan Ekspor", en: "Import and Export", ja: "輸入と輸出" },
@@ -906,6 +940,7 @@ export const i18nData = {
     "confirm.delete.hidden.title": { id: "Hapus Semua Data Catatan & Gambar?", en: "Delete All Notes & Images Data?", ja: "すべてのノートと画像データを削除しますか？" },
     "confirm.delete.hidden.text": { id: "Tindakan ini akan menghapus semua data catatan dan PIN Anda secara permanen. Apakah Anda yakin?", en: "This will permanently delete all your note data and PINs. Are you sure?", ja: "これにより、すべてのノートデータとPINが完全に削除されます。よろしいですか？" },
     "settings.hidden.notEnabled": { id: "Anda belum mengaktifkan fitur keamanan catatan.", en: "You haven't enabled the note security feature yet.", ja: "メモのセキュリティ機能がまだ有効になっていません。" },
+    "settings.hidden.accessTip": { id: "Aktifkan catatan di menu \"Tampilan\" terlebih dahulu untuk mengakses fitur ini.", en: "Enable notes in the \"Display\" menu first to access this feature.", ja: "この機能にアクセスするには、「表示」メニューでメモを有効にしてください。" },
     "confirm.delete.todo.title": { id: "Hapus Semua Data Daftar Tugas?", en: "Delete All To-do Data?", ja: "すべてのタスクリストデータを削除？" },
     "confirm.delete.todo.text": { id: "Tindakan ini akan menghapus semua data daftar tugas Anda secara permanen. Apakah Anda yakin?", en: "This will permanently delete all your to-do list data. Are you sure?", ja: "この操作により、すべてのタスクリストデータが完全に削除されます。よろしいですか？" },
     "data.delete.todo.success": { id: "Data daftar tugas berhasil dihapus! Memuat ulang halaman.", en: "To-do List data deleted successfully! Reload the page.", ja: "タスクリストのデータが正常に削除されました！ページを再読み込みしてください。" },

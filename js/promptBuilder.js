@@ -10,7 +10,7 @@ import {
     currentEditFolderId, setCurrentEditFolderId, setPromptFolders, activeModalStack,
     isFolderManageModeActive, setIsFolderManageModeActive, isFolderSearchModeActive, setIsFolderSearchModeActive,
     selectedFolderIds, setSelectedFolderIds, folderSortableInstance, activePromptMenu, isAdvancedGridStale, 
-    setIsAdvancedGridStale
+    setIsAdvancedGridStale, moveFolderModal, selectedMoveFolderId, setSelectedMoveFolderId, promptsToMove, setPromptsToMove
 } from './config.js';
 import { openModal, closeModal, showInfoModal, isAdvancedModalSmallMode, showLoadingModal,
     hideLoadingModal } from './ui.js';
@@ -18,6 +18,7 @@ import { showToast, blobToDataURL } from './utils.js';
 import { saveSetting, getPromptBlob } from './storage.js';
 import { showPromptContextMenu, showFullImage, populateIconCacheIfNeeded, closeAllPromptMenus, openCharacterPromptManager } from './promptManager.js';
 import { markSearchDataAsStale } from './search.js';
+import { closeHeaderMenu } from './main.js';
 
 export function openAdvancedPromptManager() {
     showLoadingModal();
@@ -33,6 +34,15 @@ export function openAdvancedPromptManager() {
         }
         hideLoadingModal();
         openModal(advancedPromptModal.overlay);
+        const manageContent = advancedPromptModal.manageContent;
+        if (manageContent) {
+            manageContent.addEventListener('wheel', (e) => {
+                if (isAdvancedManageModeActive) {
+                    e.preventDefault();
+                    manageContent.scrollLeft += e.deltaY;
+                }
+            }, { passive: false });
+        }
     }, 50);
 }
 
@@ -45,6 +55,7 @@ let selectedFolderId = 'all';
 export function showSidebarFolderContextMenu(e) {
     e.preventDefault();
     e.stopPropagation();
+    closeHeaderMenu();
     closeAllPromptMenus();
 
     const menu = document.getElementById('folder-sidebar-context-menu');
@@ -52,7 +63,7 @@ export function showSidebarFolderContextMenu(e) {
 
     const folderBtn = e.currentTarget;
     const folderId = folderBtn.dataset.folderId;
-    if (folderId === 'all') {
+    if (folderId === 'all' || folderId === 'archive') {
         return;
     }
     
@@ -442,6 +453,9 @@ export async function updateSingleAdvancedPromptItem(updatedPrompt) {
                                 iconWrapper.classList.add('loaded');
                                 img.classList.add('loaded');
                             };
+                            if (img.src.startsWith('blob:')) {
+                                URL.revokeObjectURL(img.src);
+                            }
                             img.src = URL.createObjectURL(iconBlob);
                         }
                     }
@@ -540,12 +554,19 @@ async function appendNewAdvancedPromptItem(newPrompt) {
     menuBtn.onclick = showPromptContextMenu;
     item.appendChild(menuBtn);
     
+    const isArchived = newPrompt.archived || false;
+    const archiveAction = isArchived ? 'unarchive-advanced' : 'archive-advanced';
+    const archiveText = isArchived ? (i18nData["prompt.unarchive"][lang]) : (i18nData["prompt.archive"][lang]);
+        
     const menuContainer = document.createElement('div');
     menuContainer.className = 'prompt-item-menu';
     menuContainer.dataset.id = newPrompt.id;
+
     menuContainer.innerHTML = `
         <button class="prompt-menu-option" data-action="copy-advanced">${i18nData["prompt.menu.copy"][lang]}</button>
         <button class="prompt-menu-option" data-action="copy-char-advanced">${i18nData["prompt.menu.copyChar"][lang]}</button>
+        <button class="prompt-menu-option" data-action="move-advanced">${i18nData["prompt.menu.move"][lang]}</button> 
+        <button class="prompt-menu-option" data-action="${archiveAction}">${archiveText}</button>
         <button class="prompt-menu-option" data-action="edit-advanced">${i18nData["prompt.menu.edit"][lang]}</button>
         <button class="prompt-menu-option" data-action="delete-advanced">${i18nData["prompt.menu.delete"][lang]}</button>
     `;
@@ -679,12 +700,19 @@ export function renderAdvancedPrompts(promptsToRender = advancedPrompts) {
         menuBtn.innerHTML = '&#8942;';
         menuBtn.onclick = showPromptContextMenu;
   
+        const isArchived = p.archived || false;
+        const archiveAction = isArchived ? 'unarchive-advanced' : 'archive-advanced';
+        const archiveText = isArchived ? (i18nData["prompt.unarchive"][lang]) : (i18nData["prompt.archive"][lang]);
+        
         const menuContainer = document.createElement('div');
         menuContainer.className = 'prompt-item-menu';
         menuContainer.dataset.id = p.id;
+
         menuContainer.innerHTML = `
             <button class="prompt-menu-option" data-action="copy-advanced">${i18nData["prompt.menu.copy"][lang]}</button>
             <button class="prompt-menu-option" data-action="copy-char-advanced">${i18nData["prompt.menu.copyChar"][lang]}</button>
+            <button class="prompt-menu-option" data-action="move-advanced">${i18nData["prompt.menu.move"][lang]}</button>
+            <button class="prompt-menu-option" data-action="${archiveAction}">${archiveText}</button>
             <button class="prompt-menu-option" data-action="edit-advanced">${i18nData["prompt.menu.edit"][lang]}</button>
             <button class="prompt-menu-option" data-action="delete-advanced">${i18nData["prompt.menu.delete"][lang]}</button>
         `;
@@ -727,6 +755,13 @@ export function renderAdvancedPrompts(promptsToRender = advancedPrompts) {
     addBtn.className = 'prompt-item add-prompt-item';
     addBtn.innerHTML = '<span>+</span>';
     addBtn.onclick = handleOpenAddAdvancedPromptModal;
+
+    if (promptsToRender.length > 0) {
+        addBtn.style.display = 'none';
+    } else {
+        addBtn.style.display = '';
+    }
+
     advancedPromptModal.grid.appendChild(addBtn);
 
     oldImages.forEach(img => {
@@ -933,7 +968,13 @@ export async function handleOpenAddAdvancedPromptModal() {
     addEditAdvancedPromptModal.characterGrid.scrollTop = 0;
 
     populateFolderDropdown();
-    selectedFolderId = (currentPromptFolderId === 'all') ? 'all' : currentPromptFolderId;
+
+    if (currentPromptFolderId === 'archive') {
+        selectedFolderId = 'archive';
+    } else {
+        selectedFolderId = (currentPromptFolderId === 'all') ? 'all' : currentPromptFolderId;
+    }
+
     updateFolderDropdownDisplay();
 
     updateSelectionVisuals();
@@ -947,12 +988,17 @@ export async function handleEditAdvancedPrompt(promptId) {
     setCurrentAdvancedPromptId(promptId);
     selectionOrder = [...promptToEdit.characterIds];
     const lang = languageSettings.ui;
+    const isCurrentlyArchived = promptToEdit.archived || false;
     
     addEditAdvancedPromptModal.title.textContent = i18nData["advanced.prompt.editTitle"][lang];
     addEditAdvancedPromptModal.saveBtn.textContent = i18nData["prompt.saveChanges"][lang];
     addEditAdvancedPromptModal.titleInput.value = promptToEdit.title || '';
     addEditAdvancedPromptModal.textInput.value = promptToEdit.text;
     addEditAdvancedPromptModal.addCommaSwitch.checked = promptToEdit.useCommas || false;
+
+    selectedFolderId = isCurrentlyArchived 
+        ? (promptToEdit.folderId || 'all') 
+        : (promptToEdit.folderId || 'all');
 
     if (isCharacterGridStale) {
         syncCharacterSelectionGrid();
@@ -972,6 +1018,7 @@ export async function handleEditAdvancedPrompt(promptId) {
 
     updateSelectionVisuals();
     openModal(addEditAdvancedPromptModal.overlay);
+    addEditAdvancedPromptModal.overlay.dataset.isArchived = isCurrentlyArchived.toString();
 }
 
 export async function handleSaveAdvancedPrompt() {
@@ -984,19 +1031,66 @@ export async function handleSaveAdvancedPrompt() {
 
     const characterIds = [...selectionOrder];
     const useCommas = characterIds.length > 1 ? addEditAdvancedPromptModal.addCommaSwitch.checked : false;
-    const folderId = (selectedFolderId === 'all') ? null : selectedFolderId;
+
+    const isFolderDropdownArchive = selectedFolderId === 'archive';
+    
+    let statusArsipBaru;
+    let folderIdBaru;
 
     const isEditing = !!currentAdvancedPromptId;
     let tempPrompts = [...advancedPrompts];
 
+    const originalPrompt = isEditing ? tempPrompts.find(p => p.id === currentAdvancedPromptId) : null;
+    const originalIsArchived = originalPrompt ? (originalPrompt.archived || false) : false;
+
     if (isEditing) {
+        const folderIdLama = originalPrompt.folderId || 'all';
+
+        if (isFolderDropdownArchive) {
+            statusArsipBaru = true;
+            folderIdBaru = null;
+        } else if (selectedFolderId !== folderIdLama) {
+            statusArsipBaru = false;
+            folderIdBaru = (selectedFolderId === 'all') ? null : selectedFolderId;
+        } else if (originalIsArchived && selectedFolderId === folderIdLama) {
+            statusArsipBaru = true;
+            folderIdBaru = null;
+        } else {
+            statusArsipBaru = originalIsArchived;
+            folderIdBaru = (selectedFolderId === 'all') ? null : selectedFolderId;
+        }
+        
         const index = tempPrompts.findIndex(p => p.id === currentAdvancedPromptId);
         if (index > -1) {
-            tempPrompts[index] = { ...tempPrompts[index], title, text, characterIds, useCommas, folderId };
+            tempPrompts[index] = { 
+                ...tempPrompts[index], 
+                title, 
+                text, 
+                characterIds, 
+                useCommas, 
+                folderId: folderIdBaru, 
+                archived: statusArsipBaru 
+            };
         }
     } else {
-        const newPrompt = { id: Date.now(), title, text, characterIds, useCommas, folderId };
-        tempPrompts.push(newPrompt);
+        if (isFolderDropdownArchive) {
+            statusArsipBaru = true;
+            folderIdBaru = null;
+        } else {
+            statusArsipBaru = false;
+            folderIdBaru = (selectedFolderId === 'all') ? null : selectedFolderId;
+        }
+        
+        const newPrompt = { 
+            id: Date.now(), 
+            title, 
+            text, 
+            characterIds, 
+            useCommas, 
+            folderId: folderIdBaru, 
+            archived: statusArsipBaru 
+        }; 
+        tempPrompts.unshift(newPrompt);
     }
     
     setAdvancedPrompts(tempPrompts);
@@ -1005,7 +1099,7 @@ export async function handleSaveAdvancedPrompt() {
     closeModal(addEditAdvancedPromptModal.overlay);
     const promptData = isEditing 
     ? tempPrompts.find(p => p.id === currentAdvancedPromptId) 
-    : tempPrompts[tempPrompts.length - 1];
+    : tempPrompts[0];
 
     closeModal(addEditAdvancedPromptModal.overlay);
 
@@ -1013,14 +1107,19 @@ export async function handleSaveAdvancedPrompt() {
         if (isEditing) {
             await updateSingleAdvancedPromptItem(promptData);
         } else {
-            await appendNewAdvancedPromptItem(promptData);
+            filterAndRenderAdvancedPrompts();
         }
         handleAdvancedSearchInput();
     } else {
         if (isEditing) {
-            await updateSingleAdvancedPromptItem(promptData);
+            const originalIsArchived = isEditing ? advancedPrompts.find(p => p.id === currentAdvancedPromptId)?.archived : false;
+            if (statusArsipBaru !== originalIsArchived || folderIdBaru !== (originalPrompt.folderId || null)) {
+                filterAndRenderAdvancedPrompts();
+            } else {
+               await updateSingleAdvancedPromptItem(promptData);
+            }
         } else {
-            await appendNewAdvancedPromptItem(promptData);
+           filterAndRenderAdvancedPrompts();
         }
     }
 
@@ -1070,6 +1169,8 @@ export async function confirmAdvancedDelete() {
 
         if (isAdvancedSearchModeActive) {
             handleAdvancedSearchInput();
+        } else {
+            filterAndRenderAdvancedPrompts(); 
         }
 
         closeModal(confirmationModal.overlay);
@@ -1082,6 +1183,42 @@ export async function confirmAdvancedDelete() {
         console.error("Failed to delete advanced prompt:", error);
         showInfoModal("info.attention.title", "An error occurred while deleting the prompt.");
     }
+}
+
+export function handleArchiveAdvancedPrompt(promptId, archiveState) {
+    const promptToUpdate = advancedPrompts.find(p => p.id === promptId);
+    if (!promptToUpdate) return;
+    
+    setConfirmationModalPurpose(archiveState ? 'archiveAdvancedPrompt' : 'unarchiveAdvancedPrompt');
+    setCurrentAdvancedPromptId(promptId);
+    
+    confirmArchiveUnarchive(promptId, archiveState);
+}
+
+async function confirmArchiveUnarchive(promptId, archiveState) {
+    const tempPrompts = advancedPrompts.map(p => {
+        if (p.id === promptId) {
+            return { ...p, archived: archiveState };
+        }
+        return p;
+    });
+
+    setAdvancedPrompts(tempPrompts);
+    await saveSetting('advancedPrompts', tempPrompts);
+    
+    const itemToRemove = advancedPromptModal.grid.querySelector(`.advanced-prompt-item[data-id="${promptId}"]`);
+    if (itemToRemove) {
+        itemToRemove.remove();
+    }
+    
+    if (isAdvancedSearchModeActive) {
+        handleAdvancedSearchInput();
+    } else {
+        filterAndRenderAdvancedPrompts();
+    }
+
+    showToast(archiveState ? "prompt.archived" : "prompt.unarchive");
+    setCurrentAdvancedPromptId(null);
 }
 
 // --- Manage & Search Mode ---
@@ -1097,6 +1234,7 @@ export function updateAdvancedManageModeUI() {
     }
 
     advancedPromptModal.deleteSelectedBtn.disabled = selectedAdvancedPromptIds.length === 0;
+    advancedPromptModal.moveSelectedBtn.disabled = selectedAdvancedPromptIds.length === 0;
 }
 
 export function toggleAdvancedPromptSelection(promptId) {
@@ -1181,6 +1319,7 @@ export function toggleAdvancedManageMode(forceState = null) {
         advancedPromptModal.searchInput.value = '';
         
         advancedPromptModal.actionBar.classList.add('hidden');
+        advancedPromptModal.manageContent.scrollLeft = 0;
         setTimeout(() => {
             advancedPromptModal.manageContent.classList.add('hidden');
         }, 300);
@@ -1264,16 +1403,17 @@ export function renderFolderTabs() {
     const folderBar = document.getElementById('advanced-prompt-folder-bar');
     if (!folderBar) return;
 
-    folderBar.querySelectorAll('.folder-tab-btn[data-folder-id]:not([data-folder-id="all"])').forEach(btn => btn.remove());
+    folderBar.querySelectorAll('.folder-tab-btn').forEach(btn => {
+        if (btn.dataset.folderId !== 'all') {
+            btn.remove();
+        }
+    });
     
-    const oldImagesBtn = folderBar.querySelector('.folder-tab-btn[data-type="images"]');
-    if (oldImagesBtn) oldImagesBtn.remove();
-
     const allBtn = folderBar.querySelector('#advanced-prompt-folder-all');
     const stickyWrapper = folderBar.querySelector('.folder-sidebar-sticky-buttons');
     const foldersToRender = promptFolders;
     const lang = languageSettings.ui;
-
+    
     const imagesBtn = document.createElement('button');
     imagesBtn.className = 'folder-tab-btn';
     imagesBtn.dataset.type = 'images';
@@ -1321,14 +1461,40 @@ export function renderFolderTabs() {
         folderBar.insertBefore(folderBtn, stickyWrapper);
     });
 
+    const archiveBtn = document.createElement('button');
+    archiveBtn.className = 'folder-tab-btn';
+    archiveBtn.dataset.folderId = 'archive';
+    
+    const archiveIconSpan = document.createElement('span');
+    archiveIconSpan.className = 'folder-tab-icon';
+    archiveIconSpan.textContent = '📦';
+    
+    const archiveNameSpan = document.createElement('span');
+    archiveNameSpan.className = 'folder-tab-name';
+    archiveNameSpan.textContent = i18nData["prompt.archive"]?.[lang] || "Archive";
+
+    archiveBtn.appendChild(archiveIconSpan);
+    archiveBtn.appendChild(archiveNameSpan);
+
+    if ('archive' === currentPromptFolderId) {
+        archiveBtn.classList.add('active');
+    }
+
+    archiveBtn.addEventListener('click', () => handleFolderTabClick('archive'));
+
+    folderBar.insertBefore(archiveBtn, stickyWrapper);
+
     allBtn.classList.toggle('active', currentPromptFolderId === 'all');
 }
 
 export function filterAndRenderAdvancedPrompts() {
     let promptsToRender;
+    const isArchivedView = currentPromptFolderId === 'archive';
 
     if (currentPromptFolderId === 'all') {
-        promptsToRender = advancedPrompts;
+        promptsToRender = advancedPrompts.filter(p => !p.archived); 
+    } else if (isArchivedView) {
+        promptsToRender = advancedPrompts.filter(p => p.archived);
     } else {
         promptsToRender = advancedPrompts.filter(p => p.folderId === currentPromptFolderId);
     }
@@ -1387,13 +1553,23 @@ export function handleFolderTabClick(folderId) {
     setCurrentPromptFolderId(folderId);
 
     const folderBar = document.getElementById('advanced-prompt-folder-bar');
-    folderBar.querySelectorAll('.folder-tab-btn.active').forEach(btn => btn.classList.remove('active'));
+    folderBar.querySelectorAll('.folder-tab-btn').forEach(btn => btn.classList.remove('active'));
+
     const newActiveBtn = folderBar.querySelector(`.folder-tab-btn[data-folder-id="${folderId}"]`);
-    if (newActiveBtn) {
+    const allBtn = folderBar.querySelector('#advanced-prompt-folder-all');
+    const imagesBtn = folderBar.querySelector('.folder-tab-btn[data-type="images"]');
+    const archiveBtn = folderBar.querySelector('.folder-tab-btn[data-folder-id="archive"]');
+
+    if (folderId === 'all') {
+        allBtn.classList.add('active');
+    } else if (folderId === 'archive') {
+        archiveBtn.classList.add('active');
+    } else if (folderId !== 'images' && newActiveBtn) {
         newActiveBtn.classList.add('active');
     }
 
     filterAndRenderAdvancedPrompts();
+    adjustVisibleIcons();
 
     const isSmallScreen = window.matchMedia("(max-width: 1060px)").matches;
     const modalContent = advancedPromptModal.content;
@@ -1405,7 +1581,6 @@ export function handleFolderTabClick(folderId) {
 
 function renderFolderManagementGrid(foldersToRender = promptFolders) {
     const grid = promptFolderModal.grid;
-    const addBtn = document.getElementById('add-folder-grid-btn');
     const lang = languageSettings.ui;
 
     grid.querySelectorAll('.folder-item, .add-bookmark-item').forEach(item => {
@@ -1416,7 +1591,13 @@ function renderFolderManagementGrid(foldersToRender = promptFolders) {
         item.remove();
     });
 
+    const foldersOnly = foldersToRender.filter(f => f.id !== 'archive');
+
     foldersToRender.forEach(folder => {
+        if (folder.id === 'archive') {
+            return; 
+        }
+
         const folderItem = document.createElement('div');
         folderItem.className = 'folder-item';
         folderItem.dataset.id = folder.id;
@@ -1437,6 +1618,7 @@ function renderFolderManagementGrid(foldersToRender = promptFolders) {
         menuBtn.innerHTML = '&#8942;';
         menuBtn.onclick = (e) => {
             e.stopPropagation();
+            closeHeaderMenu();
             showPromptContextMenu(e);
         };
         folderItem.appendChild(menuBtn);
@@ -1479,6 +1661,13 @@ function renderFolderManagementGrid(foldersToRender = promptFolders) {
     addBtnGrid.className = 'bookmark-item add-bookmark-item';
     addBtnGrid.innerHTML = '<span>+</span>';
     addBtnGrid.onclick = () => openAddEditFolderModal(null);
+
+    if (foldersOnly.length > 0) {
+        addBtnGrid.style.display = 'none';
+    } else {
+        addBtnGrid.style.display = '';
+    }
+
     grid.appendChild(addBtnGrid);
 }
 
@@ -1493,6 +1682,15 @@ export function openFolderManagementModal() {
     toggleFolderSearchMode(false);
     renderFolderManagementGrid();
     openModal(promptFolderModal.overlay);
+    const manageContent = promptFolderModal.manageContent;
+    if (manageContent) {
+        manageContent.addEventListener('wheel', (e) => {
+            if (isFolderManageModeActive) {
+                e.preventDefault();
+                manageContent.scrollLeft += e.deltaY;
+            }
+        }, { passive: false });
+    }
 }
 
 export function openAddEditFolderModal(folderId = null) {
@@ -1546,7 +1744,7 @@ export async function handleSaveFolder() {
             return;
         }
         const newFolder = { id: Date.now(), name: folderName };
-        newFolders.push(newFolder);
+        newFolders.unshift(newFolder);
     }
 
     setPromptFolders(newFolders);
@@ -1557,6 +1755,16 @@ export async function handleSaveFolder() {
     closeModal(addEditFolderModal.overlay);
     showToast(isEditing ? "folder.edit.success" : "folder.save.success");
     renderFolderTabs();
+
+    if (parentModal && parentModal.id === 'move-folder-modal-overlay') {
+        populateMoveFolderDropdown();
+        updateMoveFolderDropdownDisplay();
+    }
+    
+    if (parentModal && parentModal.id === 'add-edit-advanced-prompt-modal-overlay') {
+        populateFolderDropdown();
+        updateFolderDropdownDisplay();
+    }
 
     if (parentModal && parentModal === promptFolderModal.overlay) {
         if (isFolderSearchModeActive) {
@@ -1689,6 +1897,8 @@ export function populateFolderDropdown() {
     optionsContainer.appendChild(allOption);
 
     promptFolders.forEach(folder => {
+        if (folder.id === 'archive') return;
+
         const option = document.createElement('div');
         option.className = 'custom-option';
         option.dataset.value = folder.id;
@@ -1731,7 +1941,6 @@ export function initFolderDropdownListener() {
 }
 
 // --- Folder Manage & Search Mode ---
-
 export function updateFolderManageModeUI() {
     const lang = languageSettings.ui;
     const selectCountFormat = i18nData["prompt.selectCount"][lang] || i18nData["prompt.selectCount"]["id"];
@@ -1820,6 +2029,7 @@ export function toggleFolderManageMode(forceState = null) {
         promptFolderModal.searchInput.value = '';
         handleFolderSearchInput();
         promptFolderModal.actionBar.classList.add('hidden');
+        promptFolderModal.manageContent.scrollLeft = 0;
         setTimeout(() => promptFolderModal.manageContent.classList.add('hidden'), 300);
 
         setSelectedFolderIds([]);
@@ -1873,7 +2083,7 @@ export function toggleFolderSearchMode(forceState = null) {
 
 export function handleFolderSearchInput() {
     const searchTerm = promptFolderModal.searchInput.value.toLowerCase().trim();
-    const filtered = promptFolders.filter(f => f.name.toLowerCase().includes(searchTerm));
+    const filtered = promptFolders.filter(f => f.id !== 'archive' && f.name.toLowerCase().includes(searchTerm));
     renderFolderManagementGrid(filtered);
 
     if (filtered.length === 0 && searchTerm.length > 0) {
@@ -1884,8 +2094,146 @@ export function handleFolderSearchInput() {
 }
 
 export function closeSidebarContextMenu() {
-    if (activePromptMenu && activePromptMenu.id === 'folder-sidebar-context-menu') {
-        activePromptMenu.style.display = 'none';
-        setActivePromptMenu(null);
+    const menu = document.getElementById('folder-sidebar-context-menu');
+    if (menu) {
+        menu.style.display = 'none';
+        if (activePromptMenu === menu) {
+            setActivePromptMenu(null);
+        }
     }
+}
+
+export function handleAdvancedMoveSelected() {
+    if (selectedAdvancedPromptIds.length === 0) return;
+    handleOpenMoveFolderModal(selectedAdvancedPromptIds);
+}
+
+export function handleOpenMoveFolderModal(promptIds) {
+    if (promptIds.length === 0) return;
+    setPromptsToMove(promptIds);
+    setSelectedMoveFolderId('all'); 
+
+    const lang = languageSettings.ui;
+    moveFolderModal.title.textContent = i18nData["prompt.menu.move"][lang];
+
+    populateMoveFolderDropdown();
+    updateMoveFolderDropdownDisplay();
+    openModal(moveFolderModal.overlay);
+}
+
+export function populateMoveFolderDropdown() {
+    const optionsContainer = moveFolderModal.folderSelectOptions;
+    if (!optionsContainer) return;
+
+    optionsContainer.innerHTML = '';
+    const lang = languageSettings.ui;
+
+    const noneOption = document.createElement('div');
+    noneOption.className = 'custom-option';
+    noneOption.dataset.value = 'all';
+    noneOption.textContent = i18nData["prompt.all"]?.[lang] || i18nData["prompt.all"]?.['id'];
+    noneOption.setAttribute('data-i18n-key', 'prompt.all');
+    optionsContainer.appendChild(noneOption);
+
+    promptFolders.forEach(folder => {
+        if (folder.id === 'archive') return; 
+
+        const option = document.createElement('div');
+        option.className = 'custom-option';
+        option.dataset.value = folder.id;
+        option.textContent = folder.name;
+        optionsContainer.appendChild(option);
+    });
+
+    const archiveOption = document.createElement('div');
+    archiveOption.className = 'custom-option';
+    archiveOption.dataset.value = 'archive';
+    archiveOption.textContent = i18nData["prompt.archive"]?.[lang] || i18nData["prompt.archive"]?.['id'];
+    archiveOption.setAttribute('data-i18n-key', 'prompt.archive');
+    optionsContainer.appendChild(archiveOption);
+}
+
+export function updateMoveFolderDropdownDisplay() {
+    const trigger = moveFolderModal.folderSelect;
+    if (!trigger) return;
+
+    const optionsContainer = moveFolderModal.folderSelectOptions;
+    const selectedTextSpan = trigger.querySelector('span:first-child');
+    const lang = languageSettings.ui;
+
+    let selectedOptionText;
+    let selectedOptionKey;
+
+    if (selectedMoveFolderId === 'all') {
+        selectedOptionKey = "prompt.all";
+        selectedOptionText = i18nData[selectedOptionKey]?.[lang] || i18nData[selectedOptionKey]?.['id'];
+    } else if (selectedMoveFolderId === 'archive') {
+        selectedOptionKey = "prompt.archive";
+        selectedOptionText = i18nData[selectedOptionKey]?.[lang] || i18nData[selectedOptionKey]?.['id'];
+    } else {
+        const folder = promptFolders.find(f => f.id === selectedMoveFolderId);
+        selectedOptionText = folder ? folder.name : (i18nData["prompt.all"]?.[lang] || i18nData["prompt.all"]?.['id']);
+    }
+
+    selectedTextSpan.textContent = selectedOptionText;
+    if (selectedOptionKey) {
+        selectedTextSpan.setAttribute('data-i18n-key', selectedOptionKey);
+    } else {
+        selectedTextSpan.removeAttribute('data-i18n-key');
+    }
+
+    optionsContainer.querySelectorAll('.custom-option').forEach(opt => opt.classList.remove('selected'));
+    const selectedOption = optionsContainer.querySelector(`[data-value="${selectedMoveFolderId}"]`);
+    if (selectedOption) {
+        selectedOption.classList.add('selected');
+    }
+}
+
+export async function handleMovePrompts() {
+    if (promptsToMove.length === 0) return;
+
+    const targetId = selectedMoveFolderId;
+
+    if (!targetId) {
+        showInfoModal("info.attention.title", "move.error.targetRequired");
+        return;
+    }
+
+    if (typeof targetId === 'number') {
+        const folderExists = promptFolders.some(f => f.id === targetId);
+        if (!folderExists) {
+            showInfoModal("info.attention.title", "move.error.targetRequired");
+            return;
+        }
+    }
+
+    const isArchived = targetId === 'archive';
+    const newFolderId = (targetId === 'all' || targetId === 'archive') ? null : targetId;
+
+    const updatedPrompts = advancedPrompts.map(p => {
+        if (promptsToMove.includes(p.id)) {
+            return {
+                ...p,
+                folderId: newFolderId,
+                archived: isArchived
+            };
+        }
+        return p;
+    });
+
+    setAdvancedPrompts(updatedPrompts);
+    await saveSetting('advancedPrompts', updatedPrompts);
+
+    closeModal(moveFolderModal.overlay);
+    
+    if (isAdvancedManageModeActive) {
+        toggleAdvancedManageMode(false);
+    } else if (isAdvancedSearchModeActive) {
+        handleAdvancedSearchInput();
+    } else {
+        filterAndRenderAdvancedPrompts();
+    }
+
+    showToast("prompt.menu.move");
+    markSearchDataAsStale();
 }

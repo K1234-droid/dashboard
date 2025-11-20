@@ -2,7 +2,8 @@ import {
     elements, usernameModal, themeModal, aboutModal, otherSettingsModal, infoModal, activeModalStack, currentUser, setCurrentUser,
     languageSettings, i18nData, menu, pinSettings, settingSwitches, setActiveModalStack, userPIN, feedbackTimeout,
     setFeedbackTimeout, dataManagement, progressModal, loadingModal, setIsBlockingModalActive, updateModal, footerSearch, searchEngine,
-    colorScheme, setColorScheme, customThemeOverrides, setCustomThemeOverrides, mainPageTodoContainer
+    colorScheme, setColorScheme, customThemeOverrides, setCustomThemeOverrides, mainPageTodoContainer,
+    activeHeaderMenu, setActiveHeaderMenu
 } from './config.js';
 import { saveSetting, loadSettings, clearWallpaperCache, getWallpaperFromCache } from './storage.js';
 import { showToast } from './utils.js';
@@ -123,6 +124,15 @@ export function closeModal(overlay) {
         overlay.classList.add("hidden");
         const newStack = activeModalStack.filter(modal => modal !== overlay);
         setActiveModalStack(newStack);
+        if (overlay.querySelector('.modal-header .prompt-item-menu.show')) {
+            const menuEl = overlay.querySelector('.modal-header .prompt-item-menu');
+            if (menuEl) {
+                menuEl.classList.remove('show');
+                if (activeHeaderMenu === menuEl) {
+                    setActiveHeaderMenu(null);
+                }
+            }
+        }
     }
     
     if (activeModalStack.length === 0) {
@@ -460,6 +470,7 @@ export function updateSecurityFeaturesUI() {
     const popupFinderHelpText = document.getElementById('enable-popup-finder-help-text');
     const promptSearchHelpText = document.getElementById('enable-search-help-text');
     const promptSearchContainer = document.getElementById('enable-prompt-search-container');
+    const accessTip = elements.hiddenFeatureAccessTip;
 
     if (manageHiddenContainer) {
         manageHiddenContainer.classList.toggle('disabled', !isHiddenEnabled);
@@ -471,9 +482,11 @@ export function updateSecurityFeaturesUI() {
 
     if (isHiddenEnabled) {
         pinSettings.container.classList.remove('hidden');
+        if (accessTip) accessTip.classList.add('hidden');
         pinSettings.updateBtn.textContent = i18nData["settings.hidden.updatePin"][lang] || "Update PIN";
     } else {
         pinSettings.container.classList.add('hidden');
+        if (accessTip) accessTip.classList.remove('hidden');
     }
     if (settingSwitches.enablePopupFinder) {
         const isDisabled = !isHiddenEnabled;

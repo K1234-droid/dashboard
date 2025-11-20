@@ -195,9 +195,13 @@ export function renderBookmarkModalGrid(bookmarksToRender = bookmarks) {
 
         item.addEventListener('contextmenu', (e) => {
             e.preventDefault();
-            const menuBtn = item.querySelector('.bookmark-menu-btn');
-            if (menuBtn) {
-                menuBtn.click();
+            if (isBookmarkManageModeActive) {
+                toggleBookmarkSelection(bookmark.id);
+            } else {
+                const menuBtn = item.querySelector('.bookmark-menu-btn');
+                if (menuBtn) {
+                    menuBtn.click();
+                }
             }
         });
         
@@ -230,6 +234,13 @@ export function renderBookmarkModalGrid(bookmarksToRender = bookmarks) {
     addBtn.innerHTML = '<span>+</span>';
     addBtn.onclick = handleOpenAddBookmarkModal;
     addBtn.setAttribute('data-tooltip', i18nData['bookmark.add']?.[lang] || 'Add Bookmark');
+
+    if (bookmarksToRender.length > 0) {
+        addBtn.style.display = 'none';
+    } else {
+        addBtn.style.display = '';
+    }
+
     bookmarkListModal.grid.appendChild(addBtn);
 }
 
@@ -469,7 +480,7 @@ export async function handleSaveBookmark() {
         }
     } else {
         const newBookmark = { id: Date.now(), name, url };
-        tempBookmarks.push(newBookmark);
+        tempBookmarks.unshift(newBookmark);
     }
 
     setBookmarks(tempBookmarks);
@@ -535,6 +546,10 @@ export async function confirmDeleteBookmark() {
 
     if (confirmationModalPurpose === 'deleteSelectedBookmarks') {
         toggleManageMode(false);
+    }
+
+    if (tempBookmarks.length === 0 && !isBookmarkSearchModeActive && !isBookmarkManageModeActive) {
+        renderBookmarkModalGrid();
     }
 }
 
@@ -637,6 +652,7 @@ export function toggleManageMode(forceState = null) {
         bookmarkListModal.searchInput.value = '';
         renderBookmarkModalGrid();
         bookmarkListModal.actionBar.classList.add('hidden');
+        bookmarkListModal.manageContent.scrollLeft = 0;
         setTimeout(() => bookmarkListModal.manageContent.classList.add('hidden'), 300);
         setSelectedBookmarkIds([]);
         bookmarkListModal.grid.querySelectorAll('.bookmark-item.selected').forEach(item => item.classList.remove('selected'));
@@ -792,4 +808,14 @@ export function initializeBookmarks() {
             closeContainerBookmarkContextMenu();
         }
     });
+    
+    const manageContent = bookmarkListModal.manageContent;
+    if (manageContent) {
+        manageContent.addEventListener('wheel', (e) => {
+            if (isBookmarkManageModeActive) {
+                e.preventDefault();
+                manageContent.scrollLeft += e.deltaY;
+            }
+        }, { passive: false });
+    }
 }

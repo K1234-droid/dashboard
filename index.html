@@ -477,6 +477,7 @@
     
                 <div id="settings-panel-other" class="tab-panel">
                     <h4 class="sub-judul" data-i18n-key="settings.hidden.title">Catatan</h4>
+                    <p id="hidden-feature-access-tip" class="setting-help-text hidden" data-i18n-key="settings.hidden.accessTip"></p>
                     <div id="pin-settings-container" class="hidden">
                         <div class="setting-item-column">
                             <label for="pin-input" id="pin-update-label" class="switch-label" data-i18n-key="settings.security.changePinLabel">Ubah PIN Keamanan (4 digit)</label>
@@ -580,10 +581,16 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3 data-i18n-key="prompt.listTitle">Galeri Gambar</h3>
-                <div>
+                <div id="prompt-header-controls">
                     <button id="prompt-add-btn-header" class="modal-header-btn add-btn">+</button>
                     <button id="prompt-search-btn" class="modal-header-btn" data-i18n-key="prompt.search">Cari</button>
                     <button id="prompt-manage-btn" class="modal-header-btn" data-i18n-key="prompt.manage">Kelola</button>
+                    
+                    <button id="prompt-more-btn-header" class="modal-header-btn more-btn hidden-on-desktop" data-tooltip="Opsi Lain">&#8943;</button>
+                    <div id="prompt-header-menu" class="prompt-item-menu hidden-on-desktop">
+                        <button class="prompt-menu-option" data-action="search" data-i18n-key="prompt.search">Cari</button>
+                        <button class="prompt-menu-option" data-action="manage" data-i18n-key="prompt.manage">Kelola</button>
+                    </div>
                     <button id="close-prompt-modal-btn" class="close-btn">&times;</button>
                 </div>
             </div>
@@ -743,10 +750,16 @@
                     <h3 data-i18n-key="advanced.prompt.listTitle">Daftar Catatan</h3>
                 </div>
                 
-                <div>
+                <div id="advanced-prompt-header-controls">
                     <button id="advanced-prompt-add-btn-header" class="modal-header-btn add-btn">+</button>
                     <button id="advanced-prompt-search-btn" class="modal-header-btn" data-i18n-key="prompt.search">Cari</button>
                     <button id="advanced-prompt-manage-btn" class="modal-header-btn" data-i18n-key="prompt.manage">Kelola</button>
+                    
+                    <button id="advanced-prompt-more-btn-header" class="modal-header-btn more-btn hidden-on-desktop" data-tooltip="Opsi Lain">&#8943;</button>
+                    <div id="advanced-prompt-header-menu" class="prompt-item-menu hidden-on-desktop">
+                        <button class="prompt-menu-option" data-action="search" data-i18n-key="prompt.search">Cari</button>
+                        <button class="prompt-menu-option" data-action="manage" data-i18n-key="prompt.manage">Kelola</button>
+                    </div>
                     <button id="close-advanced-prompt-modal-btn" class="close-btn">&times;</button>
                 </div>
             </div>
@@ -759,6 +772,7 @@
                     <span id="advanced-prompt-select-count" class="prompt-select-count-text">Pilih (0)</span>
                     <div class="prompt-manage-actions">
                         <button id="advanced-prompt-select-all-btn" class="modal-secondary-btn" data-i18n-key="prompt.selectAll">Pilih Semua</button>
+                        <button id="advanced-prompt-move-selected-btn" class="modal-secondary-btn" data-i18n-key="prompt.menu.move" disabled>Pindahkan</button>
                         <button id="advanced-prompt-delete-selected-btn" class="modal-danger-btn" data-i18n-key="prompt.menu.delete" disabled>Hapus</button>
                         <button id="advanced-prompt-cancel-manage-btn" class="modal-secondary-btn" data-i18n-key="prompt.delete.cancel">Batal</button>
                     </div>
@@ -887,10 +901,16 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3 data-i18n-key="bookmark.title">Bookmark</h3>
-                <div>
+                <div id="bookmark-header-controls">
                     <button id="bookmark-add-btn-header" class="modal-header-btn add-btn">+</button>
                     <button id="bookmark-search-btn" class="modal-header-btn" data-i18n-key="prompt.search">Cari</button>
                     <button id="bookmark-manage-btn" class="modal-header-btn" data-i18n-key="prompt.manage">Kelola</button>
+                    
+                    <button id="bookmark-more-btn-header" class="modal-header-btn more-btn hidden-on-desktop" data-tooltip="Opsi Lain">&#8943;</button>
+                    <div id="bookmark-header-menu" class="prompt-item-menu hidden-on-desktop">
+                        <button class="prompt-menu-option" data-action="search" data-i18n-key="prompt.search">Cari</button>
+                        <button class="prompt-menu-option" data-action="manage" data-i18n-key="prompt.manage">Kelola</button>
+                    </div>
                     <button id="close-bookmark-list-modal-btn" class="close-btn">&times;</button>
                 </div>
             </div>
@@ -942,10 +962,16 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3 data-i18n-key="todo.listTitle">To-do List</h3>
-                <div>
+                <div id="todo-header-controls">
                     <button id="todo-add-btn-header" class="modal-header-btn add-btn">+</button>
                     <button id="todo-search-btn" class="modal-header-btn" data-i18n-key="prompt.search">Cari</button>
                     <button id="todo-manage-btn" class="modal-header-btn" data-i18n-key="prompt.manage">Kelola</button>
+                    
+                    <button id="todo-more-btn-header" class="modal-header-btn more-btn hidden-on-desktop" data-tooltip="Opsi Lain">&#8943;</button>
+                    <div id="todo-header-menu" class="prompt-item-menu hidden-on-desktop">
+                        <button class="prompt-menu-option" data-action="search" data-i18n-key="prompt.search">Cari</button>
+                        <button class="prompt-menu-option" data-action="manage" data-i18n-key="prompt.manage">Kelola</button>
+                    </div>
                     <button id="close-todo-list-modal-btn" class="close-btn">&times;</button>
                 </div>
             </div>
@@ -1024,10 +1050,16 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3 data-i18n-key="folder.title">Folder</h3>
-                <div>
+                <div id="folder-header-controls">
                     <button id="folder-add-btn-header" class="modal-header-btn add-btn">+</button>
                     <button id="folder-search-btn" class="modal-header-btn" data-i18n-key="prompt.search">Cari</button>
                     <button id="folder-manage-btn" class="modal-header-btn" data-i18n-key="prompt.manage">Kelola</button>
+                    
+                    <button id="folder-more-btn-header" class="modal-header-btn more-btn hidden-on-desktop" data-tooltip="Opsi Lain">&#8943;</button>
+                    <div id="folder-header-menu" class="prompt-item-menu hidden-on-desktop">
+                        <button class="prompt-menu-option" data-action="search" data-i18n-key="prompt.search">Cari</button>
+                        <button class="prompt-menu-option" data-action="manage" data-i18n-key="prompt.manage">Kelola</button>
+                    </div>
                     <button id="close-prompt-folder-modal-btn" class="close-btn">&times;</button>
                 </div>
             </div>
@@ -1070,6 +1102,34 @@
                     <input type="text" id="folder-name-input" class="modal-input">
                 </div>
                 <button id="save-folder-btn" class="modal-save-btn" data-i18n-key="settings.username.save">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="move-folder-modal-overlay" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="move-folder-modal-title" data-i18n-key="prompt.menu.move">Pindahkan</h3>
+                <button id="close-move-folder-modal-btn" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-item-column">
+                    <label class="modal-label" data-i18n-key="folder.label.select">Folder</label>
+                    <div class="custom-select-container" id="move-prompt-folder-select-container">
+                        <div id="move-prompt-folder-select" class="custom-select" tabindex="0">
+                            <span data-i18n-key="folder.noFolder">Tidak ada folder</span><span class="select-arrow"></span>
+                        </div>
+                        <div id="move-prompt-folder-select-options" class="custom-select-options">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-button-group-column">
+                    <button id="add-folder-from-move-btn" class="modal-secondary-btn" data-i18n-key="folder.addTitle">Tambah Folder Baru</button>
+                </div>
+                
+                <div class="modal-button-group">
+                    <button id="move-prompt-save-btn" class="modal-save-btn" data-i18n-key="prompt.menu.move">Pindahkan</button>
+                </div>
             </div>
         </div>
     </div>

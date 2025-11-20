@@ -25,6 +25,15 @@ export function openCharacterPromptManager() {
         }
         hideLoadingModal();
         openModal(promptModal.overlay);
+        const manageContent = promptModal.manageContent;
+        if (manageContent) {
+            manageContent.addEventListener('wheel', (e) => {
+                if (isManageModeActive) {
+                    e.preventDefault();
+                    manageContent.scrollLeft += e.deltaY; 
+                }
+            }, { passive: false });
+        }
     }, 50);
 }
 
@@ -269,6 +278,13 @@ export async function renderPrompts(promptsToRender = prompts) {
     addBtn.className = 'prompt-item add-prompt-item';
     addBtn.innerHTML = '<span>+</span>';
     addBtn.onclick = handleOpenAddPromptModal;
+
+    if (promptsToRender.length > 0) {
+        addBtn.style.display = 'none';
+    } else {
+        addBtn.style.display = '';
+    }
+
     fragment.appendChild(addBtn);
 
     promptModal.grid.appendChild(fragment);
@@ -682,7 +698,7 @@ export async function handleSavePrompt() {
                 tempPromptsMetadata[promptIndex] = metadata;
             }
         } else {
-            tempPromptsMetadata.push(metadata);
+            tempPromptsMetadata.unshift(metadata);
         }
 
         setPrompts(tempPromptsMetadata);
@@ -704,7 +720,7 @@ export async function handleSavePrompt() {
                 await updateSinglePromptItem(metadata);
                 await updateSingleCharacterItem(metadata);
             } else {
-                await appendNewPromptItem(metadata); 
+                await renderPrompts();
             }
         }
         
@@ -787,6 +803,10 @@ export async function confirmDelete() {
 
         if (isSearchModeActive) {
             handleSearchInput();
+        }
+
+        if (newPromptsMetadata.length === 0) {
+            renderPrompts();
         }
 
         closeModal(confirmationModal.overlay);
@@ -902,6 +922,7 @@ export function toggleManageMode(forceState = null) {
         promptModal.searchInput.value = '';
         
         promptModal.actionBar.classList.add('hidden');
+        promptModal.manageContent.scrollLeft = 0;
         setTimeout(() => {
             promptModal.manageContent.classList.add('hidden');
         }, 300);

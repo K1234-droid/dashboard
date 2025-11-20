@@ -302,6 +302,13 @@ export function renderTodoModalGrid(todosToRender = todoList) {
     addBtn.innerHTML = '<span>+</span>';
     addBtn.onclick = handleOpenAddTodoModal;
     addBtn.setAttribute('data-tooltip', i18nData['todo.add']?.[lang] || 'Tambah To-do');
+
+    if (incompleteTodos.length > 0) {
+        addBtn.style.display = 'none';
+    } else {
+        addBtn.style.display = '';
+    }
+
     todoListModal.grid.appendChild(addBtn);
 
     if (completedTodos.length > 0) {
@@ -510,7 +517,7 @@ export async function handleSaveTodo() {
         }
     } else {
         const newItem = { id: Date.now(), title, description, completed: false, dueDate };
-        tempTodoList.push(newItem);
+        tempTodoList.unshift(newItem);
     }
 
     setTodoList(tempTodoList);
@@ -563,6 +570,10 @@ export async function confirmDeleteTodo() {
     if (isTodoSearchModeActive) {
         handleSearchInput();
     } else {
+        renderTodoModalGrid();
+    }
+
+    if (tempTodoList.length === 0 && !isTodoSearchModeActive && !isTodoManageModeActive) {
         renderTodoModalGrid();
     }
     
@@ -674,6 +685,7 @@ export function toggleManageMode(forceState = null) {
         todoListModal.searchInput.value = '';
         renderTodoModalGrid();
         todoListModal.actionBar.classList.add('hidden');
+        todoListModal.manageContent.scrollLeft = 0;
         setTimeout(() => todoListModal.manageContent.classList.add('hidden'), 300);
         setSelectedTodoIds([]);
         todoListModal.grid.querySelectorAll('.todo-item.selected').forEach(item => item.classList.remove('selected'));
@@ -831,6 +843,16 @@ export function initializeTodoList() {
                 }
             });
         }
+    }
+    
+    const manageContent = todoListModal.manageContent;
+    if (manageContent) {
+        manageContent.addEventListener('wheel', (e) => {
+            if (isTodoManageModeActive) {
+                e.preventDefault();
+                manageContent.scrollLeft += e.deltaY;
+            }
+        }, { passive: false });
     }
 }
 
