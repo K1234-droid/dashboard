@@ -3057,7 +3057,7 @@ pointer-events: all;
     left: 0;
     width: var(--folder-sidebar-width);
     height: auto;
-    padding: 0.06rem 1rem;
+    padding: 2px 1rem;
     padding-bottom: 8.5rem;
     background-color: var(--modal-bg-color);
     border-right: 0;
@@ -4858,7 +4858,7 @@ body.dark-theme .todo-item-checkbox-modal {
       left: 0;
       width: var(--folder-sidebar-width);
       height: auto;
-      padding: 0.06rem 1rem;
+      padding: 2px 1rem;
       padding-bottom: 8.5rem;
       background-color: var(--modal-bg-color);
       border-right: 0;
@@ -5055,4 +5055,11 @@ button, a, input, textarea, .menu-btn, .theme-btn, .prompt-item, .advanced-promp
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+}
+.viewer-character-thumbnail, .image-preview, .character-selection-grid .prompt-item-img,
+#prompt-image-preview-single {
+    -webkit-touch-callout: none !important;
+    -webkit-user-select: none !important;
+    user-select: none !important;
+    pointer-events: auto;
 }
