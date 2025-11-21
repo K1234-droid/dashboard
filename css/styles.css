@@ -756,15 +756,9 @@ body.custom-background-active.greeting-hidden.description-hidden.date-hidden.tim
 body.custom-background-active.info-force-light .info-section {
   color: #242426;
 }
-body.custom-background-active.info-force-light .info-section .separator {
-  background: #242426;
-}
 
 body.custom-background-active.info-force-dark .info-section {
   color: #ffffff;
-}
-body.custom-background-active.info-force-dark .info-section .separator {
-  background: #ffffff;
 }
 
 body.custom-background-active.footer-force-dark .footer,
@@ -956,13 +950,7 @@ body::-webkit-scrollbar {
 }
 
 .separator {
-  border: 0;
-  height: 1px;
-  background: transparent;
-  opacity: 0;
-  margin: 0.5rem 0;
-  width: 100%;
-  box-sizing: border-box;
+  display: none;
 }
 
 .greeting-hidden #greeting,
@@ -1008,7 +996,7 @@ body::-webkit-scrollbar {
 
 /* ==================== STYLING TEKS ==================== */
 h1 {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 700;
   margin-bottom: -1.18rem;
 }
@@ -1030,9 +1018,9 @@ h1 {
   opacity: 0.8;
 }
 #time-container {
-  font-size: 4rem;
+  font-size: 5rem;
   font-weight: 500;
-  letter-spacing: -4px;
+  letter-spacing: -1.5px;
 }
 #time-seconds {
   opacity: 0.6;
@@ -1449,6 +1437,8 @@ body.menu-blur-disabled .modal-overlay {
 .modal-header h3 {
   margin: 0;
   font-size: 1.2rem;
+  font-family: "Poppins", "Noto Sans JP", Arial, sans-serif;
+  font-weight: 500;
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
@@ -3003,8 +2993,7 @@ pointer-events: all;
     max-width: none;
     width: auto;
   }
-  .info-section .description,
-  .info-section .separator {
+  .info-section .description {
     max-width: none;
     width: 100%;
   }
@@ -3131,13 +3120,14 @@ pointer-events: all;
 }
 @media (max-width: 660px) {
   .description {
+    padding-top: 0.2rem;
     font-size: 1rem;
   }
   #time-container {
-    font-size: 3.8rem;
+    font-size: 4.8rem;
   }
   #date {
-    font-size: 1rem;
+    font-size: 1.1rem;
   }
 }
 @media (max-width: 640px) {
@@ -3253,9 +3243,10 @@ pointer-events: all;
 }
 @media (max-width: 540px) {
   #greeting {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
   }
   .description {
+    padding-top: 0.4rem;
     font-size: 0.9rem;
   }
   #main-page-bookmark-container { 
@@ -4572,13 +4563,23 @@ body.dark-theme .todo-item-checkbox-modal {
   h1, .description, .separator, .time-info p, .main-page-bookmark-container {
     transform: translateX(0);
   }
-  #date {
-    max-width: 140px;
-  }
   .info-section { 
     right: 4rem;
     max-width: none;
     width: auto;
+  }
+  #greeting {
+    font-size: 1.2rem;
+  }
+  .description {
+    padding-top: 0.2rem;
+    font-size: 1rem;
+  }
+  #time-container {
+    font-size: 4rem;
+  }
+  #date {
+    font-size: 1rem;
   }
   #main-page-bookmark-container {
     max-height: 100px;
