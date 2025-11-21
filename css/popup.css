@@ -194,7 +194,6 @@ body {
 .result-item {
   cursor: pointer;
   border-radius: 8px;
-  border: 1px solid rgba(128, 128, 128, 0.2);
   background-color: var(--select-bg);
   padding: 12px;
   display: flex;
@@ -283,7 +282,6 @@ body {
 .disabled-message h3 {
   margin: 0 0 0.5rem 0;
   font-size: 1.2rem;
-  font-weight: 700;
   color: var(--text-color);
   opacity: 1;
 }
@@ -299,17 +297,17 @@ body {
     justify-content: flex-start;
     align-items: center;
     padding: 1rem 1.2rem;
-    border-bottom: 1px solid rgba(128, 128, 128, 0.2);
 }
 
 .disabled-message .modal-header h3 {
     margin: 0;
     font-size: 1.2rem;
-    font-weight: 700;
+    font-family: "Poppins", "Noto Sans JP", Arial, sans-serif;
+    font-weight: 500;
 }
 
 .disabled-message .modal-body {
-    padding: 1.5rem 1.2rem 0rem; 
+    padding: 1.2rem 1.2rem 0rem;
     text-align: center;
     gap: 0;
 }

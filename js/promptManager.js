@@ -236,7 +236,7 @@ export async function renderPrompts(promptsToRender = prompts) {
         menuContainer.dataset.id = p.id;
         menuContainer.innerHTML = `
             <button class="prompt-menu-option" type="button" data-action="view-image">${i18nData["prompt.menu.view"][lang] || i18nData["prompt.menu.view"]["id"]}</button>
-            <button class="prompt-menu-option" type="button" data-action="copy">${i18nData["prompt.menu.copy"][lang] || i18nData["prompt.menu.copy"]["id"]}</button>
+            <button class="prompt-menu-option" type="button" data-action="copy">${i18nData["prompt.image.copy"][lang] || i18nData["prompt.image.copy"]["id"]}</button>
             <button class="prompt-menu-option" type="button" data-action="save-image">${i18nData["prompt.menu.saveImage"][lang] || i18nData["prompt.menu.saveImage"]["id"]}</button>
             <button class="prompt-menu-option" type="button" data-action="edit">${i18nData["prompt.menu.edit"][lang] || i18nData["prompt.menu.edit"]["id"]}</button>
             <button class="prompt-menu-option" type="button" data-action="delete">${i18nData["prompt.menu.delete"][lang] || i18nData["prompt.menu.delete"]["id"]}</button>
@@ -494,6 +494,9 @@ export function handleOpenAddPromptModal() {
     addEditPromptModal.previewsContainer.classList.add('hidden');
     addEditPromptModal.imagePreviewSingle.classList.add('hidden');
     addEditPromptModal.imageHelpText.style.display = 'none';
+    addEditPromptModal.imagePreviewSingle.oncontextmenu = (e) => {
+        e.preventDefault();
+    };
 
     openModal(addEditPromptModal.overlay);
 }
@@ -529,6 +532,12 @@ export async function handleEditPrompt(promptId) {
 
     addEditPromptModal.imagePreviewSingle.classList.add('hidden');
     addEditPromptModal.imageHelpText.style.display = 'block';
+    addEditPromptModal.imagePreviewOld.oncontextmenu = (e) => {
+        e.preventDefault();
+    };
+    addEditPromptModal.imagePreviewNew.oncontextmenu = (e) => {
+        e.preventDefault();
+    };
     
     openModal(addEditPromptModal.overlay);
 }
@@ -566,7 +575,7 @@ async function appendNewPromptItem(newPrompt) {
     menuContainer.dataset.id = newPrompt.id;
     menuContainer.innerHTML = `
         <button class="prompt-menu-option" data-action="view-image">${i18nData["prompt.menu.view"][lang]}</button>
-        <button class="prompt-menu-option" data-action="copy">${i18nData["prompt.menu.copy"][lang]}</button>
+        <button class="prompt-menu-option" data-action="copy">${i18nData["prompt.image.copy"][lang]}</button>
         <button class="prompt-menu-option" data-action="save-image">${i18nData["prompt.menu.saveImage"][lang]}</button>
         <button class="prompt-menu-option" data-action="edit">${i18nData["prompt.menu.edit"][lang]}</button>
         <button class="prompt-menu-option" data-action="delete">${i18nData["prompt.menu.delete"][lang]}</button>
@@ -765,8 +774,8 @@ export function handleDeletePrompt(promptId) {
     setConfirmationModalPurpose('deletePrompt');
     setCurrentPromptId(promptId);
     const lang = languageSettings.ui;
-    confirmationModal.title.textContent = i18nData["prompt.delete.title"][lang];
-    confirmationModal.text.textContent = i18nData["prompt.delete.text"][lang];
+    confirmationModal.title.textContent = i18nData["delete.confirm.title"][lang];
+    confirmationModal.text.textContent = i18nData["delete.confirm.text"][lang];
     openModal(confirmationModal.overlay);
 }
 
@@ -964,8 +973,8 @@ export function handleDeleteSelected() {
 
     setConfirmationModalPurpose('deleteSelectedPrompts');
     const lang = languageSettings.ui;
-    confirmationModal.title.textContent = i18nData["prompt.delete.title"][lang] || i18nData["prompt.delete.title"]["id"];
-    const textFormat = i18nData["prompt.delete.selectedText"][lang] || i18nData["prompt.delete.selectedText"]["id"];
+    confirmationModal.title.textContent = i18nData["delete.confirm.title"][lang];
+    const textFormat = i18nData["delete.confirm.selectedText"][lang];
     confirmationModal.text.textContent = textFormat.replace('{count}', selectedPromptIds.length);
     openModal(confirmationModal.overlay);
 }

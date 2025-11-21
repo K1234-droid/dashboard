@@ -5,7 +5,7 @@
  */
 
 // ==================== PENGATURAN PEMBARUAN ====================
-export const CURRENT_VERSION = 'v5.0.0';
+export const CURRENT_VERSION = 'v5.1.0';
 export const GITHUB_OWNER = 'K1234-droid';
 export const GITHUB_REPO = 'dashboard';
 // ==============================================================
@@ -718,12 +718,12 @@ export const i18nData = {
     "pin.enter.title": { id: "Masukkan PIN", en: "Enter PIN", ja: "PINを入力" },
     "pin.enter.label": { id: "PIN 4 Digit", en: "4-Digit PIN", ja: "4桁のPIN" },
     "pin.enter.submit": { id: "Masuk", en: "Enter", ja: "入力" },
-    "prompt.delete.title": { id: "Konfirmasi Hapus", en: "Confirm Deletion", ja: "削除の確認" },
-    "prompt.delete.text": { id: "Apakah Anda yakin ingin menghapus gambar ini? Tindakan ini tidak dapat diurungkan.", en: "Are you sure you want to delete this image? This action cannot be undone.", ja: "この画像を削除してもよろしいですか？この操作は元に戻せません。" },
     "prompt.delete.inUseError": { id: "Gambar ini tidak dapat dihapus karena digunakan di dalam Catatan. Mohon hapus dari Catatan terlebih dahulu.", en: "This image cannot be deleted because it is used in a Note. Please remove it from the Note first.", ja: "この画像はノートで使用されているため削除できません。まずノートから削除してください。" },
-    "prompt.delete.selectedText": { id: "Apakah Anda yakin ingin menghapus {count} item yang dipilih? Tindakan ini tidak dapat diurungkan.", en: "Are you sure you want to delete the {count} selected items? This action cannot be undone.", ja: "選択した{count}個の項目を削除してもよろしいですか？この操作は元に戻せません。" },
     "prompt.delete.cancel": { id: "Batal", en: "Cancel", ja: "キャンセル" },
     "prompt.delete.confirm": { id: "Ya, Hapus", en: "Yes, Delete", ja: "はい、削除します" },
+    "delete.confirm.title": { id: "Konfirmasi Hapus", en: "Confirm Deletion", ja: "削除の確認" },
+    "delete.confirm.text": { id: "Apakah Anda yakin ingin menghapus item ini? Tindakan ini tidak dapat diurungkan.", en: "Are you sure you want to delete this item? This action cannot be undone.", ja: "この項目を削除してもよろしいですか？この操作は元に戻せません。" },
+    "delete.confirm.selectedText": { id: "Apakah Anda yakin ingin menghapus {count} item yang dipilih? Tindakan ini tidak dapat diurungkan.", en: "Are you sure you want to delete the {count} selected items? This action cannot be undone.", ja: "選択した{count}個の項目を削除してもよろしいですか？この操作は元に戻せません。" },
     "settings.pin.feedback.saved": { id: "PIN berhasil disimpan!", en: "PIN saved successfully!", ja: "PINを保存しました！" },
     "settings.pin.feedback.removed": { id: "PIN berhasil dihapus.", en: "PIN removed successfully.", ja: "PINを削除しました。" },
     "settings.pin.feedback.error": { id: "PIN harus 4 digit angka.", en: "PIN must be 4 digits.", ja: "PINは4桁の数字にしてください。" },
@@ -751,6 +751,7 @@ export const i18nData = {
     "advanced.prompt.characterLabel": { id: "Pilih Gambar", en: "Select Image", ja: "画像を選択" },
     "advanced.prompt.addComma": { id: "Tambahkan Koma", en: "Add Commas", ja: "コンマを追加" },
     "prompt.menu.copy": { id: "Salin Teks", en: "Copy Text", ja: "テキストをコピー" },
+    "prompt.image.copy": { id: "Salin Deskripsi", en: "Copy Description", ja: "説明をコピー" },
     "prompt.menu.saveImage": { id: "Simpan Gambar", en: "Save Image", ja: "画像を保存" },
     "prompt.menu.copyChar": { id: "Salin Deskripsi Gambar", en: "Copy Image Description", ja: "画像の説明をコピー" },
     "prompt.menu.edit": { id: "Edit", en: "Edit", ja: "編集" },
@@ -830,9 +831,6 @@ export const i18nData = {
     "popup.copy.localPathSuccess": { id: "Path file lokal disalin! Tempel di File Explorer.", en: "Local file path copied! Paste it in File Explorer.", ja: "ローカルファイルパスがコピーされました！エクスプローラーに貼り付けてください。" },
     "bookmark.menu.edit": { id: "Edit", en: "Edit", ja: "編集" },
     "bookmark.menu.delete": { id: "Hapus", en: "Delete", ja: "削除" },
-    "bookmark.delete.title": { id: "Hapus Bookmark?", en: "Delete Bookmark?", ja: "ブックマークを削除しますか？" },
-    "bookmark.delete.text": { id: "Apakah Anda yakin ingin menghapus bookmark ini?", en: "Are you sure you want to delete this bookmark?", ja: "このブックマークを削除してもよろしいですか？" },
-    "bookmark.delete.selectedText": { id: "Apakah Anda yakin ingin menghapus {count} bookmark yang dipilih? Tindakan ini tidak dapat diurungkan.", en: "Are you sure you want to delete the {count} selected bookmarks? This action cannot be undone.", ja: "選択した{count}個のブックマークを削除してもよろしいですか？この操作は元に戻せません。" },
     "settings.bookmark.openAction": { id: "Aksi Membuka Situs", en: "Bookmark Open Action", ja: "ブックマークを開くアクション" },
     "settings.bookmark.openAction.direct": { id: "Buka Langsung", en: "Open Directly", ja: "直接開く" },
     "settings.bookmark.openAction.newTab": { id: "Tab Baru", en: "New Tab", ja: "新しいタブ" },
@@ -863,10 +861,6 @@ export const i18nData = {
     "todo.delete.success": { id: "Daftar tugas berhasil dihapus!", en: "To-do deleted successfully!", ja: "タスクリストが正常に削除されました！" },
     "todo.menu.edit": { id: "Edit", en: "Edit", ja: "編集" },
     "todo.menu.delete": { id: "Hapus", en: "Delete", ja: "削除" },
-    "todo.delete.title": { id: "Hapus Daftar Tugas?", en: "Delete To-do?", ja: "タスクリスト削除？" },
-    "todo.delete.text": { id: "Apakah Anda yakin ingin menghapus item daftar tugas ini?", en: "Are you sure you want to delete this to-do item?", ja: "このタスクリストの項目を削除してもよろしいですか？" },
-    "todo.delete.selectedTitle": { id: "Hapus Daftar Tugas yang Dipilih?", en: "Delete Selected To-dos?", ja: "選択したタスクリストを削除？" },
-    "todo.delete.selectedText": { id: "Apakah Anda yakin ingin menghapus {count} item daftar tugas yang dipilih? Tindakan ini tidak dapat diurungkan.", en: "Are you sure you want to delete the {count} selected to-do items? This action cannot be undone.", ja: "選択した {count} 件のタスクリスト項目を削除してもよろしいですか？この操作は元に戻せません。" },
     "todo.completedTitle": { id: "Tugas Selesai", en: "Completed Tasks", ja: "完了したタスク" },
     // Prompt Builder Folder
     "prompt.all": { id: "Semua", en: "All", ja: "すべて" },
@@ -880,8 +874,6 @@ export const i18nData = {
     "folder.error.nameExists": { id: "Nama folder sudah ada.", en: "Folder name already exists.", ja: "フォルダー名はすでに存在します。" },
     "folder.save.success": { id: "Folder berhasil disimpan!", en: "Folder saved successfully!", ja: "フォルダーが正常に保存されました！" },
     "folder.edit.success": { id: "Folder berhasil diperbarui!", en: "Folder updated successfully!", ja: "フォルダーが正常に更新されました！" },
-    "folder.delete.title": { id: "Hapus Folder?", en: "Delete Folder?", ja: "フォルダーを削除しますか？" },
-    "folder.delete.text": { id: "Anda yakin ingin menghapus folder \"{name}\"? Catatan di dalamnya tidak akan dihapus, tetapi akan dipindahkan ke \"Semua\".", en: "Are you sure you want to delete the \"{name}\" folder? Notes inside it will not be deleted, but will be moved to \"All\".", ja: "「{name}」フォルダーを削除してもよろしいですか？ 中のノートは削除されず、「すべて」に移動します。" },
     "folder.delete.success": { id: "Folder berhasil dihapus!", en: "Folder deleted successfully!", ja: "フォルダーが正常に削除されました！" },
     "folder.label.select": { id: "Folder", en: "Folder", ja: "フォルダー" },
     "folder.noFolder": { id: "Tidak ada folder", en: "No Folder", ja: "フォルダーなし" },
@@ -891,6 +883,8 @@ export const i18nData = {
     "prompt.unarchive": { id: "Batal Arsip", en: "Unarchive", ja: "アーカイブ解除" },
     "prompt.menu.move": { id: "Pindahkan", en: "Move", ja: "移動" },
     "move.error.targetRequired": { id: "Anda harus memilih folder tujuan yang valid.", en: "You must select a valid destination folder.", ja: "有効な移動先フォルダを選択する必要があります。" },
+    "delete.folder.text": { id: "Apakah Anda yakin ingin menghapus item ini? Catatan di dalamnya tidak akan dihapus, tetapi akan dipindahkan ke \"Semua\".", en: "Are you sure you want to delete this item? Notes inside will not be deleted, but will be moved to \"All\".", ja: "この項目を削除してもよろしいですか？中のノートは削除されず、「すべて」に移動します。" },
+    "delete.folder.selectedText": { id: "Apakah Anda yakin ingin menghapus {count} item yang dipilih? Catatan di dalamnya tidak akan dihapus, tetapi akan dipindahkan ke \"Semua\".", en: "Are you sure you want to delete the {count} selected items? Notes inside will not be deleted, but will be moved to \"All\".", ja: "選択した{count}個の項目を削除してもよろしいですか？中のノートは削除されず、「すべて」に移動します。" },
     // Import and Export Data
     "settings.tabs.data": { id: "Data", en: "Data", ja: "データ" },
     "data.manageData.title": { id: "Impor dan Ekspor", en: "Import and Export", ja: "輸入と輸出" },
@@ -927,7 +921,11 @@ export const i18nData = {
     "data.button.deleteHiddenData": { id: "Hapus Data Catatan & Gambar", en: "Delete Notes & Images Data", ja: "ノートと画像データを削除" },
     "data.button.deleteTodoListData": { id: "Hapus Data Daftar Tugas", en: "Delete To-do List Data", ja: "タスクリストのデータ削除" },
     "confirm.delete.user.title": { id: "Hapus Semua Data Pengguna?", en: "Delete All User Data?", ja: "すべてのユーザーデータを削除しますか？" },
-    "confirm.delete.user.text": { id: "Tindakan ini akan menghapus semua pengaturan, bookmark, dan username Anda secara permanen. Apakah Anda yakin?", en: "This will permanently delete all your settings, bookmarks, and username. Are you sure?", ja: "これにより、すべての設定、ブックマーク、およびユーザー名が完全に削除されます。よろしいですか？" },
+    "confirm.delete.user.text": { 
+        id: "Tindakan ini akan menghapus data-data berikut:<ul><li>Pengaturan</li><li>Username</li><li>Bookmark</li><li>Daftar Tugas</li></ul>Apakah Anda yakin?", 
+        en: "This action will delete the following data:<ul><li>Settings</li><li>Username</li><li>Bookmarks</li><li>To-do List</li></ul>Are you sure?", 
+        ja: "この操作により、以下のデータが削除されます：<ul><li>設定</li><li>ユーザー名</li><li>ブックマーク</li><li>やることリスト</li></ul>よろしいですか？" 
+    },
     "confirm.delete.hidden.pinLabel": { id: "Masukkan PIN untuk menghapus semua data catatan & gambar", en: "Enter PIN to delete all notes & images data", ja: "すべてのノートと画像データを削除するにはPINを入力してください" },
     "data.delete.user.success": { id: "Data pengguna berhasil dihapus! Memuat ulang halaman.", en: "User data deleted successfully! Reload the page.", ja: "ユーザーデータを正常に削除しました！ページを再読み込みしてください。" },
     "data.delete.hidden.success": { id: "Data catatan & gambar berhasil dihapus! Memuat ulang halaman.", en: "Notes & images data deleted successfully! Reload the page.", ja: "ノートと画像データが正常に削除されました！ページを再読み込みしてください。" },
@@ -938,11 +936,19 @@ export const i18nData = {
     "data.button.clearHiddenCache": { id: "Hapus Cache Galeri Gambar", en: "Clear Image Gallery Cache", ja: "画像ギャラリーのキャッシュをクリアする" },
     "data.calculating": { id: "Menghitung...", en: "Calculating...", ja: "計算中..." },
     "confirm.delete.hidden.title": { id: "Hapus Semua Data Catatan & Gambar?", en: "Delete All Notes & Images Data?", ja: "すべてのノートと画像データを削除しますか？" },
-    "confirm.delete.hidden.text": { id: "Tindakan ini akan menghapus semua data catatan dan PIN Anda secara permanen. Apakah Anda yakin?", en: "This will permanently delete all your note data and PINs. Are you sure?", ja: "これにより、すべてのノートデータとPINが完全に削除されます。よろしいですか？" },
+    "confirm.delete.hidden.text": { 
+        id: "Tindakan ini akan menghapus data-data berikut:<ul><li>Daftar Catatan</li><li>Galeri Gambar</li><li>PIN Keamanan</li></ul>Apakah Anda yakin?", 
+        en: "This action will delete the following data:<ul><li>Notes List</li><li>Image Gallery</li><li>Security PIN</li></ul>Are you sure?", 
+        ja: "この操作により、以下のデータが削除されます：<ul><li>ノートリスト</li><li>画像ギャラリー</li><li>セキュリティPIN</li></ul>よろしいですか？" 
+    },
     "settings.hidden.notEnabled": { id: "Anda belum mengaktifkan fitur keamanan catatan.", en: "You haven't enabled the note security feature yet.", ja: "メモのセキュリティ機能がまだ有効になっていません。" },
     "settings.hidden.accessTip": { id: "Aktifkan catatan di menu \"Tampilan\" terlebih dahulu untuk mengakses fitur ini.", en: "Enable notes in the \"Display\" menu first to access this feature.", ja: "この機能にアクセスするには、「表示」メニューでメモを有効にしてください。" },
     "confirm.delete.todo.title": { id: "Hapus Semua Data Daftar Tugas?", en: "Delete All To-do Data?", ja: "すべてのタスクリストデータを削除？" },
-    "confirm.delete.todo.text": { id: "Tindakan ini akan menghapus semua data daftar tugas Anda secara permanen. Apakah Anda yakin?", en: "This will permanently delete all your to-do list data. Are you sure?", ja: "この操作により、すべてのタスクリストデータが完全に削除されます。よろしいですか？" },
+    "confirm.delete.todo.text": { 
+        id: "Tindakan ini akan menghapus data-data berikut:<ul><li>Daftar Tugas</li></ul>Apakah Anda yakin?", 
+        en: "This action will delete the following data:<ul><li>To-do List</li></ul>Are you sure?", 
+        ja: "この操作により、以下のデータが削除されます：<ul><li>やることリスト</li></ul>よろしいですか？" 
+    },
     "data.delete.todo.success": { id: "Data daftar tugas berhasil dihapus! Memuat ulang halaman.", en: "To-do List data deleted successfully! Reload the page.", ja: "タスクリストのデータが正常に削除されました！ページを再読み込みしてください。" },
     // Pop-up Feature
     "pin.enter.confirmFeatureTitle": { id: "Konfirmasi Fitur", en: "Feature Confirmation", ja: "機能の確認" },
@@ -953,7 +959,6 @@ export const i18nData = {
     "popup.success.disabled": { id: "Pop-up pencari catatan & gambar dinonaktifkan.", en: "Note & image finder pop-up disabled.", ja: "ノートと画像の検索ポップアップが無効になりました。" },
     "popup.featureDisabled.title": { id: "Fitur Dinonaktifkan", en: "Feature Disabled", ja: "機能が無効です" },
     "popup.featureDisabled.message": { id: "Fitur pop-up pencari dinonaktifkan. Silakan aktifkan melalui \"Pengaturan\" di menu data.", en: "The search pop-up feature is disabled. Please enable it via \"Settings\" in the data menu.", ja: "検索ポップアップ機能は無効になっています。データメニューの「設定」から有効にしてください。" },
-    "popup.search.placeholder": { id: "Cari gambar atau catatan...", en: "Search for images or notes...", ja: "画像またはノートを検索..." },
     "popup.type.character": { id: "Deskripsi Gambar", en: "Image Description", ja: "画像の説明" },
     "popup.type.builder": { id: "Catatan", en: "Note", ja: "ノート" },
     "settings.search.enableBookmark": { id: "Bookmark", en: "Bookmark", ja: "ブックマーク" },

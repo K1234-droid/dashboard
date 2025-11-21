@@ -543,8 +543,8 @@ export async function handleSaveTodo() {
 function handleDeleteTodo() {
     setConfirmationModalPurpose('deleteTodo');
     const lang = languageSettings.ui;
-    confirmationModal.title.textContent = i18nData["todo.delete.title"][lang];
-    confirmationModal.text.textContent = i18nData["todo.delete.text"][lang];
+    confirmationModal.title.textContent = i18nData["delete.confirm.title"][lang];
+    confirmationModal.text.textContent = i18nData["delete.confirm.text"][lang];
     openModal(confirmationModal.overlay);
 }
 
@@ -697,8 +697,8 @@ export function handleDeleteSelected() {
     if (selectedTodoIds.length === 0) return;
     setConfirmationModalPurpose('deleteSelectedTodos');
     const lang = languageSettings.ui;
-    confirmationModal.title.textContent = i18nData["todo.delete.selectedTitle"][lang];
-    const textFormat = i18nData["todo.delete.selectedText"][lang];
+    confirmationModal.title.textContent = i18nData["delete.confirm.title"][lang];
+    const textFormat = i18nData["delete.confirm.selectedText"][lang];
     confirmationModal.text.textContent = textFormat.replace('{count}', selectedTodoIds.length);
     openModal(confirmationModal.overlay);
 }

@@ -1,6 +1,5 @@
 /* ==================== CSS VARIABLES & THEMES ==================== */
 :root {
-    /* Light Mode (Default) */
     --bg-gradient-start: rgba(255, 255, 255, 0.3);
     --bg-gradient-end: #f57a7e;
     --modal-bg-color: #ffffff;
@@ -12,7 +11,6 @@
 }
 
 body.dark-theme {
-    /* Dark Mode (Manual Override from JS) */
     --bg-gradient-start: #513430;
     --bg-gradient-end: #92272b;
     --modal-bg-color: #513430;
@@ -54,7 +52,6 @@ body.dark-theme {
     opacity: 0.9;
 }
 
-/* Consistent button style */
 #show-tutorial-btn {
     padding: 10px 24px;
     background-color: #c52026;
@@ -71,12 +68,11 @@ body.dark-theme {
     opacity: 0.9;
 }
 
-/* Consistent modal style with animations */
 #tutorial-modal-overlay {
      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
      background-color: rgba(0, 0, 0, 0.3);
-     -webkit-backdrop-filter: blur(10px); /* Prefix first */
-     backdrop-filter: blur(10px); /* Standard last */
+     -webkit-backdrop-filter: blur(10px);
+     backdrop-filter: blur(10px);
      display: flex; justify-content: center; align-items: center;
      z-index: 101; padding: 1rem; box-sizing: border-box;
      opacity: 1;
@@ -92,7 +88,6 @@ body.dark-theme {
     border-radius: 12px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     width: 90%; max-width: 380px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
     font-size: 1rem;
     transform: scale(1) translateY(0);
     transition: opacity 0.2s ease, transform 0.2s ease;
@@ -106,13 +101,15 @@ body.dark-theme {
 }
 #tutorial-modal-overlay .modal-header {
     display: flex; justify-content: space-between; align-items: center;
-    padding: 1rem 1.5rem; border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+    padding: 1rem 1.5rem;
     text-align: left;
     flex-shrink: 0;
 }
 #tutorial-modal-overlay .modal-header h3 {
     margin: 0;
     font-size: 1.2rem;
+    font-family: "Poppins", "Noto Sans JP", Arial, sans-serif;
+    font-weight: 500;
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
@@ -122,28 +119,25 @@ body.dark-theme {
 }
 #tutorial-modal-overlay .close-btn { background: none; border: none; font-size: 2rem; color: #242426; cursor: pointer; line-height: 1; }
 #tutorial-modal-overlay .modal-body { 
-    padding: 1.5rem; 
+    padding: 0 1.5rem 1.5rem 1.5rem;
     overflow-y: auto; 
     text-align: left;
     flex-grow: 1;
     min-height: 0;
 }
 
-/* Fix for alignment issues on smaller screens */
 .blocker-content .blocker-title,
 .blocker-content .blocker-message {
     transform: none;
     text-align: center;
 }
 
-/* Ensure the whole container is centered */
 #file-protocol-blocker {
     justify-content: center;
     align-items: center;
     text-align: center;
 }
 
-/* Consistent sub-title style */
 #tutorial-modal-overlay .sub-judul {
     font-size: 1.1rem;
     font-weight: 500;
@@ -170,7 +164,6 @@ body.dark-theme {
     margin-top: 1.5rem;
 }
 
-/* Dark Mode Support */
 @media (prefers-color-scheme: dark) {
     #file-protocol-blocker {
         background: linear-gradient(to left, #92272b, #513430);

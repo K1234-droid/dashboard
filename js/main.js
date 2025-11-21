@@ -739,7 +739,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             if (source === 'grid') {
                 menuItems = [
-                    { action: 'copy', key: 'prompt.menu.copy' },
+                    { action: 'copy', key: 'prompt.image.copy' },
                     { action: 'save-image', key: 'prompt.menu.saveImage' },
                     { action: 'edit', key: 'prompt.menu.edit' },
                     { action: 'delete', key: 'prompt.menu.delete' }
@@ -1188,7 +1188,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             setConfirmationModalPurpose('deleteUserData');
             const lang = languageSettings.ui;
             confirmationModal.title.textContent = i18nData["confirm.delete.user.title"][lang];
-            confirmationModal.text.textContent = i18nData["confirm.delete.user.text"][lang];
+            confirmationModal.text.innerHTML = i18nData["confirm.delete.user.text"][lang];
             openModal(confirmationModal.overlay);
         });
     }
@@ -1202,7 +1202,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             setConfirmationModalPurpose('deleteHiddenData');
             const lang = languageSettings.ui;
             confirmationModal.title.textContent = i18nData["confirm.delete.hidden.title"][lang];
-            confirmationModal.text.textContent = i18nData["confirm.delete.hidden.text"][lang];
+            confirmationModal.text.innerHTML = i18nData["confirm.delete.hidden.text"][lang];
             openModal(confirmationModal.overlay);
         });
     }
@@ -1220,7 +1220,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             setConfirmationModalPurpose('deleteTodoListData');
             const lang = languageSettings.ui;
             confirmationModal.title.textContent = i18nData["confirm.delete.todo.title"][lang];
-            confirmationModal.text.textContent = i18nData["confirm.delete.todo.text"][lang];
+            confirmationModal.text.innerHTML = i18nData["confirm.delete.todo.text"][lang];
             openModal(confirmationModal.overlay);
         });
     }

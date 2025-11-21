@@ -239,6 +239,10 @@ function createCharacterItem(prompt) {
              }
         })();
     }
+
+    item.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+    });
     
     item.addEventListener('click', () => {
         const id = parseInt(item.dataset.id, 10);
@@ -848,6 +852,10 @@ export function showAdvancedPromptViewer(prompt) {
                 const thumb = document.createElement('img');
                 thumb.className = 'viewer-character-thumbnail img-lazy-load';
 
+                thumb.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                });
+
                 imageWrapper.appendChild(thumb);
 
                 const menuBtn = document.createElement('button');
@@ -1132,8 +1140,8 @@ export function handleDeleteAdvancedPrompt(promptId) {
     setConfirmationModalPurpose('deleteAdvancedPrompt');
     setCurrentAdvancedPromptId(promptId);
     const lang = languageSettings.ui;
-    confirmationModal.title.textContent = i18nData["prompt.delete.title"][lang];
-    confirmationModal.text.textContent = i18nData["prompt.delete.text"][lang];
+    confirmationModal.title.textContent = i18nData["delete.confirm.title"][lang];
+    confirmationModal.text.textContent = i18nData["delete.confirm.text"][lang];
     openModal(confirmationModal.overlay);
 }
 
@@ -1337,8 +1345,8 @@ export function handleAdvancedDeleteSelected() {
     if (selectedAdvancedPromptIds.length === 0) return;
     setConfirmationModalPurpose('deleteSelectedAdvancedPrompts');
     const lang = languageSettings.ui;
-    confirmationModal.title.textContent = i18nData["prompt.delete.title"][lang];
-    const textFormat = i18nData["prompt.delete.selectedText"][lang];
+    confirmationModal.title.textContent = i18nData["delete.confirm.title"][lang];
+    const textFormat = i18nData["delete.confirm.selectedText"][lang];
     confirmationModal.text.textContent = textFormat.replace('{count}', selectedAdvancedPromptIds.length);
     openModal(confirmationModal.overlay);
 }
@@ -1783,9 +1791,8 @@ export function confirmDeleteFolder(folderId) {
     setConfirmationModalPurpose('deleteFolder');
 
     const lang = languageSettings.ui;
-    confirmationModal.title.textContent = i18nData["folder.delete.title"][lang];
-    let text = i18nData["folder.delete.text"][lang];
-    confirmationModal.text.textContent = text.replace('{name}', folder.name);
+    confirmationModal.title.textContent = i18nData["delete.confirm.title"][lang];
+    confirmationModal.text.textContent = i18nData["delete.folder.text"][lang];
 
     openModal(confirmationModal.overlay);
 }
@@ -1991,8 +1998,8 @@ export function handleFolderDeleteSelected() {
     if (selectedFolderIds.length === 0) return;
     setConfirmationModalPurpose('deleteSelectedFolders');
     const lang = languageSettings.ui;
-    confirmationModal.title.textContent = i18nData["folder.delete.title"][lang];
-    const textFormat = i18nData["prompt.delete.selectedText"][lang];
+    confirmationModal.title.textContent = i18nData["delete.confirm.title"][lang];
+    const textFormat = i18nData["delete.folder.selectedText"][lang];
     confirmationModal.text.textContent = textFormat.replace('{count}', selectedFolderIds.length);
     openModal(confirmationModal.overlay);
 }

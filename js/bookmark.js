@@ -505,8 +505,8 @@ export async function handleSaveBookmark() {
 function handleDeleteBookmark() {
     setConfirmationModalPurpose('deleteBookmark');
     const lang = languageSettings.ui;
-    confirmationModal.title.textContent = i18nData["bookmark.delete.title"][lang];
-    confirmationModal.text.textContent = i18nData["bookmark.delete.text"][lang];
+    confirmationModal.title.textContent = i18nData["delete.confirm.title"][lang];
+    confirmationModal.text.textContent = i18nData["delete.confirm.text"][lang];
     openModal(confirmationModal.overlay);
 }
 
@@ -664,8 +664,8 @@ export function handleDeleteSelected() {
     if (selectedBookmarkIds.length === 0) return;
     setConfirmationModalPurpose('deleteSelectedBookmarks');
     const lang = languageSettings.ui;
-    confirmationModal.title.textContent = i18nData["prompt.delete.title"][lang];
-    const textFormat = i18nData["bookmark.delete.selectedText"][lang];
+    confirmationModal.title.textContent = i18nData["delete.confirm.title"][lang];
+    const textFormat = i18nData["delete.confirm.selectedText"][lang];
     confirmationModal.text.textContent = textFormat.replace('{count}', selectedBookmarkIds.length);
     openModal(confirmationModal.overlay);
 }
