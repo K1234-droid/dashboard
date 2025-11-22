@@ -8,9 +8,7 @@ const FAVICONS_STORE_NAME = 'faviconsStore';
 let db;
 
 /**
- * Menginisialisasi dan membuka koneksi ke database IndexedDB.
- * Membuat object store jika belum ada.
- * @returns {Promise<IDBDatabase>} Promise yang resolve dengan instance database.
+ * @returns {Promise<IDBDatabase>}
  */
 export function initDB() {
     return new Promise((resolve, reject) => {
@@ -49,9 +47,8 @@ export function initDB() {
 }
 
 /**
- * Menyimpan satu item data (key-value pair) ke IndexedDB.
- * @param {string} key - Kunci dari data yang akan disimpan.
- * @param {any} value - Nilai dari data yang akan disimpan.
+ * @param {string} key
+ * @param {any} value
  * @returns {Promise<void>}
  */
 export async function setItem(key, value) {
@@ -70,9 +67,8 @@ export async function setItem(key, value) {
 }
 
 /**
- * Mengambil satu atau beberapa item dari IndexedDB berdasarkan kunci.
- * @param {string[]} keys - Array berisi kunci yang ingin diambil datanya.
- * @returns {Promise<Object>} Object yang berisi pasangan key-value yang ditemukan.
+ * @param {string[]} keys
+ * @returns {Promise<Object>}
  */
 export async function getItems(keys) {
     const dbInstance = await initDB();
@@ -104,8 +100,7 @@ export async function getItems(keys) {
 }
 
 /**
- * Menyimpan atau memperbarui satu prompt di promptsStore.
- * @param {object} promptData - Objek prompt lengkap termasuk semua Blob.
+ * @param {object} promptData
  * @returns {Promise<void>}
  */
 export async function savePrompt(promptData) {
@@ -120,8 +115,7 @@ export async function savePrompt(promptData) {
 }
 
 /**
- * Mengambil semua data prompt TANPA blob (hanya metadata).
- * @returns {Promise<object[]>} Array objek prompt yang hanya berisi metadata.
+ * @returns {Promise<object[]>}
  */
 export async function getAllPromptMetadata() {
     const dbInstance = await initDB();
@@ -146,8 +140,7 @@ export async function getAllPromptMetadata() {
 }
 
 /**
- * Mengambil Blob spesifik untuk satu prompt.
- * @param {number} promptId - ID dari prompt.
+ * @param {number} promptId
  * @param {'imageBlobThumbnail' | 'imageBlobViewer' | 'imageBlobOriginal'} blobType
  * @returns {Promise<Blob|null>}
  */
@@ -169,8 +162,7 @@ export async function getPromptBlob(promptId, blobType) {
 }
 
 /**
- * Menghapus satu prompt dari database.
- * @param {number} promptId - ID dari prompt yang akan dihapus.
+ * @param {number} promptId
  * @returns {Promise<void>}
  */
 export async function deletePromptFromDB(promptId) {
@@ -185,8 +177,7 @@ export async function deletePromptFromDB(promptId) {
 }
 
 /**
- * Mengambil satu objek prompt lengkap (termasuk semua blob) dari database.
- * @param {number} promptId - ID dari prompt yang akan diambil.
+ * @param {number} promptId
  * @returns {Promise<object|null>}
  */
 export async function getFullPrompt(promptId) {
@@ -203,8 +194,7 @@ export async function getFullPrompt(promptId) {
 }
 
 /**
- * Menghapus semua data dari object store tertentu.
- * @param {string} storeName - Nama object store yang akan dibersihkan.
+ * @param {string} storeName
  * @returns {Promise<void>}
  */
 export async function clearStore(storeName) {

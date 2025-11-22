@@ -1,13 +1,15 @@
 import {
-    saveSetting, getAllSettings, getAllPromptMetadata, getFullPrompt, getPromptBlob, savePrompt, deletePromptDB, getWallpaperFromCache, saveWallpaperToCache
+    saveSetting, getAllSettings, getAllPromptMetadata, getFullPrompt, getPromptBlob, savePrompt, deletePromptDB,
+    getWallpaperFromCache, saveWallpaperToCache, clearTemporaryCacheOnLoad
 } from './storage.js';
 import { showToast, resizeImage, log } from './utils.js';
 import {
     userPIN, setPinModalPurpose, languageSettings, i18nData, pinEnterModal, confirmationMergeReplaceModal,
-    setTempImportData, tempImportData, advancedPrompts, currentUser, bookmarks, confirmationBookmarkMergeModal, setTempUserImportData,
-    tempUserImportData, setIsDataOperationInProgress, todoList
+    setTempImportData, tempImportData, advancedPrompts, currentUser, bookmarks, confirmationBookmarkMergeModal,
+    setTempUserImportData, tempUserImportData, setIsDataOperationInProgress, todoList
 } from './config.js';
-import { openModal, closeModal, showInfoModal, showProgressModal, updateProgress, hideProgressModal, showLoadingModal, hideLoadingModal } from './ui.js';
+import { openModal, closeModal, showInfoModal, showProgressModal, updateProgress, hideProgressModal, showLoadingModal,
+    hideLoadingModal } from './ui.js';
 
 // =================== FUNGSI UTILITAS LOKAL ===================
 
@@ -89,6 +91,7 @@ export async function exportUserData() {
         log('error', 'log.error.wallpaperExportFailed', {}, error);
         showToast('export.failed');
     } finally {
+        await clearTemporaryCacheOnLoad();
         setTimeout(hideProgressModal, 500);
         setIsDataOperationInProgress(false);
     }
@@ -321,6 +324,7 @@ export async function proceedWithHiddenDataExport() {
         log('error', 'log.error.exportHiddenFailed', {}, error);
         showToast('export.failed');
     } finally {
+        await clearTemporaryCacheOnLoad();
         setTimeout(hideProgressModal, 500);
         setIsDataOperationInProgress(false);
     }

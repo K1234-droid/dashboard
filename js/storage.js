@@ -9,9 +9,6 @@ const STORE_NAME = 'settings';
 const PROMPTS_STORE_NAME = 'promptsStore';
 
 /**
- * Membersihkan semua cache sementara (yang tidak esensial untuk tampilan awal)
- * dari prompt-blob-cache saat halaman dimuat.
- * Ini menggunakan pendekatan "whitelist" untuk menjaga cache utama.
  * @returns {Promise<void>}
  */
 export async function clearTemporaryCacheOnLoad() {
@@ -43,8 +40,7 @@ export async function clearTemporaryCacheOnLoad() {
 }
 
 /**
- * Mengambil Blob dari Cache API.
- * @param {number} promptId - ID dari prompt.
+ * @param {number} promptId
  * @param {'imageBlobThumbnail' | 'imageBlobViewer' | 'imageBlobIcon'} blobType
  * @returns {Promise<Blob|null>}
  */
@@ -69,10 +65,9 @@ async function getBlobFromCache(promptId, blobType) {
 }
 
 /**
- * Menyimpan Blob ke Cache API menggunakan URL dummy yang aman.
- * @param {number} promptId - ID dari prompt.
+ * @param {number} promptId
  * @param {'imageBlobThumbnail' | 'imageBlobViewer' | 'imageBlobIcon'} blobType
- * @param {Blob} blob - Blob yang akan disimpan.
+ * @param {Blob} blob
  * @returns {Promise<void>}
  */
 export async function saveBlobToCache(promptId, blobType, blob) {
@@ -101,8 +96,7 @@ export async function saveBlobToCache(promptId, blobType, blob) {
 }
 
 /**
- * Menghapus Blob dari Cache API.
- * @param {number} promptId - ID dari prompt.
+ * @param {number} promptId
  * @param {'imageBlobThumbnail' | 'imageBlobViewer' | 'imageBlobIcon' | 'all'} blobType
  * @returns {Promise<void>}
  */
@@ -126,8 +120,7 @@ async function deleteBlobFromCache(promptId, blobType = 'all') {
 }
 
 /**
- * Menghapus SATU jenis Blob spesifik dari Cache API untuk sebuah prompt.
- * @param {number} promptId - ID dari prompt.
+ * @param {number} promptId
  * @param {'imageBlobThumbnail' | 'imageBlobViewer' | 'imageBlobIcon'} blobType
  * @returns {Promise<void>}
  */
@@ -145,9 +138,7 @@ export async function deletePromptBlobFromCache(promptId, blobType) {
 }
 
 /**
- * Menghapus SEMUA Blob yang terkait dengan prompt dari cache.
- * Dipanggil saat menghapus sebuah prompt.
- * @param {number} promptId - ID dari prompt yang dihapus.
+ * @param {number} promptId
  * @returns {Promise<void>}
  */
 export async function deletePromptCache(promptId) {
@@ -155,9 +146,8 @@ export async function deletePromptCache(promptId) {
 }
 
 /**
- * Menyimpan sebuah pengaturan ke IndexedDB.
- * @param {string} key - Kunci pengaturan (e.g., 'username').
- * @param {any} value - Nilai pengaturan.
+ * @param {string} key
+ * @param {any} value
  * @returns {Promise<void>}
  */
 export async function saveSetting(key, value) {
@@ -165,9 +155,8 @@ export async function saveSetting(key, value) {
 }
 
 /**
- * Memuat beberapa pengaturan dari IndexedDB.
- * @param {string[]} keys - Array kunci pengaturan yang ingin dimuat.
- * @returns {Promise<Object>} Sebuah promise yang resolve dengan objek pengaturan.
+ * @param {string[]} keys
+ * @returns {Promise<Object>}
  */
 export async function loadSettings(keys) {
     return getItems(keys);
@@ -182,10 +171,9 @@ export async function getAllPromptMetadata() {
 }
 
 /**
- * Mengambil Blob spesifik untuk satu prompt, dengan prioritas Cache API.
- * @param {number} promptId - ID dari prompt.
+ * @param {number} promptId
  * @param {'imageBlobThumbnail' | 'imageBlobViewer' | 'imageBlobIcon'} blobType
- * @param {boolean} forceRefresh - Jika true, akan memaksa pengambilan dari IndexedDB.
+ * @param {boolean} forceRefresh
  * @returns {Promise<Blob|null>}
  */
 export async function getPromptBlob(promptId, blobType, forceRefresh = false) {
@@ -213,9 +201,8 @@ export async function getFullPrompt(promptId) {
 }
 
 /**
- * Menyimpan blob favicon ke Cache API.
- * @param {string} domain - Domain URL sebagai kunci.
- * @param {Blob} blob - Blob gambar favicon.
+ * @param {string} domain
+ * @param {Blob} blob
  */
 export async function saveFaviconToCache(domain, blob) {
     if (!('caches' in window)) return;
@@ -233,8 +220,7 @@ export async function saveFaviconToCache(domain, blob) {
 }
 
 /**
- * Mengambil blob favicon dari Cache API.
- * @param {string} domain - Domain URL.
+ * @param {string} domain
  * @returns {Promise<Blob|null>}
  */
 export async function getFaviconFromCache(domain) {
@@ -251,8 +237,7 @@ export async function getFaviconFromCache(domain) {
 }
 
 /**
- * Menghapus blob favicon dari Cache API.
- * @param {string} domain - Domain URL.
+ * @param {string} domain
  */
 export async function deleteFaviconFromCache(domain) {
     if (!('caches' in window)) return;
@@ -266,16 +251,14 @@ export async function deleteFaviconFromCache(domain) {
 }
 
 /**
- * Alias untuk loadSettings untuk kompatibilitas dengan impor di file lain.
- * @param {string[]} keys - Array dari kunci pengaturan yang ingin diambil.
- * @returns {Promise<Object>} Sebuah promise yang resolve dengan objek pengaturan.
+ * @param {string[]} keys
+ * @returns {Promise<Object>}
  */
 export async function getAllSettings(keys) {
     return loadSettings(keys);
 }
 
 /**
- * Menghapus semua prompt dari IndexedDB.
  * @returns {Promise<void>}
  */
 export async function deleteAllPrompts() {
@@ -294,7 +277,6 @@ export async function deleteAllPrompts() {
 }
 
 /**
- * Menghapus seluruh Cache Storage untuk Blob Prompt.
  * @returns {Promise<void>}
  */
 export async function clearPromptBlobCache() {
@@ -309,7 +291,6 @@ export async function clearPromptBlobCache() {
 }
 
 /**
- * Menghapus seluruh Cache Storage untuk Favicon.
  * @returns {Promise<void>}
  */
 export async function clearFaviconCache() {
@@ -323,9 +304,8 @@ export async function clearFaviconCache() {
 }
 
 /**
- * Menghitung total ukuran blob dalam sebuah Cache Storage.
- * @param {string} cacheName - Nama cache yang akan dihitung.
- * @returns {Promise<number>} - Ukuran total dalam bytes.
+ * @param {string} cacheName
+ * @returns {Promise<number>}
  */
 export async function calculateCacheSize(cacheName) {
     if (!('caches' in window)) return 0;
@@ -368,8 +348,7 @@ export async function calculateStoreSize(storeName, keyList = null) {
 }
 
 /**
- * Menghapus sebuah Cache Storage secara keseluruhan.
- * @param {string} cacheName - Nama cache yang akan dihapus.
+ * @param {string} cacheName
  * @returns {Promise<void>}
  */
 export async function clearCache(cacheName) {
@@ -386,7 +365,6 @@ export async function clearCache(cacheName) {
 }
 
 /**
- * Menghapus semua data pengguna (pengaturan, bookmark) dari IndexedDB.
  * @returns {Promise<void>}
  */
 export async function clearUserData() {
@@ -421,7 +399,6 @@ export async function clearUserData() {
 }
 
 /**
- * Menghapus semua data fitur tersembunyi (prompt, PIN) dari IndexedDB.
  * @returns {Promise<void>}
  */
 export async function clearHiddenData() {
@@ -454,8 +431,7 @@ export async function clearHiddenData() {
 }
 
 /**
- * Menyimpan blob wallpaper ke Cache API.
- * @param {Blob} blob - Blob gambar wallpaper.
+ * @param {Blob} blob
  */
 export async function saveWallpaperToCache(blob) {
     if (!('caches' in window)) return;
@@ -478,7 +454,6 @@ export async function saveWallpaperToCache(blob) {
 }
 
 /**
- * Mengambil blob wallpaper dari Cache API.
  * @returns {Promise<Blob|null>}
  */
 export async function getWallpaperFromCache() {

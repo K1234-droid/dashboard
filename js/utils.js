@@ -1,11 +1,10 @@
 import { elements, languageSettings, i18nData, supportedLangs, toastTimeout, setToastTimeout } from './config.js';
 
 /**
- * Menampilkan pesan ke konsol dengan dukungan multibahasa.
- * @param {'info' | 'warn' | 'error'} level - Tipe pesan (console.log, console.warn, console.error).
- * @param {string} key - Kunci dari i18nData untuk pesan yang akan ditampilkan.
- * @param {Object} replacements - Objek untuk mengganti placeholder, cth: { domain: 'google.com' }.
- * @param  {...any} optionalParams - Parameter tambahan untuk dilewatkan ke console (misalnya objek Error).
+ * @param {'info' | 'warn' | 'error'} level
+ * @param {string} key
+ * @param {Object} replacements
+ * @param  {...any} optionalParams
  */
 export function log(level, key, replacements = {}, ...optionalParams) {
     const lang = languageSettings.ui;
@@ -109,11 +108,10 @@ export function formatBytes(bytes, decimals = 2) {
 }
 
 /**
- * Mengubah ukuran gambar menggunakan Canvas.
- * @param {Blob|File} file - File gambar yang akan diubah ukurannya.
- * @param {number} maxWidth - Lebar maksimum gambar hasil.
- * @param {number} maxHeight - Tinggi maksimum gambar hasil.
- * @returns {Promise<Blob>} Promise yang resolve dengan Blob gambar yang sudah diubah ukurannya.
+ * @param {Blob|File} file
+ * @param {number} maxWidth
+ * @param {number} maxHeight
+ * @returns {Promise<Blob>}
  */
 export function resizeImage(file, maxWidth, maxHeight) {
     return new Promise((resolve, reject) => {

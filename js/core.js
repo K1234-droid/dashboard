@@ -130,11 +130,9 @@ export function handleVisibilityChange() {
 }
 
 /**
- * Checks for a real internet connection by fetching a resource.
- * Includes retry logic to handle temporary network fluctuations.
- * @param {number} retries - The number of times to try before failing.
- * @param {number} delay - The delay in milliseconds between retries.
- * @returns {Promise<boolean>} - True if a connection is established, false otherwise.
+ * @param {number} retries
+ * @param {number} delay
+ * @returns {Promise<boolean>}
  */
 async function checkRealInternetConnection(retries = 2, delay = 500) {
     for (let i = 0; i < retries; i++) {
@@ -194,9 +192,8 @@ export async function updateOfflineStatus() {
 }
 
 /**
- * Mengonversi string teks dengan Markdown sederhana (bold, list) menjadi HTML.
- * @param {string} text - Teks mentah dari catatan rilis.
- * @returns {string} - String yang sudah diformat sebagai HTML.
+ * @param {string} text
+ * @returns {string}
  */
 function parseReleaseNotes(text) {
     if (!text) {
@@ -237,8 +234,7 @@ function parseReleaseNotes(text) {
 }
 
 /**
- * Memeriksa rilis terbaru dari GitHub dan menampilkan modal jika ada pembaruan.
- * @param {boolean} isManual - True jika pemeriksaan dipicu oleh pengguna secara manual.
+ * @param {boolean} isManual
  */
 export async function checkForUpdates(isManual = false) {
     if (isManual) {

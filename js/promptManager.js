@@ -694,9 +694,9 @@ export async function handleSavePrompt() {
         if (promptData.imageBlobThumbnail) {
             await saveBlobToCache(promptData.id, 'imageBlobThumbnail', promptData.imageBlobThumbnail);
         }
-        if (promptData.imageBlobViewer) {
-            await saveBlobToCache(promptData.id, 'imageBlobViewer', promptData.imageBlobViewer);
-        }
+        // if (promptData.imageBlobViewer) {
+        //     await saveBlobToCache(promptData.id, 'imageBlobViewer', promptData.imageBlobViewer);
+        // }
 
         const { imageBlobOriginal: _, imageBlobViewer: _1, imageBlobThumbnail: _2, imageBlobIcon: _3, ...metadata } = promptData;
 

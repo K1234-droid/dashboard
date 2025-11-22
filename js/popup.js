@@ -26,8 +26,7 @@ function applyTranslations() {
 }
 
 /**
- * Menerapkan kelas tema ke elemen <body> popup.
- * @param {string} theme - Nama tema ('light', 'dark', atau 'system').
+ * @param {string} theme
  */
 function applyPopupTheme(theme) {
     document.body.classList.remove("dark-theme", "light-theme");
@@ -40,8 +39,7 @@ function applyPopupTheme(theme) {
 }
 
 /**
- * Menerapkan kelas skema warna ke elemen <html> popup.
- * @param {string} scheme - Nama skema ('default' atau 'monochrome').
+ * @param {string} scheme
  */
 function applyPopupColorScheme(scheme) {
     document.documentElement.classList.remove("monochrome-scheme");
@@ -51,8 +49,7 @@ function applyPopupColorScheme(scheme) {
 }
 
 /**
- * Menerapkan atau menonaktifkan animasi di popup berdasarkan pengaturan.
- * @param {boolean} show - Status dari pengaturan enableAnimation.
+ * @param {boolean} show
  */
 function applyPopupAnimations(show) {
     const animationsEnabled = show !== false;

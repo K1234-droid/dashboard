@@ -55,7 +55,7 @@
   font-display: swap;
 }
 
-/* ==================== VARIABEL WARNA CSS ==================== */
+/* ==================== COLOR VARIABLES ==================== */
 :root {
   --bg-color: #bfbfcb;
   --modal-bg-color: #ffffff;
@@ -144,7 +144,7 @@ body.dark-theme .nav-tab-btn.active {
   margin-top: 0.75rem;
 }
 
-/* ==================== SKEMA WARNA MONOKROM ==================== */
+/* ==================== MONOCHROME COLOR SCHEME ==================== */
 html.monochrome-scheme body {
   --bg-color: #E0E0E0;
   --modal-bg-color: #F5F5F5;
@@ -870,7 +870,7 @@ body.custom-background-active.info-shadow-dark .info-section {
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
-/* ==================== LAYOUT DASAR HALAMAN ==================== */
+/* ==================== BASIC PAGE LAYOUT ==================== */
 #loader-overlay {
   position: fixed;
   top: 0;
@@ -976,7 +976,6 @@ body::-webkit-scrollbar {
   display: none;
 }
 
-/* Fallback untuk perangkat low-end tanpa backdrop-filter */
 @supports not (backdrop-filter: blur(1px)) {
   .footer {
     background-color: rgba(var(--footer-bg-rgb), 0.95);
@@ -986,7 +985,6 @@ body::-webkit-scrollbar {
   }
 }
 
-/* Nonaktifkan backdrop-filter pada perangkat low-end */
 @media (max-device-width: 1366px) and (max-resolution: 1dppx) {
   .footer, .modal-overlay {
     -webkit-backdrop-filter: none;
@@ -996,7 +994,7 @@ body::-webkit-scrollbar {
   }
 }
 
-/* ==================== STYLING TEKS ==================== */
+/* ==================== TEXT STYLING ==================== */
 h1 {
   font-size: 1.4rem;
   font-weight: 700;
@@ -1242,7 +1240,7 @@ body.search-bar-hidden #bottom-search-bar {
   font-weight: 505;
 }
 
-/* ==================== STATUS PESAN & AVATAR MENU ==================== */
+/* ==================== MESSAGE STATUS & AVATAR MENU ==================== */
 .offline-message,
 .loading-message {
   position: absolute;
@@ -1382,7 +1380,7 @@ body.search-bar-hidden #bottom-search-bar {
   cursor: not-allowed;
 }
 
-/* ==================== MODAL & PENGATURAN ==================== */
+/* ==================== MODAL & SETTINGS ==================== */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -1905,7 +1903,7 @@ body.dark-theme .switch input:checked + .slider:before {
   margin-bottom: 0.25rem;
 }
 
-/* ==================== STYLE UNTUK FITUR PIN & PROMPT ==================== */
+/* ==================== STYLE FOR PIN & NOTE FEATURE ==================== */
 #pin-update-label {
   padding-top: 0.5rem;
 }
@@ -2192,7 +2190,7 @@ body.dark-theme .switch input:checked + .slider:before {
   margin-top: 1.5rem;
 }
 
-/* ==================== STYLE TAMBAHAN ==================== */
+/* ==================== ADDITIONAL STYLES ==================== */
 .modal-button-group {
   display: flex;
   justify-content: flex-end;
@@ -2470,7 +2468,7 @@ body.dark-theme .modal-input-file::file-selector-button {
   transform: translate(-50%, 0);
 }
 
-/* ==================== DEFINISI ANIMASI ==================== */
+/* ==================== ANIMATION ==================== */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -2488,7 +2486,7 @@ body.dark-theme .modal-input-file::file-selector-button {
   100% { content: "..."; }
 }
 
-/* ==================== PROMPT MANAGE & SEARCH MODE STYLES ==================== */
+/* ==================== NOTES MANAGE & SEARCH MODE STYLES ==================== */
 .bar-swap-transition {
   transition: max-height 0s, opacity 0.2s ease-in-out, padding 0s !important;
 }
@@ -2731,7 +2729,7 @@ body.dark-theme .modal-input-file::file-selector-button {
   margin-bottom: 0.75rem;
 }
 
-/* ==================== PROMPT FOLDER BAR ==================== */
+/* ==================== NOTES FOLDER BAR ==================== */
 .folder-bar-container {
   display: flex;
   align-items: center;
@@ -2860,7 +2858,7 @@ body.dark-theme .modal-input-file::file-selector-button {
   opacity: 1;
 }
 
-/* ==================== NAVIGASI IMAGE VIEWER ==================== */
+/* ==================== IMAGE VIEWER NAVIGATION ==================== */
 #image-viewer-controls {
   position: absolute;
   top: 0;
@@ -2922,7 +2920,7 @@ pointer-events: all;
   pointer-events: none;
 }
 
-/* ==================== STYLE PANAH NAVIGASI BARU ==================== */
+/* ==================== NAVIGATION ARROW STYLE ==================== */
 .nav-arrow {
   border: solid white;
   border-width: 0 3px 3px 0;
@@ -2938,7 +2936,7 @@ pointer-events: all;
   transform: translate(-2px, 0px) rotate(-45deg);
 }
 
-/* ==================== ANIMASI MODAL SAMPING (DESKTOP) ==================== */
+/* ==================== SIDE MODAL ANIMATION (DESKTOP) ==================== */
 @media (min-width: 866px) {
   .modal-overlay.modal-slide-right {
     justify-content: flex-end;
@@ -3287,7 +3285,7 @@ pointer-events: all;
   }
 }
 
-/* ==================== MENU KONTEKS ==================== */
+/* ==================== CONTEXT MENU ==================== */
 .prompt-item-menu.flip-position {
   right: auto;
   left: 4px;
@@ -3511,7 +3509,7 @@ pointer-events: all;
   -ms-overflow-style: none;
 }
 
-/* ==================== PENYESUAIAN LEBAR MODAL UNTUK RESOLUSI TINGGI ==================== */
+/* ==================== MODAL HIGH RESOLUTION ==================== */
 @media (min-width: 1329px) {
   body.todo-list-visible .info-section {
     right: 295px;
@@ -4445,7 +4443,7 @@ body.dark-theme .todo-item-checkbox-modal {
     margin-bottom: 1rem;
 }
 
-/* ==================== TOMBOL PANAH TODO ==================== */
+/* ==================== TODO ARROW BUTTON ==================== */
 .todo-modal-arrow-btn {
   display: flex;
   align-items: center;
@@ -4573,7 +4571,7 @@ body.dark-theme .todo-item-checkbox-modal {
   margin-bottom: 0.5rem;
 }
 
-/* ==================== TAMPILAN PONSEL ==================== */
+/* ==================== PHONE DISPLAY ==================== */
 @media (max-width: 490px) {
   .info-section {
     left: 2rem;
@@ -5041,7 +5039,7 @@ body.dark-theme .todo-item-checkbox-modal {
   }
 }
 
-/* ==================== PERANGKAT LAYAR SENTUH ==================== */
+/* ==================== TOUCH SCREEN DEVICES ==================== */
 @media (pointer: coarse) {
   .footer-search-placeholder .result-type {
     display: none;
