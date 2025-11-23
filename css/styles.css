@@ -1393,7 +1393,8 @@ body.search-bar-hidden #bottom-search-bar {
   align-items: center;
   z-index: 101;
   opacity: 1;
-  transition: opacity 0.2s ease, background-color 0.2s ease;
+  visibility: visible;
+  transition: opacity 0.2s ease, background-color 0.2s ease, visibility 0s;
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   padding: 2rem 1rem;
@@ -1406,6 +1407,8 @@ body.menu-blur-disabled .modal-overlay {
 .modal-overlay.hidden {
   opacity: 0;
   pointer-events: none;
+  visibility: hidden;
+  transition: opacity 0.2s ease, background-color 0.2s ease, visibility 0s linear 0.2s;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
   background-color: transparent;

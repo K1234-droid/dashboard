@@ -585,12 +585,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (detail?.type === 'delete' && detail.deletedIds) {
             await handleCharacterDeletionInBuilder(detail.deletedIds);
         }
-
-        if (!advancedPromptModal.overlay.classList.contains('hidden')) {
-            if (detail?.type === 'reorder') {
-                reorderAdvancedPromptGrid();
-            }
-        }
     });
 
     const shouldEnableShortcutCtrlD = settings.enableShortcutCtrlD !== false;
