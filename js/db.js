@@ -1,10 +1,11 @@
 import { log } from './utils.js';
 
 const DB_NAME = 'DashboardDB';
-const DB_VERSION = 4;
+const DB_VERSION = 5;
 const PROMPTS_STORE_NAME = 'promptsStore';
 const STORE_NAME = 'settings';
 const FAVICONS_STORE_NAME = 'faviconsStore';
+const WALLPAPER_STORE_NAME = 'wallpaperStore';
 let db;
 
 /**
@@ -41,6 +42,9 @@ export function initDB() {
             }
             if (tempDb.objectStoreNames.contains('faviconsStore')) {
                 tempDb.deleteObjectStore('faviconsStore');
+            }
+            if (!tempDb.objectStoreNames.contains(WALLPAPER_STORE_NAME)) {
+                tempDb.createObjectStore(WALLPAPER_STORE_NAME);
             }
         };
     });
@@ -208,5 +212,50 @@ export async function clearStore(storeName) {
             log('error', 'log.error.db.clearStore', { storeName: storeName }, event.target.error);
             reject(event.target.error);
         };
+    });
+}
+
+/**
+ * @param {Blob} blob
+ * @returns {Promise<void>}
+ */
+export async function saveWallpaperToDB(blob) {
+    const dbInstance = await initDB();
+    return new Promise((resolve, reject) => {
+        const transaction = dbInstance.transaction(WALLPAPER_STORE_NAME, 'readwrite');
+        const store = transaction.objectStore(WALLPAPER_STORE_NAME);
+        const request = store.put(blob, 'custom-bg'); 
+        request.onsuccess = () => resolve();
+        request.onerror = (event) => reject(event.target.error);
+    });
+}
+
+/**
+ * @returns {Promise<Blob|null>}
+ */
+export async function getWallpaperFromDB() {
+    const dbInstance = await initDB();
+    return new Promise((resolve, reject) => {
+        const transaction = dbInstance.transaction(WALLPAPER_STORE_NAME, 'readonly');
+        const store = transaction.objectStore(WALLPAPER_STORE_NAME);
+        const request = store.get('custom-bg');
+        request.onsuccess = () => {
+            resolve(request.result || null);
+        };
+        request.onerror = (event) => reject(event.target.error);
+    });
+}
+
+/**
+ * @returns {Promise<void>}
+ */
+export async function deleteWallpaperFromDB() {
+    const dbInstance = await initDB();
+    return new Promise((resolve, reject) => {
+        const transaction = dbInstance.transaction(WALLPAPER_STORE_NAME, 'readwrite');
+        const store = transaction.objectStore(WALLPAPER_STORE_NAME);
+        const request = store.delete('custom-bg');
+        request.onsuccess = () => resolve();
+        request.onerror = (event) => reject(event.target.error);
     });
 }

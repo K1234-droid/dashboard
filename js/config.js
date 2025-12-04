@@ -5,7 +5,7 @@
  */
 
 // ==================== PENGATURAN PEMBARUAN ====================
-export const CURRENT_VERSION = 'v5.1.2';
+export const CURRENT_VERSION = 'v5.1.3';
 export const GITHUB_OWNER = 'K1234-droid';
 export const GITHUB_REPO = 'dashboard';
 // ==============================================================
@@ -1020,6 +1020,8 @@ export const i18nData = {
     "log.error.updateCheckFailed": { id: "Pengecekan pembaruan gagal:", en: "Update check failed:", ja: "更新の確認に失敗しました：" },
     "log.error.wallpaperExportFailed": { id: "Gagal mengonversi wallpaper ke Data URL saat ekspor:", en: "Failed to convert wallpaper to URL Data during export:", ja: "エクスポート中に壁紙を URL データに変換できませんでした：" },
     "log.error.wallpaperImportFailed": { id: "Gagal memproses dan menyimpan wallpaper impor:", en: "Failed to process and save imported wallpaper:", ja: "インポートした壁紙の処理と保存に失敗しました：" },
+    "log.warn.cacheReadFailedTryDB": { id: "Gagal membaca cache, mencoba IndexedDB...", en: "Failed to read cache, trying IndexedDB...", ja: "キャッシュの読み込みに失敗しました。IndexedDBを試行します..." },
+    "log.error.deleteWallpaperFromDBFailed": { id: "Gagal menghapus wallpaper dari DB.", en: "Failed to delete wallpaper from DB.", ja: "DBから壁紙を削除できませんでした。" },
     // Update Checker
     "update.checkBtn": { id: "Cek Pembaruan", en: "Check for Updates", ja: "アップデートを確認" },
     "update.checking": { id: "Mengecek pembaruan...", en: "Checking for updates...", ja: "アップデートを確認中..." },

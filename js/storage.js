@@ -1,10 +1,12 @@
 import { setItem, getItems, savePrompt as savePromptToDB, getAllPromptMetadata as getAllPromptMetadataFromDB,
-        getPromptBlob as getPromptBlobFromDB, deletePromptFromDB, getFullPrompt as getFullPromptFromDB, clearStore, initDB } from './db.js';
-import { log } from './utils.js';    
+        getPromptBlob as getPromptBlobFromDB, deletePromptFromDB, getFullPrompt as getFullPromptFromDB, clearStore,
+        initDB, saveWallpaperToDB, getWallpaperFromDB, deleteWallpaperFromDB } from './db.js';
+import { log } from './utils.js';
 
 const PROMPT_BLOB_CACHE_NAME = 'prompt-blob-cache';
 const FAVICON_CACHE_NAME = 'favicon-cache';
 const WALLPAPER_CACHE_NAME = 'wallpaper-cache';
+const WALLPAPER_CACHE_KEY = 'https://dummy-wallpaper.local/custom-background';
 const STORE_NAME = 'settings';
 const PROMPTS_STORE_NAME = 'promptsStore';
 
@@ -434,22 +436,26 @@ export async function clearHiddenData() {
  * @param {Blob} blob
  */
 export async function saveWallpaperToCache(blob) {
-    if (!('caches' in window)) return;
+    try {
+        await saveWallpaperToDB(blob);
+    } catch (error) {
+        log('error', 'log.error.saveWallpaperFailed', {}, error);
+    }
 
-    const wallpaperCacheKey = `https://dummy-wallpaper.local/custom-background`;
+    if (!('caches' in window)) return;
     
     try {
-        await clearWallpaperCache(); 
+        await caches.delete(WALLPAPER_CACHE_NAME);
+        
         const cache = await caches.open(WALLPAPER_CACHE_NAME);
         const response = new Response(blob, {
             status: 200,
             headers: { 'Content-Type': blob.type || 'image/png' }
         });
         
-        await cache.put(wallpaperCacheKey, response);
+        await cache.put(WALLPAPER_CACHE_KEY, response);
     } catch (error) {
         log('error', 'log.error.saveWallpaperFailed', {}, error);
-        throw error;
     }
 }
 
@@ -457,19 +463,46 @@ export async function saveWallpaperToCache(blob) {
  * @returns {Promise<Blob|null>}
  */
 export async function getWallpaperFromCache() {
-    if (!('caches' in window)) return null;
-    const wallpaperCacheKey = `https://dummy-wallpaper.local/custom-background`;
+    if ('caches' in window) {
+        try {
+            const cache = await caches.open(WALLPAPER_CACHE_NAME);
+            const response = await cache.match(WALLPAPER_CACHE_KEY);
+            if (response) {
+                return await response.blob();
+            }
+        } catch (error) {
+            log('warn', 'log.warn.cacheReadFailedTryDB', {}, error);
+        }
+    }
+
     try {
-        const cache = await caches.open(WALLPAPER_CACHE_NAME);
-        const response = await cache.match(wallpaperCacheKey);
-        return response ? await response.blob() : null;
+        const dbBlob = await getWallpaperFromDB();
+        
+        if (dbBlob) {
+            if ('caches' in window) {
+                const cache = await caches.open(WALLPAPER_CACHE_NAME);
+                const response = new Response(dbBlob, {
+                    status: 200,
+                    headers: { 'Content-Type': dbBlob.type || 'image/png' }
+                });
+                await cache.put(WALLPAPER_CACHE_KEY, response);
+            }
+            return dbBlob;
+        }
     } catch (error) {
         log('error', 'log.error.takeWallpaperFailed', {}, error);
-        return null;
     }
+
+    return null;
 }
 
 export async function clearWallpaperCache() {
+    try {
+        await deleteWallpaperFromDB();
+    } catch (error) {
+        log('error', 'log.error.deleteWallpaperFromDBFailed', {}, error);
+    }
+
     if (!('caches' in window)) return;
     try {
         await caches.delete(WALLPAPER_CACHE_NAME);
