@@ -5,7 +5,7 @@
  */
 
 // ==================== PENGATURAN PEMBARUAN ====================
-export const CURRENT_VERSION = 'v5.1.3';
+export const CURRENT_VERSION = 'v5.1.4';
 export const GITHUB_OWNER = 'K1234-droid';
 export const GITHUB_REPO = 'dashboard';
 // ==============================================================
@@ -803,8 +803,8 @@ export const i18nData = {
     "settings.tabs.display": { id: "Tampilan", en: "Display", ja: "表示" },
     "settings.tabs.other": { id: "Keamanan", en: "Security", ja: "安全" },
     "data.searchPopup.title": { id: "Data di Pencarian Pop-up Dashboard", en: "Data in Pop-up Dashboard Search", ja: "ダッシュボードのポップアップ検索のデータ" },
-    "settings.search.enableHelp": { id: "Dengan mengaktifkan fitur ini, maka data catatan dan gambar Anda akan mudah dicari melalui bar pencarian.", en: "By activating this feature, your note and image data will be easy to search through the search bar.", ja: "この機能を有効にすると、検索バーからノートと画像データを簡単に検索できるようになります。" },
-    "settings.popup.enableHelp": { id: "Dengan mengaktifkan fitur ini, maka data catatan dan gambar Anda akan mudah dicari melalui Pop-up Dashboard.", en: "By activating this feature, your note and image data will be easy to search via the Pop-up Dashboard.", ja: "この機能を有効にすると、ポップアップ ダッシュボードからノートと画像データを簡単に検索できるようになります。" },
+    "settings.search.enableHelp": { id: "Dengan mengaktifkan fitur ini, maka data catatan dan deskripsi gambar Anda akan mudah dicari melalui bar pencarian.", en: "By activating this feature, your note data and image descriptions will be easy to search through the search bar.", ja: "この機能を有効にすると、検索バーからメモデータや画像の説明を簡単に検索できるようになります。" },
+    "settings.popup.enableHelp": { id: "Dengan mengaktifkan fitur ini, maka data catatan dan deskripsi gambar Anda akan mudah dicari melalui Pop-up Dashboard.", en: "By activating this feature, your note data and image descriptions will be easy to search via the Pop-up Dashboard.", ja: "この機能を有効にすると、ポップアップダッシュボードからメモデータや画像の説明を簡単に検索できるようになります。" },
     "search.historyType": { id: "Riwayat", en: "History", ja: "履歴" },
     "toast.historyEnabled": { id: "Histori browser diaktifkan untuk pencarian.", en: "Browser history enabled for search.", ja: "検索のためにブラウザ履歴が有効になりました。" },
     "toast.historyDisabled": { id: "Histori browser dinonaktifkan untuk pencarian.", en: "Browser history disabled for search.", ja: "検索のためにブラウザ履歴が無効になりました。" },
@@ -839,7 +839,7 @@ export const i18nData = {
     "settings.search.openAction": { id: "Aksi Membuka Situs", en: "Search Open Action", ja: "検索を開くアクション" },
     "data.search.title": { id: "Data di Bar Pencarian", en: "Data in Search Bar", ja: "検索バーのデータ" },
     "data.searchHelp": { id: "Bar pencarian perlu diaktifkan terlebih dahulu di menu tampilan sebelum melakukan perubahan fitur dibawah.", en: "The search bar needs to be enabled first in the display menu before making any feature changes below.", ja: "以下の機能変更を行う前に、まず表示メニューで検索バーを有効にする必要があります。" },
-    "settings.search.enablePrompt": { id: "Gambar dan Catatan", en: "Images and Notes", ja: "画像とノート" },
+    "settings.search.enablePrompt": { id: "Catatan dan Deskripsi Gambar", en: "Notes and Image Description", ja: "注釈と画像の説明" },
     "settings.search.enableHistory": { id: "Histori Browser", en: "Browser History", ja: "ブラウザ履歴" },
     "settings.search.enableHistoryHelp": { id: "Histori browser Anda akan mudah dicari melalui bar pencarian hingga 1 tahun terakhir. Mohon pertimbangkan sebelum mengaktifkan nya.", en: "Your browser history will be easy to search via the search bar for up to the last 1 year. Please consider before activating it.", ja: "検索バーを使用すると、過去 1 年間までのブラウザ履歴を簡単に検索できます。有効化する前に検討してください。" },
     "settings.search.enableHistoryHelp2": { id: "Untuk keamanan, opsi ini tidak akan di ekspor.", en: "For security reasons, this option will not be exported.", ja: "セキュリティ上の理由から、このオプションはエクスポートされません。" },
