@@ -2126,6 +2126,10 @@ body.dark-theme .switch input:checked + .slider:before {
   background-color: var(--select-bg);
 }
 
+#prompt-image-help-text {
+  margin-bottom: -0.3rem;
+}
+
 .prompt-item-menu-btn {
   position: absolute;
   top: 6px;
@@ -4258,7 +4262,7 @@ body.dark-theme .todo-item-checkbox-modal {
 }
 
 #todo-modal-overlay .setting-item-column {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .todo-item-date-modal {
@@ -4438,9 +4442,6 @@ body.dark-theme .todo-item-checkbox-modal {
   flex-grow: 1;
   min-height: 0;
   padding-bottom: 0.55rem;
-}
-#todo-modal-overlay .setting-item-column {
-    margin-bottom: 1.5rem;
 }
 #todo-modal-overlay .setting-item-column:last-of-type {
     margin-bottom: 1rem;
