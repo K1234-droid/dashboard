@@ -531,6 +531,10 @@ body.custom-background-active.dark-theme .hamburger-icon-btn,
 body.custom-background-active.dark-theme .hamburger-icon-static {
   color: #FAFAFA !important;
 }
+body.custom-background-active.dark-theme .how-it-works-body .hamburger-icon-static {
+  background-color: #FAFAFA !important;
+  color: #121212 !important;
+}
 
 @media (prefers-color-scheme: dark) {
   body.custom-background-active:not(.light-theme) .footer,
@@ -576,6 +580,10 @@ body.custom-background-active.dark-theme .hamburger-icon-static {
   body.custom-background-active:not(.light-theme) .hamburger-icon-static {
     color: #FAFAFA !important;
   }
+  body.custom-background-active:not(.light-theme) .how-it-works-body .hamburger-icon-static {
+    background-color: #FAFAFA !important;
+    color: #121212 !important;
+  }
 }
 
 body.custom-background-active.light-theme .footer,
@@ -620,6 +628,10 @@ body.custom-background-active.light-theme .bookmark-menu-btn-main {
 body.custom-background-active.light-theme .hamburger-icon-btn,
 body.custom-background-active.light-theme .hamburger-icon-static {
   color: #121212 !important;
+}
+body.custom-background-active.light-theme .how-it-works-body .hamburger-icon-static{
+  background-color: #424242 !important;
+  color: #ffffff !important;
 }
 
 @media (prefers-color-scheme: light) {
@@ -671,6 +683,10 @@ body.custom-background-active.light-theme .hamburger-icon-static {
   body.custom-background-active:not(.dark-theme) .hamburger-icon-btn,
   body.custom-background-active:not(.dark-theme) .hamburger-icon-static {
     color: #121212 !important;
+  }
+  body.custom-background-active:not(.dark-theme) .how-it-works-body .hamburger-icon-static {
+    background-color: #424242 !important;
+    color: #ffffff !important;
   }
 }
 
