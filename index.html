@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,18 +16,19 @@
         </style>
     </noscript>
 
-    <link rel="preload" as="image" href="assets/icons/avatar-logo-small.webp">
     <link rel="stylesheet" href="css/styles.css">
-    
-    <link rel="icon" href="favicon.ico">
+
+    <link id="favicon-link" rel="icon" href="favicon.ico">
 </head>
+
 <body class="text-gray-900">
 
     <div id="loader-overlay"></div>
     <div class="hover-dead-zone-top"></div>
 
     <div class="info-section fixed">
-        <h1 id="greeting" class="text-xl font-bold mb-2"><span id="greeting-text"></span><span id="greeting-username"></span></h1>
+        <h1 id="greeting" class="text-xl font-bold mb-2"><span id="greeting-text"></span><span
+                id="greeting-username"></span></h1>
         <p id="description" class="description mb-4"></p>
         <hr id="info-separator" class="separator">
         <div class="time-info">
@@ -42,7 +44,8 @@
 
     <div id="main-page-todo-container" class="main-page-todo-container hidden"></div>
 
-    <button id="open-todo-modal-arrow-btn" class="todo-modal-arrow-btn" aria-label="Buka Daftar Tugas" data-tooltip="Lihat Daftar Tugas" data-i18n-key="todo.open">
+    <button id="open-todo-modal-arrow-btn" class="todo-modal-arrow-btn" aria-label="Buka Daftar Tugas"
+        data-tooltip="Lihat Daftar Tugas" data-i18n-key="todo.open">
         <span class="nav-arrow"></span>
     </button>
 
@@ -52,7 +55,8 @@
                 <span data-i18n-key="footer.search.text">Cari sesuatu...</span>
                 <span data-i18n-key="footer.search.shortcut" class="result-type">Enter</span>
             </div>
-            <input type="text" id="footer-search-input" class="footer-search-input" aria-label="Cari sesuatu" data-i18n-key-aria-label="footer.search.placeholder">
+            <input type="text" id="footer-search-input" class="footer-search-input" aria-label="Cari sesuatu"
+                data-i18n-key-aria-label="footer.search.placeholder">
         </div>
         <div id="footer-search-results" class="footer-search-results">
             <div class="results-list"></div>
@@ -61,19 +65,26 @@
 
     <footer class="footer p-4">
         <div class="footer-content">
-            <div id="avatar-menu-container" class="avatar-menu-container" data-tooltip="Sesuaikan Dashboard" data-i18n-key="footer.tooltip.settings">
-                <img id="avatar-logo-btn" src="assets/icons/avatar-logo-small.webp" alt="Avatar Logo" class="avatar-logo">
+            <div id="avatar-menu-container" class="avatar-menu-container" data-tooltip="Sesuaikan Dashboard"
+                data-i18n-key="footer.tooltip.settings">
+                <button id="avatar-logo-btn" class="hamburger-icon-btn">
+                    &#9776;
+                </button>
                 <div id="menu-popup" class="menu-popup">
-                    <button id="open-username-modal-btn" class="menu-btn" data-i18n-key="menu.changeUsername">Ubah Username</button>
-                    <button id="open-theme-modal-btn" class="menu-btn" data-i18n-key="menu.adjustTheme">Sesuaikan Tema</button>
-                    <button id="open-other-settings-modal-btn" class="menu-btn" data-i18n-key="menu.otherSettings">Pengaturan</button>
+                    <button id="open-username-modal-btn" class="menu-btn" data-i18n-key="menu.changeUsername">Ubah
+                        Username</button>
+                    <button id="open-theme-modal-btn" class="menu-btn" data-i18n-key="menu.adjustTheme">Sesuaikan
+                        Tema</button>
+                    <button id="open-other-settings-modal-btn" class="menu-btn"
+                        data-i18n-key="menu.otherSettings">Pengaturan</button>
                     <button id="open-about-modal-btn" class="menu-btn" data-i18n-key="menu.about">Tentang</button>
-                    <button id="check-for-update-btn" class="menu-btn" data-i18n-key="update.checkBtn">Cek Pembaruan</button>
+                    <button id="check-for-update-btn" class="menu-btn" data-i18n-key="update.checkBtn">Cek
+                        Pembaruan</button>
                 </div>
             </div>
         </div>
     </footer>
-    
+
     <div id="username-modal-overlay" class="modal-overlay hidden">
         <div class="modal-content">
             <div class="modal-header">
@@ -82,14 +93,16 @@
             </div>
             <div class="modal-body">
                 <div class="setting-item-column">
-                    <label for="username-input" class="modal-label" data-i18n-key="settings.username.label">Username (Maks. 6 karakter)</label>
+                    <label for="username-input" class="modal-label" data-i18n-key="settings.username.label">Username
+                        (Maks. 6 karakter)</label>
                     <input type="text" id="username-input" class="modal-input" maxlength="6">
                 </div>
-                <button id="save-username-btn" class="modal-save-btn" data-i18n-key="settings.username.save">Simpan</button>
+                <button id="save-username-btn" class="modal-save-btn"
+                    data-i18n-key="settings.username.save">Simpan</button>
             </div>
         </div>
     </div>
-        
+
     <div id="theme-modal-overlay" class="modal-overlay hidden">
         <div class="modal-content">
             <div class="modal-header">
@@ -101,12 +114,15 @@
                 <div class="theme-options">
                     <button id="theme-light-btn" class="theme-btn" data-i18n-key="settings.theme.light">Terang</button>
                     <button id="theme-dark-btn" class="theme-btn" data-i18n-key="settings.theme.dark">Gelap</button>
-                    <button id="theme-system-btn" class="theme-btn active" data-i18n-key="settings.theme.system">Sistem</button>
+                    <button id="theme-system-btn" class="theme-btn active"
+                        data-i18n-key="settings.theme.system">Sistem</button>
                 </div>
                 <h4 class="sub-judul" data-i18n-key="settings.theme.scheme.title">Skema Warna</h4>
                 <div class="theme-options-scheme">
-                    <button id="scheme-default-btn" class="theme-btn active" data-i18n-key="settings.theme.scheme.default">Bawaan</button>
-                    <button id="scheme-monochrome-btn" class="theme-btn" data-i18n-key="settings.theme.scheme.monochrome">Monokrom</button>
+                    <button id="scheme-default-btn" class="theme-btn active"
+                        data-i18n-key="settings.theme.scheme.default">Bawaan</button>
+                    <button id="scheme-monochrome-btn" class="theme-btn"
+                        data-i18n-key="settings.theme.scheme.monochrome">Monokrom</button>
                 </div>
                 <h4 class="sub-judul" data-i18n-key="settings.upload.background.title">Background Gambar</h4>
                 <div class="theme-background">
@@ -118,25 +134,35 @@
                 <div id="info-section-theme-container" class="hidden">
                     <h4 class="sub-judul" data-i18n-key="settings.theme.infoSection.title">Bagian Info</h4>
                     <div class="theme-options">
-                        <button id="info-theme-default-btn" class="theme-btn active" data-i18n-key="settings.theme.override.default">Bawaan</button>
-                        <button id="info-theme-light-btn" class="theme-btn" data-i18n-key="settings.theme.override.light">Terang</button>
-                        <button id="info-theme-dark-btn" class="theme-btn" data-i18n-key="settings.theme.override.dark">Gelap</button>
+                        <button id="info-theme-default-btn" class="theme-btn active"
+                            data-i18n-key="settings.theme.override.default">Bawaan</button>
+                        <button id="info-theme-light-btn" class="theme-btn"
+                            data-i18n-key="settings.theme.override.light">Terang</button>
+                        <button id="info-theme-dark-btn" class="theme-btn"
+                            data-i18n-key="settings.theme.override.dark">Gelap</button>
                     </div>
                 </div>
                 <div id="footer-theme-container" class="hidden">
-                    <h4 class="sub-judul" data-i18n-key="settings.theme.footer.title">Bookmark, Footer, dan Daftar Tugas</h4>
+                    <h4 class="sub-judul" data-i18n-key="settings.theme.footer.title">Bookmark, Footer, dan Daftar Tugas
+                    </h4>
                     <div class="theme-options">
-                        <button id="footer-theme-default-btn" class="theme-btn active" data-i18n-key="settings.theme.override.default">Bawaan</button>
-                        <button id="footer-theme-light-btn" class="theme-btn" data-i18n-key="settings.theme.override.light">Terang</button>
-                        <button id="footer-theme-dark-btn" class="theme-btn" data-i18n-key="settings.theme.override.dark">Gelap</button>
+                        <button id="footer-theme-default-btn" class="theme-btn active"
+                            data-i18n-key="settings.theme.override.default">Bawaan</button>
+                        <button id="footer-theme-light-btn" class="theme-btn"
+                            data-i18n-key="settings.theme.override.light">Terang</button>
+                        <button id="footer-theme-dark-btn" class="theme-btn"
+                            data-i18n-key="settings.theme.override.dark">Gelap</button>
                     </div>
                 </div>
                 <div id="shadow-theme-container" class="hidden">
                     <h4 class="sub-judul" data-i18n-key="settings.theme.shadow.title">Bayangan</h4>
                     <div class="theme-options">
-                        <button id="shadow-theme-default-btn" class="theme-btn active" data-i18n-key="settings.theme.override.default">Bawaan</button>
-                        <button id="shadow-theme-light-btn" class="theme-btn" data-i18n-key="settings.theme.override.light">Terang</button>
-                        <button id="shadow-theme-dark-btn" class="theme-btn" data-i18n-key="settings.theme.override.dark">Gelap</button>
+                        <button id="shadow-theme-default-btn" class="theme-btn active"
+                            data-i18n-key="settings.theme.override.default">Bawaan</button>
+                        <button id="shadow-theme-light-btn" class="theme-btn"
+                            data-i18n-key="settings.theme.override.light">Terang</button>
+                        <button id="shadow-theme-dark-btn" class="theme-btn"
+                            data-i18n-key="settings.theme.override.dark">Gelap</button>
                     </div>
                 </div>
             </div>
@@ -151,16 +177,20 @@
                 <button id="close-other-settings-modal-btn" class="close-btn">&times;</button>
             </div>
             <div class="modal-nav-tabs">
-                <button id="settings-tab-general" class="nav-tab-btn active" data-i18n-key="settings.tabs.general">Umum</button>
-                <button id="settings-tab-display" class="nav-tab-btn" data-i18n-key="settings.tabs.display">Tampilan</button>
+                <button id="settings-tab-general" class="nav-tab-btn active"
+                    data-i18n-key="settings.tabs.general">Umum</button>
+                <button id="settings-tab-display" class="nav-tab-btn"
+                    data-i18n-key="settings.tabs.display">Tampilan</button>
                 <button id="settings-tab-data" class="nav-tab-btn" data-i18n-key="settings.tabs.data">Data</button>
-                <button id="settings-tab-other" class="nav-tab-btn" data-i18n-key="settings.tabs.other">Keamanan</button>
+                <button id="settings-tab-other" class="nav-tab-btn"
+                    data-i18n-key="settings.tabs.other">Keamanan</button>
             </div>
             <div class="modal-body">
                 <div id="settings-panel-general" class="tab-panel active">
                     <h4 class="sub-judul" data-i18n-key="settings.language.title">Pilihan Bahasa</h4>
                     <div class="switch-container">
-                        <label class="switch-label" data-i18n-key="settings.language.allContent">Semua Konten Tampilan</label>
+                        <label class="switch-label" data-i18n-key="settings.language.allContent">Semua Konten
+                            Tampilan</label>
                         <div class="custom-select-container">
                             <div id="lang-select-ui" class="custom-select" tabindex="0">
                                 <span>Indonesia</span><span class="select-arrow"></span>
@@ -173,7 +203,8 @@
                         </div>
                     </div>
                     <div class="switch-container">
-                        <label for="apply-to-all-switch" class="switch-label" data-i18n-key="settings.language.applyAll">Terapkan ke Semua Konten</label>
+                        <label for="apply-to-all-switch" class="switch-label"
+                            data-i18n-key="settings.language.applyAll">Terapkan ke Semua Konten</label>
                         <label class="switch">
                             <input type="checkbox" id="apply-to-all-switch">
                             <span class="slider"></span>
@@ -183,7 +214,7 @@
                         <label class="switch-label" data-i18n-key="settings.language.greeting">Ucapan Salam</label>
                         <div class="custom-select-container">
                             <div id="lang-select-greeting" class="custom-select" tabindex="0">
-                                 <span>Indonesia</span><span class="select-arrow"></span>
+                                <span>Indonesia</span><span class="select-arrow"></span>
                             </div>
                             <div class="custom-select-options">
                                 <div class="custom-option" data-value="id">Indonesia</div>
@@ -205,7 +236,7 @@
                             </div>
                         </div>
                     </div>
-                     <div id="lang-container-date" class="switch-container">
+                    <div id="lang-container-date" class="switch-container">
                         <label class="switch-label" data-i18n-key="settings.language.date">Hari dan Tanggal</label>
                         <div class="custom-select-container">
                             <div id="lang-select-date" class="custom-select" tabindex="0">
@@ -219,54 +250,63 @@
                         </div>
                     </div>
                 </div>
-    
+
                 <div id="settings-panel-display" class="tab-panel">
-                    <p id="displayHiddenResolution" class="setting-help-text" data-i18n-key="data.displayHiddenResolution">Beberapa tampilan tidak dapat muncul di halaman utama karena keterbatasan resolusi.</p>
+                    <p id="displayHiddenResolution" class="setting-help-text"
+                        data-i18n-key="data.displayHiddenResolution">Beberapa tampilan tidak dapat muncul di halaman
+                        utama karena keterbatasan resolusi.</p>
                     <h4 class="sub-judul" data-i18n-key="settings.other.mainPage">Halaman Utama</h4>
                     <div class="switch-container">
-                        <label for="show-content-switch" class="switch-label" data-i18n-key="settings.other.showContent">Tampilkan Konten</label>
+                        <label for="show-content-switch" class="switch-label"
+                            data-i18n-key="settings.other.showContent">Tampilkan Konten</label>
                         <label class="switch">
                             <input type="checkbox" id="show-content-switch">
                             <span class="slider"></span>
                         </label>
                     </div>
                     <div class="switch-container">
-                        <label for="show-greeting-switch" class="switch-label" data-i18n-key="settings.language.greeting">Ucapan Salam</label>
+                        <label for="show-greeting-switch" class="switch-label"
+                            data-i18n-key="settings.language.greeting">Ucapan Salam</label>
                         <label class="switch">
                             <input type="checkbox" id="show-greeting-switch">
                             <span class="slider"></span>
                         </label>
                     </div>
                     <div class="switch-container">
-                        <label for="show-username-switch" class="switch-label" data-i18n-key="settings.other.showUsername">Username</label>
+                        <label for="show-username-switch" class="switch-label"
+                            data-i18n-key="settings.other.showUsername">Username</label>
                         <label class="switch">
                             <input type="checkbox" id="show-username-switch">
                             <span class="slider"></span>
                         </label>
                     </div>
                     <div class="switch-container">
-                        <label for="show-description-switch" class="switch-label" data-i18n-key="settings.language.description">Deskripsi</label>
+                        <label for="show-description-switch" class="switch-label"
+                            data-i18n-key="settings.language.description">Deskripsi</label>
                         <label class="switch">
                             <input type="checkbox" id="show-description-switch">
                             <span class="slider"></span>
                         </label>
                     </div>
                     <div class="switch-container">
-                        <label for="show-date-switch" class="switch-label" data-i18n-key="settings.language.date">Hari dan Tanggal</label>
+                        <label for="show-date-switch" class="switch-label" data-i18n-key="settings.language.date">Hari
+                            dan Tanggal</label>
                         <label class="switch">
                             <input type="checkbox" id="show-date-switch">
                             <span class="slider"></span>
                         </label>
                     </div>
                     <div class="switch-container">
-                        <label for="show-time-switch" class="switch-label" data-i18n-key="settings.other.showTime">Jam</label>
+                        <label for="show-time-switch" class="switch-label"
+                            data-i18n-key="settings.other.showTime">Jam</label>
                         <label class="switch">
                             <input type="checkbox" id="show-time-switch">
                             <span class="slider"></span>
                         </label>
                     </div>
                     <div class="switch-container">
-                        <label for="show-seconds-switch" class="switch-label" data-i18n-key="settings.other.showSeconds">Detik</label>
+                        <label for="show-seconds-switch" class="switch-label"
+                            data-i18n-key="settings.other.showSeconds">Detik</label>
                         <label class="switch">
                             <input type="checkbox" id="show-seconds-switch">
                             <span class="slider"></span>
@@ -274,35 +314,44 @@
                     </div>
                     <h4 class="sub-judul" data-i18n-key="bookmark.title">Bookmark</h4>
                     <div class="switch-container">
-                        <label for="show-bookmark-switch" class="switch-label" data-i18n-key="settings.other.showBookmark">Tampilkan Bookmark</label>
+                        <label for="show-bookmark-switch" class="switch-label"
+                            data-i18n-key="settings.other.showBookmark">Tampilkan Bookmark</label>
                         <label class="switch">
                             <input type="checkbox" id="show-bookmark-switch">
                             <span class="slider"></span>
                         </label>
                     </div>
                     <div class="switch-container">
-                        <label class="switch-label" data-i18n-key="settings.bookmark.openAction">Aksi Membuka Situs</label>
+                        <label class="switch-label" data-i18n-key="settings.bookmark.openAction">Aksi Membuka
+                            Situs</label>
                         <div class="custom-select-container">
                             <div id="bookmark-open-action-select" class="custom-select" tabindex="0">
                                 <span>Tab Baru</span><span class="select-arrow"></span>
                             </div>
                             <div class="custom-select-options">
-                                <div class="custom-option" data-value="direct" data-i18n-key="settings.bookmark.openAction.direct">Buka Langsung</div>
-                                <div class="custom-option" data-value="newTab" data-i18n-key="settings.bookmark.openAction.newTab">Tab Baru</div>
+                                <div class="custom-option" data-value="direct"
+                                    data-i18n-key="settings.bookmark.openAction.direct">Buka Langsung</div>
+                                <div class="custom-option" data-value="newTab"
+                                    data-i18n-key="settings.bookmark.openAction.newTab">Tab Baru</div>
                             </div>
                         </div>
                     </div>
                     <div class="switch-container">
-                        <label for="enable-shortcut-ctrl-d-switch" class="switch-label" data-i18n-key="settings.bookmark.enableShortcutCtrlD">Gunakan Pintasan Keyboard CTRL + D atau atau CMD + D untuk Tambah Bookmark</label>
+                        <label for="enable-shortcut-ctrl-d-switch" class="switch-label"
+                            data-i18n-key="settings.bookmark.enableShortcutCtrlD">Gunakan Pintasan Keyboard CTRL + D
+                            atau atau CMD + D untuk Tambah Bookmark</label>
                         <label class="switch">
                             <input type="checkbox" id="enable-shortcut-ctrl-d-switch">
                             <span class="slider"></span>
                         </label>
                     </div>
-                    <p id="enable-shortcut-ctrl-d-help-text" class="setting-help-text" data-i18n-key="settings.bookmark.shortcutHelp">Jika Anda selalu menambahkan bookmark menggunakan browser bawaan, matikan fitur ini.</p>
+                    <p id="enable-shortcut-ctrl-d-help-text" class="setting-help-text"
+                        data-i18n-key="settings.bookmark.shortcutHelp">Jika Anda selalu menambahkan bookmark menggunakan
+                        browser bawaan, matikan fitur ini.</p>
                     <h4 class="sub-judul" data-i18n-key="todo.main.title">Daftar Tugas</h4>
                     <div class="switch-container">
-                        <label for="show-todo-list-switch" class="switch-label" data-i18n-key="settings.other.showTodoList">Tampilkan Daftar Tugas</label>
+                        <label for="show-todo-list-switch" class="switch-label"
+                            data-i18n-key="settings.other.showTodoList">Tampilkan Daftar Tugas</label>
                         <label class="switch">
                             <input type="checkbox" id="show-todo-list-switch">
                             <span class="slider"></span>
@@ -310,18 +359,21 @@
                     </div>
                     <h4 class="sub-judul" data-i18n-key="settings.hidden.title">Catatan</h4>
                     <div class="switch-container">
-                        <label for="hidden-feature-switch" class="switch-label" data-i18n-key="settings.hidden.enable">Aktifkan Catatan</label>
+                        <label for="hidden-feature-switch" class="switch-label"
+                            data-i18n-key="settings.hidden.enable">Aktifkan Catatan</label>
                         <label class="switch">
                             <input type="checkbox" id="hidden-feature-switch">
                             <span class="slider"></span>
                         </label>
                     </div>
                     <div class="modal-button-group">
-                        <button id="how-it-works-btn" class="modal-save-btn" data-i18n-key="hiddenFeature.howItWorks.button">Cara Kerja</button>
+                        <button id="how-it-works-btn" class="modal-save-btn"
+                            data-i18n-key="hiddenFeature.howItWorks.button">Cara Kerja</button>
                     </div>
                     <h4 class="sub-judul" data-i18n-key="settings.other.search">Pencarian</h4>
                     <div class="switch-container">
-                        <label for="enable-search-bar-switch" class="switch-label" data-i18n-key="settings.other.enableSearchBar">Aktifkan Bar Pencarian</label>
+                        <label for="enable-search-bar-switch" class="switch-label"
+                            data-i18n-key="settings.other.enableSearchBar">Aktifkan Bar Pencarian</label>
                         <label class="switch">
                             <input type="checkbox" id="enable-search-bar-switch">
                             <span class="slider"></span>
@@ -331,52 +383,64 @@
                         <label class="switch-label" data-i18n-key="settings.other.searchEngine">Mesin Telusur</label>
                         <div class="custom-select-container">
                             <div id="search-engine-select" class="custom-select" tabindex="0">
-                                 <span data-i18n-key="searchEngine.google">Google</span><span class="select-arrow"></span>
+                                <span data-i18n-key="searchEngine.google">Google</span><span
+                                    class="select-arrow"></span>
                             </div>
                             <div class="custom-select-options">
-                                <div class="custom-option" data-value="google" data-i18n-key="searchEngine.google">Google</div>
-                                <div class="custom-option" data-value="yahoo" data-i18n-key="searchEngine.yahoo">Yahoo!</div>
-                                <div class="custom-option" data-value="bing" data-i18n-key="searchEngine.bing">Microsoft Bing</div>
-                                <div class="custom-option" data-value="duckduckgo" data-i18n-key="searchEngine.duckduckgo">DuckDuckGo</div>
+                                <div class="custom-option" data-value="google" data-i18n-key="searchEngine.google">
+                                    Google</div>
+                                <div class="custom-option" data-value="yahoo" data-i18n-key="searchEngine.yahoo">Yahoo!
+                                </div>
+                                <div class="custom-option" data-value="bing" data-i18n-key="searchEngine.bing">Microsoft
+                                    Bing</div>
+                                <div class="custom-option" data-value="duckduckgo"
+                                    data-i18n-key="searchEngine.duckduckgo">DuckDuckGo</div>
                             </div>
                         </div>
                     </div>
                     <div class="switch-container">
-                        <label class="switch-label" data-i18n-key="settings.search.openAction">Aksi Membuka Situs</label>
+                        <label class="switch-label" data-i18n-key="settings.search.openAction">Aksi Membuka
+                            Situs</label>
                         <div class="custom-select-container">
                             <div id="search-open-action-select" class="custom-select" tabindex="0">
                                 <span>Tab Baru</span><span class="select-arrow"></span>
                             </div>
                             <div class="custom-select-options">
-                                <div class="custom-option" data-value="direct" data-i18n-key="settings.bookmark.openAction.direct">Buka Langsung</div>
-                                <div class="custom-option" data-value="newTab" data-i18n-key="settings.bookmark.openAction.newTab">Tab Baru</div>
+                                <div class="custom-option" data-value="direct"
+                                    data-i18n-key="settings.bookmark.openAction.direct">Buka Langsung</div>
+                                <div class="custom-option" data-value="newTab"
+                                    data-i18n-key="settings.bookmark.openAction.newTab">Tab Baru</div>
                             </div>
                         </div>
                     </div>
                     <h4 class="sub-judul" data-i18n-key="settings.other.visual">Visual</h4>
                     <div class="switch-container">
-                        <label for="enable-animation-switch" data-i18n-key="settings.other.enableAnimation">Aktifkan Animasi</label>
+                        <label for="enable-animation-switch" data-i18n-key="settings.other.enableAnimation">Aktifkan
+                            Animasi</label>
                         <label class="switch">
                             <input type="checkbox" id="enable-animation-switch">
                             <span class="slider round"></span>
                         </label>
                     </div>
                     <div class="switch-container">
-                        <label for="blur-bookmark-switch" class="switch-label" data-i18n-key="settings.other.blurBookmark">Efek Blur Bookmark dan Daftar Tugas</label>
+                        <label for="blur-bookmark-switch" class="switch-label"
+                            data-i18n-key="settings.other.blurBookmark">Efek Blur Bookmark dan Daftar Tugas</label>
                         <label class="switch">
                             <input type="checkbox" id="blur-bookmark-switch">
                             <span class="slider"></span>
                         </label>
                     </div>
                     <div class="switch-container">
-                        <label for="blur-menu-switch" class="switch-label" data-i18n-key="settings.other.blurMenu">Efek Blur Background Menu</label>
+                        <label for="blur-menu-switch" class="switch-label" data-i18n-key="settings.other.blurMenu">Efek
+                            Blur Background Menu</label>
                         <label class="switch">
                             <input type="checkbox" id="blur-menu-switch">
                             <span class="slider"></span>
                         </label>
                     </div>
                     <div class="switch-container">
-                        <label for="blur-footer-switch" class="switch-label" data-i18n-key="settings.other.blurFooter">Efek Blur Footer</label>
+                        <label for="blur-footer-switch" class="switch-label"
+                            data-i18n-key="settings.other.blurFooter">Efek Blur Footer</label>
                         <label class="switch">
                             <input type="checkbox" id="blur-footer-switch">
                             <span class="slider"></span>
@@ -387,104 +451,141 @@
                 <div id="settings-panel-data" class="tab-panel">
                     <div class="data-section">
                         <h4 class="sub-judul" data-i18n-key="data.manageData.title">Impor dan Ekspor</h4>
-                        <p class="setting-help-text" data-i18n-key="data.manageData.desc">Setiap kali Anda melakukan impor, halaman akan memuat ulang secara otomatis.</p>
+                        <p class="setting-help-text" data-i18n-key="data.manageData.desc">Setiap kali Anda melakukan
+                            impor, halaman akan memuat ulang secara otomatis.</p>
                         <div class="switch-container">
-                            <label for="manage-user-title" class="switch-label" data-i18n-key="data.manageUser.title">Data Pengguna</label>
+                            <label for="manage-user-title" class="switch-label"
+                                data-i18n-key="data.manageUser.title">Data Pengguna</label>
                         </div>
-                        <p class="setting-help-text" data-i18n-key="data.manageUser.desc">Username, pilihan tema, bookmark, daftar tugas, dan pengaturan.</p>
+                        <p class="setting-help-text" data-i18n-key="data.manageUser.desc">Username, pilihan tema,
+                            bookmark, daftar tugas, dan pengaturan.</p>
                         <div class="data-actions">
-                            <button id="import-user-data-btn" class="modal-secondary-btn" data-i18n-key="data.button.import">Impor</button>
-                            <button id="export-user-data-btn" class="modal-save-btn" data-i18n-key="data.button.export">Ekspor</button>
+                            <button id="import-user-data-btn" class="modal-secondary-btn"
+                                data-i18n-key="data.button.import">Impor</button>
+                            <button id="export-user-data-btn" class="modal-save-btn"
+                                data-i18n-key="data.button.export">Ekspor</button>
                         </div>
                     </div>
                     <div id="manage-hidden-data-container">
                         <div class="data-section">
                             <div class="data-section-info">
                                 <div class="switch-container">
-                                    <label for="manage-user-title" class="switch-label" data-i18n-key="data.manageHidden.title">Data Catatan & Gambar</label>
+                                    <label for="manage-user-title" class="switch-label"
+                                        data-i18n-key="data.manageHidden.title">Data Catatan & Gambar</label>
                                 </div>
-                                <p class="setting-help-text" data-i18n-key="data.manageHidden.desc">Data gambar dan catatan beserta PIN nya.</p>
+                                <p class="setting-help-text" data-i18n-key="data.manageHidden.desc">Data gambar dan
+                                    catatan beserta PIN nya.</p>
                             </div>
                             <div class="data-actions">
-                                <button id="import-hidden-data-btn" class="modal-secondary-btn" data-i18n-key="data.button.import">Impor</button>
-                                <button id="export-hidden-data-btn" class="modal-save-btn" data-i18n-key="data.button.export">Ekspor</button>
+                                <button id="import-hidden-data-btn" class="modal-secondary-btn"
+                                    data-i18n-key="data.button.import">Impor</button>
+                                <button id="export-hidden-data-btn" class="modal-save-btn"
+                                    data-i18n-key="data.button.export">Ekspor</button>
                             </div>
                         </div>
                     </div>
                     <div class="data-section">
                         <h4 class="sub-judul" data-i18n-key="data.search.title">Data di Bar Pencarian</h4>
-                        <p id="search-title-help-text" class="setting-help-text" data-i18n-key="data.searchHelp">Bar pencarian perlu diaktifkan terlebih dahulu di menu tampilan sebelum melakukan perubahan fitur dibawah.</p>
+                        <p id="search-title-help-text" class="setting-help-text" data-i18n-key="data.searchHelp">Bar
+                            pencarian perlu diaktifkan terlebih dahulu di menu tampilan sebelum melakukan perubahan
+                            fitur dibawah.</p>
                         <div class="switch-container">
-                            <label for="enable-bookmark-search-switch" class="switch-label" data-i18n-key="settings.search.enableBookmark">Bookmark</label>
+                            <label for="enable-bookmark-search-switch" class="switch-label"
+                                data-i18n-key="settings.search.enableBookmark">Bookmark</label>
                             <label class="switch">
                                 <input type="checkbox" id="enable-bookmark-search-switch">
                                 <span class="slider"></span>
                             </label>
                         </div>
                         <div class="switch-container">
-                            <label for="enable-prompt-search-switch" class="switch-label" data-i18n-key="settings.search.enablePrompt">Catatan dan Deskripsi Gambar</label>
+                            <label for="enable-prompt-search-switch" class="switch-label"
+                                data-i18n-key="settings.search.enablePrompt">Catatan dan Deskripsi Gambar</label>
                             <label class="switch">
                                 <input type="checkbox" id="enable-prompt-search-switch">
                                 <span class="slider"></span>
                             </label>
                         </div>
-                        <p id="enable-search-help-text" class="setting-help-text" data-i18n-key="settings.search.enableHelp">Dengan mengaktifkan fitur ini, maka data catatan dan deskripsi gambar Anda akan mudah dicari melalui bar pencarian.</p>
+                        <p id="enable-search-help-text" class="setting-help-text"
+                            data-i18n-key="settings.search.enableHelp">Dengan mengaktifkan fitur ini, maka data catatan
+                            dan deskripsi gambar Anda akan mudah dicari melalui bar pencarian.</p>
                         <div class="switch-container">
-                            <label for="enable-history-search-switch" class="switch-label" data-i18n-key="settings.search.enableHistory">Histori Browser</label>
+                            <label for="enable-history-search-switch" class="switch-label"
+                                data-i18n-key="settings.search.enableHistory">Histori Browser</label>
                             <label class="switch">
                                 <input type="checkbox" id="enable-history-search-switch">
                                 <span class="slider"></span>
                             </label>
                         </div>
-                        <p id="enable-history-search-help-text" class="setting-help-text" data-i18n-key="settings.search.enableHistoryHelp">Histori browser Anda akan mudah dicari melalui bar pencarian hingga 1 tahun terakhir. Mohon pertimbangkan sebelum mengaktifkan nya.</p>
-                        <p id="enable-history-search-help-text" class="setting-help-text" data-i18n-key="settings.search.enableHistoryHelp2">Untuk keamanan, opsi ini tidak akan di ekspor.</p>
-                        <h4 class="sub-judul" data-i18n-key="data.searchPopup.title">Data di Pencarian Pop-up Dashboard</h4>
+                        <p id="enable-history-search-help-text" class="setting-help-text"
+                            data-i18n-key="settings.search.enableHistoryHelp">Histori browser Anda akan mudah dicari
+                            melalui bar pencarian hingga 1 tahun terakhir. Mohon pertimbangkan sebelum mengaktifkan nya.
+                        </p>
+                        <p id="enable-history-search-help-text" class="setting-help-text"
+                            data-i18n-key="settings.search.enableHistoryHelp2">Untuk keamanan, opsi ini tidak akan di
+                            ekspor.</p>
+                        <h4 class="sub-judul" data-i18n-key="data.searchPopup.title">Data di Pencarian Pop-up Dashboard
+                        </h4>
                         <div class="switch-container">
-                            <label for="enable-bookmark-popup-finder-switch" class="switch-label" data-i18n-key="settings.search.enableBookmark">Bookmark</label>
+                            <label for="enable-bookmark-popup-finder-switch" class="switch-label"
+                                data-i18n-key="settings.search.enableBookmark">Bookmark</label>
                             <label class="switch">
                                 <input type="checkbox" id="enable-bookmark-popup-finder-switch">
                                 <span class="slider"></span>
                             </label>
                         </div>
                         <div class="switch-container">
-                            <label for="enable-popup-finder-switch" class="switch-label" data-i18n-key="settings.search.enablePrompt">Catatan dan Deskripsi Gambar</label>
+                            <label for="enable-popup-finder-switch" class="switch-label"
+                                data-i18n-key="settings.search.enablePrompt">Catatan dan Deskripsi Gambar</label>
                             <label class="switch">
                                 <input type="checkbox" id="enable-popup-finder-switch">
                                 <span class="slider"></span>
                             </label>
                         </div>
-                        <p id="enable-popup-finder-help-text" class="setting-help-text" data-i18n-key="settings.popup.enableHelp">Dengan mengaktifkan fitur ini, maka data catatan dan deskripsi gambar Anda akan mudah dicari melalui Pop-up Dashboard.</p>
+                        <p id="enable-popup-finder-help-text" class="setting-help-text"
+                            data-i18n-key="settings.popup.enableHelp">Dengan mengaktifkan fitur ini, maka data catatan
+                            dan deskripsi gambar Anda akan mudah dicari melalui Pop-up Dashboard.</p>
                     </div>
                     <div class="data-section">
                         <h4 class="sub-judul" data-i18n-key="data.cache.title">Data dan Cache</h4>
                         <div class="cache-info">
-                            <label class="switch-label" data-i18n-key="data.cache.bookmarkLabel">Cache bookmark (favicon):</label>
+                            <label class="switch-label" data-i18n-key="data.cache.bookmarkLabel">Cache bookmark
+                                (favicon):</label>
                             <p id="bookmark-cache-usage-text" class="cache-usage-value"></p>
                         </div>
                         <div class="cache-info">
-                            <label class="switch-label" data-i18n-key="data.cache.hiddenFeatureLabel">Cache galeri gambar:</label>
+                            <label class="switch-label" data-i18n-key="data.cache.hiddenFeatureLabel">Cache galeri
+                                gambar:</label>
                             <p id="hidden-cache-usage-text" class="cache-usage-value"></p>
                         </div>
                         <div class="data-actions-column">
-                            <button id="clear-bookmark-cache-btn" class="modal-secondary-btn" type="button" data-i18n-key="data.button.clearBookmarkCache">Hapus Cache Bookmark</button>
-                            <button id="clear-hidden-cache-btn" class="modal-secondary-btn" type="button" data-i18n-key="data.button.clearHiddenCache">Hapus Cache Galeri Gambar</button>
-                            <button id="delete-user-data-btn" class="modal-danger-btn" type="button" data-i18n-key="data.button.deleteUserData">Hapus Data Pengguna</button>
-                            <button id="delete-todo-list-data-btn" class="modal-danger-btn" type="button" data-i18n-key="data.button.deleteTodoListData">Hapus Data Daftar Tugas</button>
-                            <button id="delete-hidden-data-btn" class="modal-danger-btn" type="button" data-i18n-key="data.button.deleteHiddenData">Hapus Data Catatan & Gambar</button>
-                       </div>
+                            <button id="clear-bookmark-cache-btn" class="modal-secondary-btn" type="button"
+                                data-i18n-key="data.button.clearBookmarkCache">Hapus Cache Bookmark</button>
+                            <button id="clear-hidden-cache-btn" class="modal-secondary-btn" type="button"
+                                data-i18n-key="data.button.clearHiddenCache">Hapus Cache Galeri Gambar</button>
+                            <button id="delete-user-data-btn" class="modal-danger-btn" type="button"
+                                data-i18n-key="data.button.deleteUserData">Hapus Data Pengguna</button>
+                            <button id="delete-todo-list-data-btn" class="modal-danger-btn" type="button"
+                                data-i18n-key="data.button.deleteTodoListData">Hapus Data Daftar Tugas</button>
+                            <button id="delete-hidden-data-btn" class="modal-danger-btn" type="button"
+                                data-i18n-key="data.button.deleteHiddenData">Hapus Data Catatan & Gambar</button>
+                        </div>
                     </div>
                 </div>
-    
+
                 <div id="settings-panel-other" class="tab-panel">
                     <h4 class="sub-judul" data-i18n-key="settings.hidden.title">Catatan</h4>
-                    <p id="hidden-feature-access-tip" class="setting-help-text hidden" data-i18n-key="settings.hidden.accessTip"></p>
+                    <p id="hidden-feature-access-tip" class="setting-help-text hidden"
+                        data-i18n-key="settings.hidden.accessTip"></p>
                     <div id="pin-settings-container" class="hidden">
                         <div class="setting-item-column">
-                            <label for="pin-input" id="pin-update-label" class="switch-label" data-i18n-key="settings.security.changePinLabel">Ubah PIN Keamanan (4 digit)</label>
-                            <input type="password" id="pin-input" class="modal-input pin-input-field" maxlength="4" placeholder="••••" inputmode="numeric">
+                            <label for="pin-input" id="pin-update-label" class="switch-label"
+                                data-i18n-key="settings.security.changePinLabel">Ubah PIN Keamanan (4 digit)</label>
+                            <input type="password" id="pin-input" class="modal-input pin-input-field" maxlength="4"
+                                placeholder="••••" inputmode="numeric">
                         </div>
                         <div class="modal-button-group">
-                            <button id="update-pin-btn" class="modal-save-btn" data-i18n-key="settings.hidden.updatePin">Perbarui PIN</button>
+                            <button id="update-pin-btn" class="modal-save-btn"
+                                data-i18n-key="settings.hidden.updatePin">Perbarui PIN</button>
                         </div>
                     </div>
                 </div>
@@ -499,13 +600,17 @@
                 <button id="close-about-modal-btn" class="close-btn">&times;</button>
             </div>
             <div class="modal-body about-body">
-                <p data-i18n-key="about.p1">Halaman ini bertujuan untuk menggantikan halaman beranda yang ada pada browser. Terima kasih telah menggunakan.</p>
+                <p data-i18n-key="about.p1">Halaman ini bertujuan untuk menggantikan halaman beranda yang ada pada
+                    browser. Terima kasih telah menggunakan.</p>
                 <p data-i18n-key="about.p2">Untuk info selengkapnya, silahkan kunjungi halaman readme.</p>
                 <div class="modal-button-group readme-button-container">
-                    <a href="https://github.com/K1234-droid/dashboard/blob/main/readme.md" target="_blank" rel="noopener noreferrer" class="modal-save-btn" data-i18n-key="about.readmeButton">Lihat readme</a>
+                    <a href="https://github.com/K1234-droid/dashboard/blob/main/readme.md" target="_blank"
+                        rel="noopener noreferrer" class="modal-save-btn" data-i18n-key="about.readmeButton">Lihat
+                        readme</a>
                 </div>
                 <h4 class="sub-judul" data-i18n-key="about.notesTitle">Catatan</h4>
-                <p data-i18n-key="about.n1">Penerapan fitur tema terang dan gelap hanya berlaku untuk halaman dashboard ini.</p>
+                <p data-i18n-key="about.n1">Penerapan fitur tema terang dan gelap hanya berlaku untuk halaman dashboard
+                    ini.</p>
                 <h4 class="sub-judul" data-i18n-key="about.creditTitle">Kredit</h4>
                 <p data-i18n-key="about.c1">Font:</p>
                 <ul>
@@ -529,14 +634,18 @@
     <div id="confirmation-bookmark-merge-modal-overlay" class="modal-overlay hidden">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="confirmation-bookmark-merge-modal-title" data-i18n-key="confirm.import.user.title">Impor Data Pengguna</h3>
+                <h3 id="confirmation-bookmark-merge-modal-title" data-i18n-key="confirm.import.user.title">Impor Data
+                    Pengguna</h3>
                 <button id="close-confirmation-bookmark-merge-modal-btn" class="close-btn">&times;</button>
             </div>
             <div class="modal-body">
-                <p id="confirmation-bookmark-merge-modal-text" data-i18n-key="confirm.import.mergeText">File cadangan terdeteksi. Apa yang ingin Anda lakukan dengan data yang ada saat ini?</p>
+                <p id="confirmation-bookmark-merge-modal-text" data-i18n-key="confirm.import.mergeText">File cadangan
+                    terdeteksi. Apa yang ingin Anda lakukan dengan data yang ada saat ini?</p>
                 <div class="modal-button-group-column">
-                    <button id="confirm-bookmark-merge-btn" class="modal-save-btn" data-i18n-key="confirm.import.mergeBtn">Gabungkan</button>
-                    <button id="confirm-bookmark-replace-btn" class="modal-save-btn" data-i18n-key="confirm.import.replaceBtn">Gantikan Semua</button>
+                    <button id="confirm-bookmark-merge-btn" class="modal-save-btn"
+                        data-i18n-key="confirm.import.mergeBtn">Gabungkan</button>
+                    <button id="confirm-bookmark-replace-btn" class="modal-save-btn"
+                        data-i18n-key="confirm.import.replaceBtn">Gantikan Semua</button>
                 </div>
             </div>
         </div>
@@ -545,17 +654,21 @@
     <div id="confirmation-merge-replace-modal-overlay" class="modal-overlay hidden">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="confirmation-merge-replace-modal-title" data-i18n-key="confirm.import.mergeTitle">Impor Data Catatan & Gambar</h3>
+                <h3 id="confirmation-merge-replace-modal-title" data-i18n-key="confirm.import.mergeTitle">Impor Data
+                    Catatan & Gambar</h3>
                 <button id="close-confirmation-merge-replace-modal-btn" class="close-btn">&times;</button>
             </div>
             <div class="modal-body">
-                <p id="confirmation-merge-replace-modal-text" data-i18n-key="confirm.import.mergeText">File cadangan terdeteksi. Apa yang ingin Anda lakukan dengan data yang ada saat ini?</p>
+                <p id="confirmation-merge-replace-modal-text" data-i18n-key="confirm.import.mergeText">File cadangan
+                    terdeteksi. Apa yang ingin Anda lakukan dengan data yang ada saat ini?</p>
                 <div class="modal-button-group-column">
-                    <button id="confirm-merge-btn" class="modal-save-btn" data-i18n-key="confirm.import.mergeBtn">Gabungkan</button>
-                    <button id="confirm-replace-btn" class="modal-save-btn" data-i18n-key="confirm.import.replaceBtn">Gantikan Semua</button>
+                    <button id="confirm-merge-btn" class="modal-save-btn"
+                        data-i18n-key="confirm.import.mergeBtn">Gabungkan</button>
+                    <button id="confirm-replace-btn" class="modal-save-btn"
+                        data-i18n-key="confirm.import.replaceBtn">Gantikan Semua</button>
                 </div>
                 <p class="modal-warning-text" data-i18n-key="confirm.import.pinWarning"></p>
-                    <div class="modal-button-group">
+                <div class="modal-button-group">
                 </div>
             </div>
         </div>
@@ -570,7 +683,8 @@
             <div class="modal-body">
                 <div class="setting-item-column">
                     <label for="pin-enter-input" class="modal-label" data-i18n-key="pin.enter.label">PIN 4 Digit</label>
-                    <input type="password" id="pin-enter-input" class="modal-input pin-input-field" maxlength="4" inputmode="numeric">
+                    <input type="password" id="pin-enter-input" class="modal-input pin-input-field" maxlength="4"
+                        inputmode="numeric">
                 </div>
                 <button id="submit-pin-btn" class="modal-save-btn" data-i18n-key="pin.enter.submit">Masuk</button>
             </div>
@@ -584,36 +698,46 @@
                 <div id="prompt-header-controls">
                     <button id="prompt-add-btn-header" class="modal-header-btn add-btn">+</button>
                     <button id="prompt-search-btn" class="modal-header-btn" data-i18n-key="prompt.search">Cari</button>
-                    <button id="prompt-manage-btn" class="modal-header-btn" data-i18n-key="prompt.manage">Kelola</button>
-                    
-                    <button id="prompt-more-btn-header" class="modal-header-btn more-btn hidden-on-desktop" data-tooltip="Opsi Lain">&#8943;</button>
+                    <button id="prompt-manage-btn" class="modal-header-btn"
+                        data-i18n-key="prompt.manage">Kelola</button>
+
+                    <button id="prompt-more-btn-header" class="modal-header-btn more-btn hidden-on-desktop"
+                        data-tooltip="Opsi Lain">&#8943;</button>
                     <div id="prompt-header-menu" class="prompt-item-menu hidden-on-desktop">
-                        <button class="prompt-menu-option" data-action="search" data-i18n-key="prompt.search">Cari</button>
-                        <button class="prompt-menu-option" data-action="manage" data-i18n-key="prompt.manage">Kelola</button>
+                        <button class="prompt-menu-option" data-action="search"
+                            data-i18n-key="prompt.search">Cari</button>
+                        <button class="prompt-menu-option" data-action="manage"
+                            data-i18n-key="prompt.manage">Kelola</button>
                     </div>
                     <button id="close-prompt-modal-btn" class="close-btn">&times;</button>
                 </div>
             </div>
-            
+
             <div id="prompt-action-bar" class="prompt-action-bar hidden">
                 <div id="prompt-search-content" class="action-bar-content hidden">
-                    <input type="text" id="prompt-search-input" class="modal-input" placeholder=" " aria-label="Search Prompts">
-                    <button id="prompt-cancel-search-btn" class="modal-secondary-btn" data-i18n-key="prompt.delete.cancel">Batal</button>
+                    <input type="text" id="prompt-search-input" class="modal-input" placeholder=" "
+                        aria-label="Search Prompts">
+                    <button id="prompt-cancel-search-btn" class="modal-secondary-btn"
+                        data-i18n-key="prompt.delete.cancel">Batal</button>
                 </div>
-            
+
                 <div id="prompt-manage-content" class="action-bar-content hidden">
                     <span id="prompt-select-count" class="prompt-select-count-text">Pilih (0)</span>
                     <div class="prompt-manage-actions">
-                        <button id="prompt-select-all-btn" class="modal-secondary-btn" data-i18n-key="prompt.selectAll">Pilih Semua</button>
-                        <button id="prompt-delete-selected-btn" class="modal-danger-btn" data-i18n-key="prompt.menu.delete" disabled>Hapus</button>
-                        <button id="prompt-cancel-manage-btn" class="modal-secondary-btn" data-i18n-key="prompt.delete.cancel">Batal</button>
+                        <button id="prompt-select-all-btn" class="modal-secondary-btn"
+                            data-i18n-key="prompt.selectAll">Pilih Semua</button>
+                        <button id="prompt-delete-selected-btn" class="modal-danger-btn"
+                            data-i18n-key="prompt.menu.delete" disabled>Hapus</button>
+                        <button id="prompt-cancel-manage-btn" class="modal-secondary-btn"
+                            data-i18n-key="prompt.delete.cancel">Batal</button>
                     </div>
                 </div>
             </div>
             <div class="modal-body">
                 <div id="prompt-grid" class="prompt-grid">
                 </div>
-                <p id="prompt-no-results" class="prompt-no-results hidden" data-i18n-key="prompt.search.noResults">Tidak ditemukan hasil</p>
+                <p id="prompt-no-results" class="prompt-no-results hidden" data-i18n-key="prompt.search.noResults">Tidak
+                    ditemukan hasil</p>
             </div>
         </div>
     </div>
@@ -625,20 +749,23 @@
                 <button id="close-prompt-viewer-modal-btn" class="close-btn">&times;</button>
             </div>
             <div class="modal-body-top-actions">
-                <button id="copy-prompt-btn" class="modal-save-btn" data-i18n-key="prompt.image.copy">Salin Deskripsi</button>
-                <button id="delete-prompt-btn" class="modal-danger-btn" data-i18n-key="prompt.menu.delete">Hapus</button>
+                <button id="copy-prompt-btn" class="modal-save-btn" data-i18n-key="prompt.image.copy">Salin
+                    Deskripsi</button>
+                <button id="delete-prompt-btn" class="modal-danger-btn"
+                    data-i18n-key="prompt.menu.delete">Hapus</button>
             </div>
             <div class="modal-body">
                 <p id="prompt-viewer-text"></p>
             </div>
             <div class="modal-footer-actions">
                 <div class="modal-button-group">
-                    <button id="edit-prompt-btn" class="modal-secondary-btn" data-i18n-key="prompt.menu.edit">Edit</button>
+                    <button id="edit-prompt-btn" class="modal-secondary-btn"
+                        data-i18n-key="prompt.menu.edit">Edit</button>
                 </div>
             </div>
         </div>
     </div>
-    
+
     <div id="add-edit-prompt-modal-overlay" class="modal-overlay hidden">
         <div class="modal-content">
             <div class="modal-header">
@@ -647,21 +774,24 @@
             </div>
             <div class="modal-body">
                 <div class="setting-item-column">
-                    <label for="prompt-image-file-input" class="modal-label" data-i18n-key="prompt.edit.imageLabel">Pilih File Gambar dari perangkat</label>
-                    
+                    <label for="prompt-image-file-input" class="modal-label"
+                        data-i18n-key="prompt.edit.imageLabel">Pilih File Gambar dari perangkat</label>
+
                     <div id="prompt-image-previews-container" class="image-previews-container hidden">
                         <img id="prompt-image-preview-old" src="" alt="Gambar Lama" class="image-preview">
                         <span class="preview-arrow">&rarr;</span>
                         <img id="prompt-image-preview-new" src="" alt="Gambar Baru" class="image-preview">
                     </div>
-                    
+
                     <img id="prompt-image-preview-single" src="" alt="Pratinjau Gambar" class="image-preview hidden">
-                
+
                     <input type="file" id="prompt-image-file-input" class="modal-input-file" accept="image/*">
-                    <p id="prompt-image-help-text" class="setting-help-text" data-i18n-key="prompt.edit.imageHelp">Kosongkan jika tidak ingin mengubah gambar.</p>
+                    <p id="prompt-image-help-text" class="setting-help-text" data-i18n-key="prompt.edit.imageHelp">
+                        Kosongkan jika tidak ingin mengubah gambar.</p>
                 </div>
                 <div class="setting-item-column">
-                    <label for="prompt-text-input" class="modal-label" data-i18n-key="prompt.edit.textLabel">Deskripsi Gambar</label>
+                    <label for="prompt-text-input" class="modal-label" data-i18n-key="prompt.edit.textLabel">Deskripsi
+                        Gambar</label>
                     <textarea id="prompt-text-input" class="modal-input" rows="5"></textarea>
                 </div>
             </div>
@@ -676,14 +806,16 @@
     <div id="image-viewer-modal-overlay" class="modal-overlay hidden">
         <div class="image-viewer-content">
             <div id="image-viewer-controls" class="image-viewer-controls">
-                <button id="prev-image-btn" class="image-viewer-nav-btn prev-btn" aria-label="Previous Image"><span class="nav-arrow"></span></button>
-                <button id="next-image-btn" class="image-viewer-nav-btn next-btn" aria-label="Next Image"><span class="nav-arrow"></span></button>
+                <button id="prev-image-btn" class="image-viewer-nav-btn prev-btn" aria-label="Previous Image"><span
+                        class="nav-arrow"></span></button>
+                <button id="next-image-btn" class="image-viewer-nav-btn next-btn" aria-label="Next Image"><span
+                        class="nav-arrow"></span></button>
                 <button id="close-image-viewer-modal-btn" class="close-btn image-viewer-close-btn">&times;</button>
             </div>
             <img id="full-image-viewer" src="" alt="Tampilan Gambar Penuh">
         </div>
     </div>
-    
+
     <div id="info-modal-overlay" class="modal-overlay hidden">
         <div class="modal-content">
             <div class="modal-header">
@@ -703,12 +835,16 @@
                 <button id="close-create-pin-modal-btn" class="close-btn">&times;</button>
             </div>
             <div class="modal-body">
-                <p class="modal-description" data-i18n-key="pin.create.description">PIN akan digunakan untuk melindungi catatan ketika melakukan ekspor, hapus seluruh data, dan perubahan fitur.</p>
+                <p class="modal-description" data-i18n-key="pin.create.description">PIN akan digunakan untuk melindungi
+                    catatan ketika melakukan ekspor, hapus seluruh data, dan perubahan fitur.</p>
                 <div class="setting-item-column">
-                    <label for="create-pin-input" class="modal-label" data-i18n-key="pin.enter.label">PIN 4 Digit</label>
-                    <input type="password" id="create-pin-input" class="modal-input pin-input-field" maxlength="4" inputmode="numeric">
+                    <label for="create-pin-input" class="modal-label" data-i18n-key="pin.enter.label">PIN 4
+                        Digit</label>
+                    <input type="password" id="create-pin-input" class="modal-input pin-input-field" maxlength="4"
+                        inputmode="numeric">
                 </div>
-                <button id="save-initial-pin-btn" class="modal-save-btn" data-i18n-key="settings.username.save">Simpan</button>
+                <button id="save-initial-pin-btn" class="modal-save-btn"
+                    data-i18n-key="settings.username.save">Simpan</button>
             </div>
         </div>
     </div>
@@ -720,15 +856,18 @@
                 <button id="close-confirmation-modal-btn" class="close-btn">&times;</button>
             </div>
             <div class="modal-body">
-                <p id="confirmation-modal-text" data-i18n-key="prompt.delete.text">Apakah Anda yakin ingin menghapus prompt ini? Tindakan ini tidak dapat diurungkan.</p>
+                <p id="confirmation-modal-text" data-i18n-key="prompt.delete.text">Apakah Anda yakin ingin menghapus
+                    prompt ini? Tindakan ini tidak dapat diurungkan.</p>
                 <div class="modal-button-group">
-                    <button id="cancel-confirmation-btn" class="modal-secondary-btn" data-i18n-key="prompt.delete.cancel">Batal</button>
-                    <button id="confirm-confirmation-btn" class="modal-danger-btn" data-i18n-key="prompt.delete.confirm">Ya, Hapus</button>
+                    <button id="cancel-confirmation-btn" class="modal-secondary-btn"
+                        data-i18n-key="prompt.delete.cancel">Batal</button>
+                    <button id="confirm-confirmation-btn" class="modal-danger-btn"
+                        data-i18n-key="prompt.delete.confirm">Ya, Hapus</button>
                 </div>
             </div>
         </div>
     </div>
-    
+
     <div id="how-it-works-modal-overlay" class="modal-overlay hidden">
         <div class="modal-content">
             <div class="modal-header">
@@ -736,8 +875,11 @@
                 <button id="close-how-it-works-modal-btn" class="close-btn">&times;</button>
             </div>
             <div class="modal-body how-it-works-body">
-                <p data-i18n-key="hiddenFeature.howItWorks.p1">Klik dua kali pada avatar pojok kanan bawah atau gunakan pintasan keyboard Ctrl + Shift + H di Windows atau CMD + Shift + H di macOS.</p>
-                <img src="assets/icons/avatar-logo-small.webp" alt="Avatar Logo" class="avatar-logo">
+                <p data-i18n-key="hiddenFeature.howItWorks.p1">Klik dua kali pada ikon garis tiga pojok kanan bawah atau
+                    gunakan pintasan keyboard Ctrl + Shift + H di Windows atau CMD + Shift + H di macOS.</p>
+                <div class="avatar-logo hamburger-icon-static">
+                    &#9776;
+                </div>
             </div>
         </div>
     </div>
@@ -746,35 +888,47 @@
         <div class="modal-content sidebar-open">
             <div class="modal-header">
                 <div>
-                    <button id="advanced-prompt-toggle-sidebar-btn" class="modal-header-btn" data-tooltip="Folder" data-i18n-key="folder.title" aria-label="Toggle Folder Sidebar">&#9776;</button>
+                    <button id="advanced-prompt-toggle-sidebar-btn" class="modal-header-btn" data-tooltip="Folder"
+                        data-i18n-key="folder.title" aria-label="Toggle Folder Sidebar">&#9776;</button>
                     <h3 data-i18n-key="advanced.prompt.listTitle">Daftar Catatan</h3>
                 </div>
-                
+
                 <div id="advanced-prompt-header-controls">
                     <button id="advanced-prompt-add-btn-header" class="modal-header-btn add-btn">+</button>
-                    <button id="advanced-prompt-search-btn" class="modal-header-btn" data-i18n-key="prompt.search">Cari</button>
-                    <button id="advanced-prompt-manage-btn" class="modal-header-btn" data-i18n-key="prompt.manage">Kelola</button>
-                    
-                    <button id="advanced-prompt-more-btn-header" class="modal-header-btn more-btn hidden-on-desktop" data-tooltip="Opsi Lain">&#8943;</button>
+                    <button id="advanced-prompt-search-btn" class="modal-header-btn"
+                        data-i18n-key="prompt.search">Cari</button>
+                    <button id="advanced-prompt-manage-btn" class="modal-header-btn"
+                        data-i18n-key="prompt.manage">Kelola</button>
+
+                    <button id="advanced-prompt-more-btn-header" class="modal-header-btn more-btn hidden-on-desktop"
+                        data-tooltip="Opsi Lain">&#8943;</button>
                     <div id="advanced-prompt-header-menu" class="prompt-item-menu hidden-on-desktop">
-                        <button class="prompt-menu-option" data-action="search" data-i18n-key="prompt.search">Cari</button>
-                        <button class="prompt-menu-option" data-action="manage" data-i18n-key="prompt.manage">Kelola</button>
+                        <button class="prompt-menu-option" data-action="search"
+                            data-i18n-key="prompt.search">Cari</button>
+                        <button class="prompt-menu-option" data-action="manage"
+                            data-i18n-key="prompt.manage">Kelola</button>
                     </div>
                     <button id="close-advanced-prompt-modal-btn" class="close-btn">&times;</button>
                 </div>
             </div>
             <div id="advanced-prompt-action-bar" class="prompt-action-bar hidden">
                 <div id="advanced-prompt-search-content" class="action-bar-content hidden">
-                    <input type="text" id="advanced-prompt-search-input" class="modal-input" placeholder=" " aria-label="Search Advanced Prompts">
-                    <button id="advanced-prompt-cancel-search-btn" class="modal-secondary-btn" data-i18n-key="prompt.delete.cancel">Batal</button>
+                    <input type="text" id="advanced-prompt-search-input" class="modal-input" placeholder=" "
+                        aria-label="Search Advanced Prompts">
+                    <button id="advanced-prompt-cancel-search-btn" class="modal-secondary-btn"
+                        data-i18n-key="prompt.delete.cancel">Batal</button>
                 </div>
                 <div id="advanced-prompt-manage-content" class="action-bar-content hidden">
                     <span id="advanced-prompt-select-count" class="prompt-select-count-text">Pilih (0)</span>
                     <div class="prompt-manage-actions">
-                        <button id="advanced-prompt-select-all-btn" class="modal-secondary-btn" data-i18n-key="prompt.selectAll">Pilih Semua</button>
-                        <button id="advanced-prompt-move-selected-btn" class="modal-secondary-btn" data-i18n-key="prompt.menu.move" disabled>Pindahkan</button>
-                        <button id="advanced-prompt-delete-selected-btn" class="modal-danger-btn" data-i18n-key="prompt.menu.delete" disabled>Hapus</button>
-                        <button id="advanced-prompt-cancel-manage-btn" class="modal-secondary-btn" data-i18n-key="prompt.delete.cancel">Batal</button>
+                        <button id="advanced-prompt-select-all-btn" class="modal-secondary-btn"
+                            data-i18n-key="prompt.selectAll">Pilih Semua</button>
+                        <button id="advanced-prompt-move-selected-btn" class="modal-secondary-btn"
+                            data-i18n-key="prompt.menu.move" disabled>Pindahkan</button>
+                        <button id="advanced-prompt-delete-selected-btn" class="modal-danger-btn"
+                            data-i18n-key="prompt.menu.delete" disabled>Hapus</button>
+                        <button id="advanced-prompt-cancel-manage-btn" class="modal-secondary-btn"
+                            data-i18n-key="prompt.delete.cancel">Batal</button>
                     </div>
                 </div>
             </div>
@@ -783,14 +937,17 @@
                     <button id="advanced-prompt-folder-all" class="folder-tab-btn active" data-folder-id="all">
                         <span class="folder-tab-name" data-i18n-key="prompt.all">Semua</span>
                     </button>
-                    </div>
+                </div>
                 <div class="folder-sidebar-sticky-buttons">
-                    <button id="advanced-prompt-add-folder-btn" class="folder-tab-btn add-btn" data-i18n-key="prompt.addFolder" data-tooltip="Tambah Folder">+</button>
-                    <button id="advanced-prompt-more-folders-btn" class="folder-tab-btn more-btn" data-i18n-key="prompt.more" data-tooltip="Lainnya">&#8943;</button>
+                    <button id="advanced-prompt-add-folder-btn" class="folder-tab-btn add-btn"
+                        data-i18n-key="prompt.addFolder" data-tooltip="Tambah Folder">+</button>
+                    <button id="advanced-prompt-more-folders-btn" class="folder-tab-btn more-btn"
+                        data-i18n-key="prompt.more" data-tooltip="Lainnya">&#8943;</button>
                 </div>
                 <div class="advanced-prompt-main-area">
                     <div id="advanced-prompt-grid" class="prompt-grid"></div>
-                    <p id="advanced-prompt-no-results" class="prompt-no-results hidden" data-i18n-key="prompt.search.noResults">Tidak ditemukan hasil</p>
+                    <p id="advanced-prompt-no-results" class="prompt-no-results hidden"
+                        data-i18n-key="prompt.search.noResults">Tidak ditemukan hasil</p>
                 </div>
             </div>
         </div>
@@ -803,14 +960,17 @@
                 <button id="close-advanced-prompt-viewer-modal-btn" class="close-btn">&times;</button>
             </div>
             <div class="modal-body-top-actions">
-                <button id="copy-advanced-prompt-btn" class="modal-save-btn" data-i18n-key="prompt.menu.copy">Salin Teks</button>
-                <button id="delete-advanced-prompt-btn" class="modal-danger-btn" data-i18n-key="prompt.menu.delete">Hapus</button>
+                <button id="copy-advanced-prompt-btn" class="modal-save-btn" data-i18n-key="prompt.menu.copy">Salin
+                    Teks</button>
+                <button id="delete-advanced-prompt-btn" class="modal-danger-btn"
+                    data-i18n-key="prompt.menu.delete">Hapus</button>
             </div>
             <div id="advanced-prompt-viewer-body" class="modal-body">
-                </div>
+            </div>
             <div class="modal-footer-actions">
                 <div class="modal-button-group">
-                    <button id="edit-advanced-prompt-btn" class="modal-secondary-btn" data-i18n-key="prompt.menu.edit">Edit</button>
+                    <button id="edit-advanced-prompt-btn" class="modal-secondary-btn"
+                        data-i18n-key="prompt.menu.edit">Edit</button>
                 </div>
             </div>
         </div>
@@ -819,16 +979,19 @@
     <div id="add-edit-advanced-prompt-modal-overlay" class="modal-overlay hidden">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="add-edit-advanced-prompt-title" data-i18n-key="advanced.prompt.addTitle">Tambah Catatan Baru</h3>
+                <h3 id="add-edit-advanced-prompt-title" data-i18n-key="advanced.prompt.addTitle">Tambah Catatan Baru
+                </h3>
                 <button id="close-add-edit-advanced-prompt-modal-btn" class="close-btn">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="setting-item-column">
-                    <label for="advanced-prompt-title-input" class="modal-label" data-i18n-key="advanced.prompt.label.title">Judul Catatan (Opsional)</label>
+                    <label for="advanced-prompt-title-input" class="modal-label"
+                        data-i18n-key="advanced.prompt.label.title">Judul Catatan (Opsional)</label>
                     <input type="text" id="advanced-prompt-title-input" class="modal-input">
                 </div>
                 <div class="setting-item-column">
-                    <label for="advanced-prompt-text-input" class="modal-label" data-i18n-key="advanced.prompt.textLabel">Isi Catatan</label>
+                    <label for="advanced-prompt-text-input" class="modal-label"
+                        data-i18n-key="advanced.prompt.textLabel">Isi Catatan</label>
                     <textarea id="advanced-prompt-text-input" class="modal-input" rows="5"></textarea>
                 </div>
                 <div class="setting-item-column">
@@ -838,17 +1001,18 @@
                             <span data-i18n-key="prompt.all">Semua</span><span class="select-arrow"></span>
                         </div>
                         <div id="prompt-folder-select-options" class="custom-select-options">
-                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="setting-item-column">
                     <label class="modal-label" data-i18n-key="advanced.prompt.characterLabel">Pilih Gambar</label>
                     <input type="text" id="character-search-input" class="modal-input" placeholder="Cari karakter...">
                     <div id="advanced-prompt-character-selection-grid" class="prompt-grid character-selection-grid">
-                        </div>
+                    </div>
                 </div>
                 <div id="add-comma-switch-container" class="switch-container hidden">
-                    <label for="add-comma-switch" class="switch-label" data-i18n-key="advanced.prompt.addComma">Tambahkan Koma</label>
+                    <label for="add-comma-switch" class="switch-label"
+                        data-i18n-key="advanced.prompt.addComma">Tambahkan Koma</label>
                     <label class="switch">
                         <input type="checkbox" id="add-comma-switch">
                         <span class="slider"></span>
@@ -857,7 +1021,8 @@
             </div>
             <div class="modal-footer-actions">
                 <div class="modal-button-group">
-                    <button id="save-advanced-prompt-btn" class="modal-save-btn" data-i18n-key="settings.username.save">Simpan</button>
+                    <button id="save-advanced-prompt-btn" class="modal-save-btn"
+                        data-i18n-key="settings.username.save">Simpan</button>
                 </div>
             </div>
         </div>
@@ -865,7 +1030,8 @@
 
     <div id="image-viewer-context-menu" class="prompt-item-menu">
         <button class="prompt-menu-option" data-action="copy" data-i18n-key="prompt.menu.copy">Salin Teks</button>
-        <button class="prompt-menu-option" data-action="save-image" data-i18n-key="prompt.menu.saveImage">Simpan Gambar</button>
+        <button class="prompt-menu-option" data-action="save-image" data-i18n-key="prompt.menu.saveImage">Simpan
+            Gambar</button>
         <button class="prompt-menu-option" data-action="edit" data-i18n-key="prompt.menu.edit">Edit</button>
         <button class="prompt-menu-option" data-action="delete" data-i18n-key="prompt.menu.delete">Hapus</button>
     </div>
@@ -874,7 +1040,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3 id="loading-modal-title"></h3>
-                </div>
+            </div>
             <div class="modal-body">
                 <div class="loading-spinner"></div>
                 <p id="loading-modal-text"></p>
@@ -886,7 +1052,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3 id="progress-modal-title"></h3>
-                </div>
+            </div>
             <div class="modal-body">
                 <p id="progress-modal-text"></p>
                 <div class="progress-bar-container">
@@ -903,37 +1069,48 @@
                 <h3 data-i18n-key="bookmark.title">Bookmark</h3>
                 <div id="bookmark-header-controls">
                     <button id="bookmark-add-btn-header" class="modal-header-btn add-btn">+</button>
-                    <button id="bookmark-search-btn" class="modal-header-btn" data-i18n-key="prompt.search">Cari</button>
-                    <button id="bookmark-manage-btn" class="modal-header-btn" data-i18n-key="prompt.manage">Kelola</button>
-                    
-                    <button id="bookmark-more-btn-header" class="modal-header-btn more-btn hidden-on-desktop" data-tooltip="Opsi Lain">&#8943;</button>
+                    <button id="bookmark-search-btn" class="modal-header-btn"
+                        data-i18n-key="prompt.search">Cari</button>
+                    <button id="bookmark-manage-btn" class="modal-header-btn"
+                        data-i18n-key="prompt.manage">Kelola</button>
+
+                    <button id="bookmark-more-btn-header" class="modal-header-btn more-btn hidden-on-desktop"
+                        data-tooltip="Opsi Lain">&#8943;</button>
                     <div id="bookmark-header-menu" class="prompt-item-menu hidden-on-desktop">
-                        <button class="prompt-menu-option" data-action="search" data-i18n-key="prompt.search">Cari</button>
-                        <button class="prompt-menu-option" data-action="manage" data-i18n-key="prompt.manage">Kelola</button>
+                        <button class="prompt-menu-option" data-action="search"
+                            data-i18n-key="prompt.search">Cari</button>
+                        <button class="prompt-menu-option" data-action="manage"
+                            data-i18n-key="prompt.manage">Kelola</button>
                     </div>
                     <button id="close-bookmark-list-modal-btn" class="close-btn">&times;</button>
                 </div>
             </div>
-            
+
             <div id="bookmark-action-bar" class="prompt-action-bar hidden">
                 <div id="bookmark-search-content" class="action-bar-content hidden">
-                    <input type="text" id="bookmark-search-input" class="modal-input" placeholder=" " aria-label="Search Bookmarks">
-                    <button id="bookmark-cancel-search-btn" class="modal-secondary-btn" data-i18n-key="prompt.delete.cancel">Batal</button>
+                    <input type="text" id="bookmark-search-input" class="modal-input" placeholder=" "
+                        aria-label="Search Bookmarks">
+                    <button id="bookmark-cancel-search-btn" class="modal-secondary-btn"
+                        data-i18n-key="prompt.delete.cancel">Batal</button>
                 </div>
-            
+
                 <div id="bookmark-manage-content" class="action-bar-content hidden">
                     <span id="bookmark-select-count" class="prompt-select-count-text">Pilih (0)</span>
                     <div class="prompt-manage-actions">
-                        <button id="bookmark-select-all-btn" class="modal-secondary-btn" data-i18n-key="prompt.selectAll">Pilih Semua</button>
-                        <button id="bookmark-delete-selected-btn" class="modal-danger-btn" data-i18n-key="prompt.menu.delete" disabled>Hapus</button>
-                        <button id="bookmark-cancel-manage-btn" class="modal-secondary-btn" data-i18n-key="prompt.delete.cancel">Batal</button>
+                        <button id="bookmark-select-all-btn" class="modal-secondary-btn"
+                            data-i18n-key="prompt.selectAll">Pilih Semua</button>
+                        <button id="bookmark-delete-selected-btn" class="modal-danger-btn"
+                            data-i18n-key="prompt.menu.delete" disabled>Hapus</button>
+                        <button id="bookmark-cancel-manage-btn" class="modal-secondary-btn"
+                            data-i18n-key="prompt.delete.cancel">Batal</button>
                     </div>
                 </div>
             </div>
             <div class="modal-body">
                 <div id="bookmark-grid" class="bookmark-grid">
-                    </div>
-                <p id="bookmark-no-results" class="prompt-no-results hidden" data-i18n-key="prompt.search.noResults">Tidak ditemukan hasil</p>
+                </div>
+                <p id="bookmark-no-results" class="prompt-no-results hidden" data-i18n-key="prompt.search.noResults">
+                    Tidak ditemukan hasil</p>
             </div>
         </div>
     </div>
@@ -946,7 +1123,8 @@
             </div>
             <div class="modal-body">
                 <div class="setting-item-column">
-                    <label for="bookmark-name-input" class="modal-label" data-i18n-key="bookmark.label.name">Nama</label>
+                    <label for="bookmark-name-input" class="modal-label"
+                        data-i18n-key="bookmark.label.name">Nama</label>
                     <input type="text" id="bookmark-name-input" class="modal-input">
                 </div>
                 <div class="setting-item-column">
@@ -966,35 +1144,44 @@
                     <button id="todo-add-btn-header" class="modal-header-btn add-btn">+</button>
                     <button id="todo-search-btn" class="modal-header-btn" data-i18n-key="prompt.search">Cari</button>
                     <button id="todo-manage-btn" class="modal-header-btn" data-i18n-key="prompt.manage">Kelola</button>
-                    
-                    <button id="todo-more-btn-header" class="modal-header-btn more-btn hidden-on-desktop" data-tooltip="Opsi Lain">&#8943;</button>
+
+                    <button id="todo-more-btn-header" class="modal-header-btn more-btn hidden-on-desktop"
+                        data-tooltip="Opsi Lain">&#8943;</button>
                     <div id="todo-header-menu" class="prompt-item-menu hidden-on-desktop">
-                        <button class="prompt-menu-option" data-action="search" data-i18n-key="prompt.search">Cari</button>
-                        <button class="prompt-menu-option" data-action="manage" data-i18n-key="prompt.manage">Kelola</button>
+                        <button class="prompt-menu-option" data-action="search"
+                            data-i18n-key="prompt.search">Cari</button>
+                        <button class="prompt-menu-option" data-action="manage"
+                            data-i18n-key="prompt.manage">Kelola</button>
                     </div>
                     <button id="close-todo-list-modal-btn" class="close-btn">&times;</button>
                 </div>
             </div>
-            
+
             <div id="todo-action-bar" class="prompt-action-bar hidden">
                 <div id="todo-search-content" class="action-bar-content hidden">
-                    <input type="text" id="todo-search-input" class="modal-input" placeholder=" " data-i18n-key-placeholder="prompt.search.placeholder" aria-label="Search Todos">
-                    <button id="todo-cancel-search-btn" class="modal-secondary-btn" data-i18n-key="prompt.delete.cancel">Batal</button>
+                    <input type="text" id="todo-search-input" class="modal-input" placeholder=" "
+                        data-i18n-key-placeholder="prompt.search.placeholder" aria-label="Search Todos">
+                    <button id="todo-cancel-search-btn" class="modal-secondary-btn"
+                        data-i18n-key="prompt.delete.cancel">Batal</button>
                 </div>
-            
+
                 <div id="todo-manage-content" class="action-bar-content hidden">
                     <span id="todo-select-count" class="prompt-select-count-text">Pilih (0)</span>
                     <div class="prompt-manage-actions">
-                        <button id="todo-select-all-btn" class="modal-secondary-btn" data-i18n-key="prompt.selectAll">Pilih Semua</button>
-                        <button id="todo-delete-selected-btn" class="modal-danger-btn" data-i18n-key="prompt.menu.delete" disabled>Hapus</button>
-                        <button id="todo-cancel-manage-btn" class="modal-secondary-btn" data-i18n-key="prompt.delete.cancel">Batal</button>
+                        <button id="todo-select-all-btn" class="modal-secondary-btn"
+                            data-i18n-key="prompt.selectAll">Pilih Semua</button>
+                        <button id="todo-delete-selected-btn" class="modal-danger-btn"
+                            data-i18n-key="prompt.menu.delete" disabled>Hapus</button>
+                        <button id="todo-cancel-manage-btn" class="modal-secondary-btn"
+                            data-i18n-key="prompt.delete.cancel">Batal</button>
                     </div>
                 </div>
             </div>
             <div class="modal-body">
                 <div id="todo-grid" class="bookmark-grid todo-grid">
-                    </div>
-                <p id="todo-no-results" class="prompt-no-results hidden" data-i18n-key="prompt.search.noResults">Tidak ditemukan hasil</p>
+                </div>
+                <p id="todo-no-results" class="prompt-no-results hidden" data-i18n-key="prompt.search.noResults">Tidak
+                    ditemukan hasil</p>
             </div>
         </div>
     </div>
@@ -1011,11 +1198,13 @@
                     <input type="text" id="todo-title-input" class="modal-input">
                 </div>
                 <div class="setting-item-column">
-                    <label for="todo-description-input" class="modal-label" data-i18n-key="todo.label.description">Deskripsi</label>
+                    <label for="todo-description-input" class="modal-label"
+                        data-i18n-key="todo.label.description">Deskripsi</label>
                     <textarea id="todo-description-input" class="modal-input" rows="3"></textarea>
                 </div>
                 <div class="setting-item-column">
-                    <label for="todo-datetime-input" class="modal-label" data-i18n-key="todo.label.datetime">Tenggat Waktu (Opsional)</label>
+                    <label for="todo-datetime-input" class="modal-label" data-i18n-key="todo.label.datetime">Tenggat
+                        Waktu (Opsional)</label>
                     <div class="datetime-input-wrapper">
                         <input type="datetime-local" id="todo-datetime-input" class="modal-input" data-placeholder="">
                     </div>
@@ -1023,7 +1212,8 @@
             </div>
             <div class="modal-footer-actions">
                 <div class="modal-button-group">
-                    <button id="save-todo-btn" class="modal-save-btn" data-i18n-key="settings.username.save">Simpan</button>
+                    <button id="save-todo-btn" class="modal-save-btn"
+                        data-i18n-key="settings.username.save">Simpan</button>
                 </div>
             </div>
         </div>
@@ -1040,7 +1230,8 @@
                 <h4 class="sub-judul" data-i18n-key="update.releaseNotes">Catatan Rilis:</h4>
                 <div id="update-release-notes"></div>
                 <div class="modal-button-group">
-                    <a id="update-download-btn" href="#" target="_blank" rel="noopener noreferrer" class="modal-save-btn" data-i18n-key="update.downloadBtn">Buka Halaman Unduh</a>
+                    <a id="update-download-btn" href="#" target="_blank" rel="noopener noreferrer"
+                        class="modal-save-btn" data-i18n-key="update.downloadBtn">Buka Halaman Unduh</a>
                 </div>
             </div>
         </div>
@@ -1053,29 +1244,38 @@
                 <div id="folder-header-controls">
                     <button id="folder-add-btn-header" class="modal-header-btn add-btn">+</button>
                     <button id="folder-search-btn" class="modal-header-btn" data-i18n-key="prompt.search">Cari</button>
-                    <button id="folder-manage-btn" class="modal-header-btn" data-i18n-key="prompt.manage">Kelola</button>
-                    
-                    <button id="folder-more-btn-header" class="modal-header-btn more-btn hidden-on-desktop" data-tooltip="Opsi Lain">&#8943;</button>
+                    <button id="folder-manage-btn" class="modal-header-btn"
+                        data-i18n-key="prompt.manage">Kelola</button>
+
+                    <button id="folder-more-btn-header" class="modal-header-btn more-btn hidden-on-desktop"
+                        data-tooltip="Opsi Lain">&#8943;</button>
                     <div id="folder-header-menu" class="prompt-item-menu hidden-on-desktop">
-                        <button class="prompt-menu-option" data-action="search" data-i18n-key="prompt.search">Cari</button>
-                        <button class="prompt-menu-option" data-action="manage" data-i18n-key="prompt.manage">Kelola</button>
+                        <button class="prompt-menu-option" data-action="search"
+                            data-i18n-key="prompt.search">Cari</button>
+                        <button class="prompt-menu-option" data-action="manage"
+                            data-i18n-key="prompt.manage">Kelola</button>
                     </div>
                     <button id="close-prompt-folder-modal-btn" class="close-btn">&times;</button>
                 </div>
             </div>
-            
+
             <div id="folder-action-bar" class="prompt-action-bar hidden">
                 <div id="folder-search-content" class="action-bar-content hidden">
-                    <input type="text" id="folder-search-input" class="modal-input" placeholder=" " data-i18n-key="prompt.search.placeholder" aria-label="Search Folders">
-                    <button id="folder-cancel-search-btn" class="modal-secondary-btn" data-i18n-key="prompt.delete.cancel">Batal</button>
+                    <input type="text" id="folder-search-input" class="modal-input" placeholder=" "
+                        data-i18n-key="prompt.search.placeholder" aria-label="Search Folders">
+                    <button id="folder-cancel-search-btn" class="modal-secondary-btn"
+                        data-i18n-key="prompt.delete.cancel">Batal</button>
                 </div>
-            
+
                 <div id="folder-manage-content" class="action-bar-content hidden">
                     <span id="folder-select-count" class="prompt-select-count-text">Pilih (0)</span>
                     <div class="prompt-manage-actions">
-                        <button id="folder-select-all-btn" class="modal-secondary-btn" data-i18n-key="prompt.selectAll">Pilih Semua</button>
-                        <button id="folder-delete-selected-btn" class="modal-danger-btn" data-i18n-key="prompt.menu.delete" disabled>Hapus</button>
-                        <button id="folder-cancel-manage-btn" class="modal-secondary-btn" data-i18n-key="prompt.delete.cancel">Batal</button>
+                        <button id="folder-select-all-btn" class="modal-secondary-btn"
+                            data-i18n-key="prompt.selectAll">Pilih Semua</button>
+                        <button id="folder-delete-selected-btn" class="modal-danger-btn"
+                            data-i18n-key="prompt.menu.delete" disabled>Hapus</button>
+                        <button id="folder-cancel-manage-btn" class="modal-secondary-btn"
+                            data-i18n-key="prompt.delete.cancel">Batal</button>
                     </div>
                 </div>
             </div>
@@ -1085,7 +1285,8 @@
                         <span>+</span>
                     </button>
                 </div>
-                <p id="prompt-folder-no-results" class="prompt-no-results hidden" data-i18n-key="prompt.search.noResults">Tidak ditemukan hasil</p>
+                <p id="prompt-folder-no-results" class="prompt-no-results hidden"
+                    data-i18n-key="prompt.search.noResults">Tidak ditemukan hasil</p>
             </div>
         </div>
     </div>
@@ -1101,7 +1302,8 @@
                     <label for="folder-name-input" class="modal-label" data-i18n-key="folder.label.name">Nama</label>
                     <input type="text" id="folder-name-input" class="modal-input">
                 </div>
-                <button id="save-folder-btn" class="modal-save-btn" data-i18n-key="settings.username.save">Simpan</button>
+                <button id="save-folder-btn" class="modal-save-btn"
+                    data-i18n-key="settings.username.save">Simpan</button>
             </div>
         </div>
     </div>
@@ -1117,32 +1319,37 @@
                     <label class="modal-label" data-i18n-key="folder.label.select">Folder</label>
                     <div class="custom-select-container" id="move-prompt-folder-select-container">
                         <div id="move-prompt-folder-select" class="custom-select" tabindex="0">
-                            <span data-i18n-key="folder.noFolder">Tidak ada folder</span><span class="select-arrow"></span>
+                            <span data-i18n-key="folder.noFolder">Tidak ada folder</span><span
+                                class="select-arrow"></span>
                         </div>
                         <div id="move-prompt-folder-select-options" class="custom-select-options">
                         </div>
                     </div>
                 </div>
                 <div class="modal-button-group-column">
-                    <button id="add-folder-from-move-btn" class="modal-secondary-btn" data-i18n-key="folder.addTitle">Tambah Folder Baru</button>
+                    <button id="add-folder-from-move-btn" class="modal-secondary-btn"
+                        data-i18n-key="folder.addTitle">Tambah Folder Baru</button>
                 </div>
-                
+
                 <div class="modal-button-group">
-                    <button id="move-prompt-save-btn" class="modal-save-btn" data-i18n-key="prompt.menu.move">Pindahkan</button>
+                    <button id="move-prompt-save-btn" class="modal-save-btn"
+                        data-i18n-key="prompt.menu.move">Pindahkan</button>
                 </div>
             </div>
         </div>
     </div>
 
     <div id="bookmark-context-menu-main" class="prompt-item-menu">
-        <button class="bookmark-menu-option" data-action="copy-link" data-i18n-key="bookmark.menu.copyLink">Salin Tautan</button>
+        <button class="bookmark-menu-option" data-action="copy-link" data-i18n-key="bookmark.menu.copyLink">Salin
+            Tautan</button>
         <button class="bookmark-menu-option" data-action="edit" data-i18n-key="bookmark.menu.edit">Edit</button>
         <button class="bookmark-menu-option" data-action="delete" data-i18n-key="bookmark.menu.delete">Hapus</button>
     </div>
 
     <div id="bookmark-container-context-menu" class="prompt-item-menu">
         <button class="bookmark-menu-option" data-action="add-new" data-i18n-key="bookmark.add">Tambah Bookmark</button>
-        <button class="bookmark-menu-option" data-action="view-all" data-i18n-key="bookmark.open">Lihat Bookmark</button>
+        <button class="bookmark-menu-option" data-action="view-all" data-i18n-key="bookmark.open">Lihat
+            Bookmark</button>
     </div>
 
     <div id="todo-container-context-menu" class="prompt-item-menu">
@@ -1162,8 +1369,9 @@
 
     <script src="js/zip.min.js"></script>
     <script type="module" src="js/main.js"></script>
-    
+
     <div id="toast-notification" class="toast-notification"></div>
 
 </body>
+
 </html>

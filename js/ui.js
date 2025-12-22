@@ -16,14 +16,14 @@ let currentWallpaperUrl = null;
 export function isAdvancedModalSmallMode() {
     const isSmallScreen = window.matchMedia("(max-width: 1060px)").matches;
     const isVeryShortScreen = window.matchMedia("(max-height: 435px)").matches;
-    return isSmallScreen || isVeryShortScreen; 
+    return isSmallScreen || isVeryShortScreen;
 }
 
 export async function applyCustomBackground(imageBlob) {
     if (!imageBlob) return;
     if (currentWallpaperUrl) URL.revokeObjectURL(currentWallpaperUrl);
     currentWallpaperUrl = URL.createObjectURL(imageBlob);
-    
+
     try {
         await new Promise((resolve, reject) => {
             const img = new Image();
@@ -57,7 +57,7 @@ export async function removeCustomBackground() {
 
     elements.body.classList.remove('custom-background-active');
     updateCustomThemeSettingsVisibility();
-    
+
     setTimeout(() => {
         elements.body.style.removeProperty('--custom-background-image');
     }, 500);
@@ -111,10 +111,10 @@ export function openModal(overlay) {
     overlay.classList.remove("hidden");
     const newStack = [...activeModalStack, overlay];
     setActiveModalStack(newStack);
-    
+
     const modalBody = overlay.querySelector(".modal-body");
     if (modalBody) modalBody.scrollTop = 0;
-    
+
     elements.body.classList.add("modal-open");
 }
 
@@ -134,10 +134,10 @@ export function closeModal(overlay) {
             }
         }
     }
-    
+
     if (activeModalStack.length === 0) {
         elements.body.classList.remove("modal-open");
-        document.body.focus({ preventScroll: true }); 
+        document.body.focus({ preventScroll: true });
     }
 }
 
@@ -235,15 +235,15 @@ export function updateMainPageSwitchesState() {
             historySearchSwitchContainer.classList.toggle('disabled', isHistorySearchDisabled);
         }
         if (historyHelpText1) {
-             historyHelpText1.classList.toggle('disabled', isHistorySearchDisabled);
+            historyHelpText1.classList.toggle('disabled', isHistorySearchDisabled);
         }
         if (historyHelpText2) {
-             historyHelpText2.classList.toggle('disabled', isHistorySearchDisabled);
+            historyHelpText2.classList.toggle('disabled', isHistorySearchDisabled);
         }
         if (isHistorySearchDisabled && settingSwitches.enableHistorySearch.checked) {
             settingSwitches.enableHistorySearch.checked = false;
             saveSetting("enableHistorySearch", false);
-            showToast("toast.historyDisabled"); 
+            showToast("toast.historyDisabled");
         }
     }
     const searchEngineContainer = document.getElementById('search-engine-select')?.closest('.switch-container');
@@ -266,7 +266,7 @@ export function adjustSeparatorWidth() {
             if (greetingWidth > 0) {
                 elements.infoSeparator.style.width = `${greetingWidth}px`;
             }
-        }, 0); 
+        }, 0);
     } else {
         elements.infoSeparator.style.width = '';
     }
@@ -284,7 +284,7 @@ export function updateBookmarkDropdownState() {
     if (!settingSwitches.showBookmark) return;
     const isBookmarkEnabled = settingSwitches.showBookmark.checked;
     const entireSwitchContainer = document.getElementById('bookmark-open-action-select')?.closest('.switch-container');
-    
+
     if (entireSwitchContainer) {
         entireSwitchContainer.classList.toggle('disabled', !isBookmarkEnabled);
     }
@@ -352,7 +352,7 @@ export async function handleSaveUsername() {
     usernameModal.input.blur();
     let newUsername = usernameModal.input.value.trim();
     if (newUsername.length === 0) { newUsername = "K1234"; }
-    
+
     if (newUsername.length <= 6) {
         setCurrentUser(newUsername);
         await saveSetting("username", currentUser);
@@ -385,11 +385,12 @@ export function applyTheme(theme) {
         if (themeModal.systemBtn) themeModal.systemBtn.classList.add("active");
     }
 
-    applyColorScheme(colorScheme, true); 
+    applyColorScheme(colorScheme, true);
+    updateFavicon();
 }
 
 export async function applyColorScheme(scheme, calledFromApplyTheme = false) {
-    document.documentElement.classList.remove("monochrome-scheme"); 
+    document.documentElement.classList.remove("monochrome-scheme");
 
     elements.body.classList.remove("monochrome-scheme");
     [themeModal.schemeDefaultBtn, themeModal.schemeMonochromeBtn].forEach((btn) => {
@@ -397,13 +398,13 @@ export async function applyColorScheme(scheme, calledFromApplyTheme = false) {
     });
 
     if (scheme === "monochrome") {
-        document.documentElement.classList.add("monochrome-scheme"); 
+        document.documentElement.classList.add("monochrome-scheme");
         elements.body.classList.add("monochrome-scheme");
         if (themeModal.schemeMonochromeBtn) themeModal.schemeMonochromeBtn.classList.add("active");
         setColorScheme('monochrome');
-        
+
         try {
-            localStorage.setItem('colorScheme', 'monochrome'); 
+            localStorage.setItem('colorScheme', 'monochrome');
         } catch (e) {
             console.error('Failed to save scheme to localStorage:', e);
         }
@@ -418,7 +419,7 @@ export async function applyColorScheme(scheme, calledFromApplyTheme = false) {
             console.error('Failed to remove scheme from localStorage:', e);
         }
     }
-    
+
     if (!calledFromApplyTheme) {
         const settings = await loadSettings(['customBackground']);
         if (settings.customBackground === true) {
@@ -428,13 +429,53 @@ export async function applyColorScheme(scheme, calledFromApplyTheme = false) {
             }
         }
     }
+    updateFavicon();
 }
 
-export function applyShowGreeting(show) { 
-    const isContentOn = settingSwitches.showContent ? settingSwitches.showContent.checked : true; 
-    elements.body.classList.toggle("greeting-hidden", !(show && isContentOn)); 
-    updateSeparatorVisibility(); 
-    adjustSeparatorWidth(); 
+export function updateFavicon() {
+    const isDarkClass = elements.body.classList.contains('dark-theme');
+    const isLightClass = elements.body.classList.contains('light-theme');
+    const isMonochrome = document.documentElement.classList.contains('monochrome-scheme');
+
+    let isDark = false;
+    if (isDarkClass) {
+        isDark = true;
+    } else if (isLightClass) {
+        isDark = false;
+    } else {
+        isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+
+    let faviconPath = 'favicon.ico';
+    if (isMonochrome) {
+        if (isDark) {
+            faviconPath = 'assets/icons/favicon_darkmode_monochrome.ico';
+        } else {
+            faviconPath = 'assets/icons/favicon_lightmode_monochrome.ico';
+        }
+    } else {
+        if (isDark) {
+            faviconPath = 'assets/icons/favicon_darkmode_default.ico';
+        }
+    }
+
+    const faviconLink = document.getElementById('favicon-link');
+    if (faviconLink) {
+        faviconLink.href = faviconPath;
+    }
+}
+
+if (window.matchMedia) {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+        updateFavicon();
+    });
+}
+
+export function applyShowGreeting(show) {
+    const isContentOn = settingSwitches.showContent ? settingSwitches.showContent.checked : true;
+    elements.body.classList.toggle("greeting-hidden", !(show && isContentOn));
+    updateSeparatorVisibility();
+    adjustSeparatorWidth();
     if (settingSwitches.showUsername) {
         applyShowUsername(settingSwitches.showUsername.checked);
     }
@@ -517,7 +558,7 @@ export function updateSecurityFeaturesUI() {
             settingSwitches.enablePromptSearch.checked = false;
             saveSetting("enablePromptSearch", false);
             const event = new CustomEvent('promptSearchDisabledByUI');
-            document.dispatchEvent(event); 
+            document.dispatchEvent(event);
         }
     }
 }
@@ -546,7 +587,7 @@ export function showProgressModal(titleKey, messageKey) {
     progressModal.text.textContent = i18nData[messageKey]?.[lang] || messageKey;
     progressModal.bar.style.width = '0%';
     progressModal.percentage.textContent = '0%';
-    
+
     progressModal.overlay.classList.remove('hidden');
     elements.body.classList.add("modal-open");
 }
@@ -590,7 +631,7 @@ export function applyThemeOverrides() {
     );
 
     if (overrides.infoSection === 'light') {
-        elements.body.classList.add('info-force-dark'); 
+        elements.body.classList.add('info-force-dark');
     } else if (overrides.infoSection === 'dark') {
         elements.body.classList.add('info-force-light');
     }

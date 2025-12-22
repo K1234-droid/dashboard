@@ -5,7 +5,7 @@
  */
 
 // ==================== PENGATURAN PEMBARUAN ====================
-export const CURRENT_VERSION = 'v5.1.4';
+export const CURRENT_VERSION = 'v6.0.0';
 export const GITHUB_OWNER = 'K1234-droid';
 export const GITHUB_REPO = 'dashboard';
 // ==============================================================
@@ -32,20 +32,20 @@ export const elements = {
     mainPageTodoContainer: document.getElementById('main-page-todo-container'),
     hiddenFeatureAccessTip: document.getElementById('hidden-feature-access-tip'),
 };
-  
+
 // Elemen terkait status koneksi.
 export const connectionStatus = {
     offlineMessage: document.getElementById("offline-message"),
     loadingMessage: document.getElementById("loading-message"),
 };
-  
+
 // Elemen terkait menu pop-up.
 export const menu = {
     container: document.getElementById("avatar-menu-container"),
     button: document.getElementById("avatar-logo-btn"),
     popup: document.getElementById("menu-popup"),
 };
-  
+
 // Elemen terkait Modal Ubah Username.
 export const usernameModal = {
     overlay: document.getElementById("username-modal-overlay"),
@@ -55,7 +55,7 @@ export const usernameModal = {
     saveBtn: document.getElementById("save-username-btn"),
     feedbackText: document.getElementById("username-feedback"),
 };
-  
+
 // Elemen terkait Modal Pengaturan Tema.
 export const themeModal = {
     overlay: document.getElementById("theme-modal-overlay"),
@@ -82,7 +82,7 @@ export const themeModal = {
     shadowThemeLightBtn: document.getElementById('shadow-theme-light-btn'),
     shadowThemeDarkBtn: document.getElementById('shadow-theme-dark-btn'),
 };
-  
+
 // Elemen terkait Modal Pengaturan Lainnya.
 export const otherSettingsModal = {
     overlay: document.getElementById("other-settings-modal-overlay"),
@@ -97,7 +97,7 @@ export const otherSettingsModal = {
     dataTab: document.getElementById('settings-tab-data'),
     dataPanel: document.getElementById('settings-panel-data'),
 };
-  
+
 // Elemen terkait Modal Tentang.
 export const aboutModal = {
     overlay: document.getElementById("about-modal-overlay"),
@@ -154,7 +154,7 @@ export const mainPageTodoContainer = {
 };
 
 // Elemen terkait Pencarian di Footer.
-export let footerSearch = {}; 
+export let footerSearch = {};
 export function initFooterSearch() {
     footerSearch.container = document.getElementById('footer-search-container');
     footerSearch.toggleBtn = document.getElementById('footer-search-toggle-btn');
@@ -240,7 +240,7 @@ export const dataDeletion = {
     deleteHiddenDataBtn: document.getElementById('delete-hidden-data-btn'),
     deleteTodoListDataBtn: document.getElementById('delete-todo-list-data-btn'),
 };
-  
+
 // ==================== DEFINISI ELEMEN FITUR PIN & PROMPT ====================
 export const pinSettings = {
     input: document.getElementById('pin-input'),
@@ -248,7 +248,7 @@ export const pinSettings = {
     updateBtn: document.getElementById('update-pin-btn'),
     container: document.getElementById('pin-settings-container'),
 };
-  
+
 export const createPinModal = {
     overlay: document.getElementById('create-pin-modal-overlay'),
     closeBtn: document.getElementById('close-create-pin-modal-btn'),
@@ -266,7 +266,7 @@ export const pinEnterModal = {
     title: document.querySelector('#pin-enter-modal-overlay h3'),
     label: document.querySelector('#pin-enter-modal-overlay label'),
 };
-  
+
 export const promptModal = {
     overlay: document.getElementById('prompt-modal-overlay'),
     closeBtn: document.getElementById('close-prompt-modal-btn'),
@@ -288,7 +288,7 @@ export const promptModal = {
     manageContent: document.getElementById('prompt-manage-content'),
     searchContent: document.getElementById('prompt-search-content'),
 };
-  
+
 export const advancedPromptModal = {
     overlay: document.getElementById('advanced-prompt-modal-overlay'),
     closeBtn: document.getElementById('close-advanced-prompt-modal-btn'),
@@ -360,7 +360,7 @@ export const advancedPromptViewerModal = {
     deleteBtn: document.getElementById('delete-advanced-prompt-btn'),
     editBtn: document.getElementById('edit-advanced-prompt-btn'),
 };
-  
+
 export const addEditPromptModal = {
     overlay: document.getElementById('add-edit-prompt-modal-overlay'),
     closeBtn: document.getElementById('close-add-edit-prompt-modal-btn'),
@@ -390,7 +390,7 @@ export const addEditAdvancedPromptModal = {
     folderSelect: document.getElementById('prompt-folder-select'),
     folderSelectOptions: document.getElementById('prompt-folder-select-options'),
 };
-  
+
 export const confirmationModal = {
     overlay: document.getElementById('confirmation-modal-overlay'),
     closeBtn: document.getElementById('close-confirmation-modal-btn'),
@@ -399,7 +399,7 @@ export const confirmationModal = {
     cancelBtn: document.getElementById('cancel-confirmation-btn'),
     confirmBtn: document.getElementById('confirm-confirmation-btn'),
 };
-  
+
 export const infoModal = {
     overlay: document.getElementById('info-modal-overlay'),
     title: document.getElementById('info-modal-title'),
@@ -412,7 +412,7 @@ export const howItWorksModal = {
     openBtn: document.getElementById('how-it-works-btn'),
     closeBtn: document.getElementById('close-how-it-works-modal-btn'),
 };
-  
+
 export const imageViewerModal = {
     overlay: document.getElementById('image-viewer-modal-overlay'),
     closeBtn: document.getElementById('close-image-viewer-modal-btn'),
@@ -432,7 +432,7 @@ export const moveFolderModal = {
     saveBtn: document.getElementById('move-prompt-save-btn'),
 };
 // ===================================================================================
-  
+
 // Elemen-elemen untuk switch pengaturan.
 export const settingSwitches = {
     enableAnimation: document.getElementById("enable-animation-switch"),
@@ -472,7 +472,7 @@ export const progressModal = {
     bar: document.getElementById('progress-bar'),
     percentage: document.getElementById('progress-percentage'),
 };
-  
+
 // --- State & Data ---
 export let currentUser = "K1234";
 export let userPIN = null;
@@ -499,7 +499,7 @@ export let isTodoSearchModeActive = false;
 export let selectedTodoIds = [];
 export let bookmarkSortableInstance = null;
 export let todoSortableInstance = null;
-export let activeModalStack = []; 
+export let activeModalStack = [];
 export let pinModalPurpose = 'login';
 export let tempNewPIN = null;
 export let confirmationModalPurpose = 'deletePrompt';
@@ -550,11 +550,11 @@ export function setIsDraggingTodo(value) { isDraggingTodo = value; }
 export function setSelectedMoveFolderId(value) { selectedMoveFolderId = value; }
 export function setPromptsToMove(value) { promptsToMove = value; }
 
-export let cachedIconDataUrls = {}; 
+export let cachedIconDataUrls = {};
 export function setCachedIconDataUrls(value) { cachedIconDataUrls = value; }
 export let cachedThumbnailDataUrls = {};
 export function setCachedThumbnailDataUrls(value) { cachedThumbnailDataUrls = value; }
-  
+
 export let languageSettings = {
     ui: 'id',
     greeting: 'id',
@@ -562,7 +562,7 @@ export let languageSettings = {
     date: 'id',
     applyToAll: true,
 };
-  
+
 export let animationFrameId = null;
 export let lastUpdatedHour = new Date().getHours();
 export let feedbackTimeout;
@@ -626,10 +626,10 @@ export function setLastActiveModalOverlay(value) { lastActiveModalOverlay = valu
 export function setIsShortcutCtrlDEnabled(value) { isShortcutCtrlDEnabled = value; }
 export function setColorScheme(value) { colorScheme = value; }
 export function setCustomThemeOverrides(value) { customThemeOverrides = value; }
-  
+
 export const supportedLangs = ['id', 'en', 'ja'];
 export const localeMap = { id: 'id-ID', en: 'en-US', ja: 'ja-JP' };
-  
+
 export const i18nData = {
     "greeting.morning": { id: "Selamat Pagi!", en: "Good Morning!", ja: "おはようございます!" },
     "greeting.afternoon": { id: "Selamat Siang!", en: "Good Afternoon!", ja: "こんにちは!" },
@@ -777,7 +777,7 @@ export const i18nData = {
     "settings.hidden.createPin": { id: "Buat PIN", en: "Create PIN", ja: "PINを作成" },
     "hiddenFeature.howItWorks.title": { id: "Cara Kerja Catatan", en: "How Notes Work", ja: "ノートの仕組み" },
     "hiddenFeature.howItWorks.button": { id: "Cara Kerja", en: "How it Works", ja: "仕組み" },
-    "hiddenFeature.howItWorks.p1": { id: "Klik dua kali pada avatar pojok kanan bawah atau gunakan pintasan keyboard Ctrl + Shift + H di Windows atau CMD + Shift + H di macOS.", en: "Double-click on the bottom right corner avatar or use the keyboard shortcut Ctrl + Shift + H on Windows or CMD + Shift + H on macOS.", ja: "右下のアバターをダブルクリックするか、キーボードショートカット（Windowsの場合はCtrl + Shift + H、macOSの場合はCMD + Shift + H）を使用します。" },
+    "hiddenFeature.howItWorks.p1": { id: "Klik dua kali pada ikon garis tiga pojok kanan bawah atau gunakan pintasan keyboard Ctrl + Shift + H di Windows atau CMD + Shift + H di macOS.", en: "Double-click on the three-line icon in the bottom right corner or use the keyboard shortcut Ctrl + Shift + H on Windows or CMD + Shift + H on macOS.", ja: "右下隅にある 3 本の線のアイコンをダブルクリックするか、Windows ではキーボード ショートカット Ctrl + Shift + H、macOS では CMD + Shift + H を使用します。" },
     "settings.hidden.disableWarningTitle": { id: "Nonaktifkan Catatan?", en: "Disable Notes?", ja: "メモを無効にしますか？" },
     "settings.hidden.disableWarningText": { id: "Menonaktifkan fitur ini akan menghapus PIN dan semua gambar Anda secara permanen. Apakah Anda yakin?", en: "Disabling this feature will permanently delete your PIN and all images. Are you sure?", ja: "この機能を無効にすると、PINとすべての画像が完全に削除されます。よろしいですか？" },
     "settings.hidden.disableWarningText_extended": { id: "Tindakan ini akan menghapus semua data catatan dan PIN Anda secara permanen. Apakah Anda yakin?", en: "This action will permanently delete all your notes data and PIN. Are you sure?", ja: "この操作により、すべてのノートデータとPINが完全に削除されます。よろしいですか？" },
@@ -834,7 +834,7 @@ export const i18nData = {
     "settings.bookmark.openAction": { id: "Aksi Membuka Situs", en: "Bookmark Open Action", ja: "ブックマークを開くアクション" },
     "settings.bookmark.openAction.direct": { id: "Buka Langsung", en: "Open Directly", ja: "直接開く" },
     "settings.bookmark.openAction.newTab": { id: "Tab Baru", en: "New Tab", ja: "新しいタブ" },
-    "settings.bookmark.enableShortcutCtrlD": { id: "Gunakan Pintasan Keyboard CTRL + D atau atau CMD + D untuk Tambah Bookmark", en: "Use CTRL + D or CMD + D Keyboard Shortcut to Add Bookmark", ja: "ブックマーク追加に （Ctrl + D、CMD + D） ショートカットを使用" },
+    "settings.bookmark.enableShortcutCtrlD": { id: "Gunakan Pintasan Keyboard CTRL + D atau atau CMD + D untuk Tambah Bookmark", en: "Use CTRL + D or CMD + D Keyboard Shortcut to Add Bookmark", ja: "ブックマークを追加するには、Ctrl + D または CMD + D キーボードショートカットを使用します。" },
     "settings.bookmark.shortcutHelp": { id: "Jika Anda selalu menambahkan bookmark menggunakan browser bawaan, matikan fitur ini.", en: "If you always add bookmarks using the default browser, turn off this feature.", ja: "常にデフォルトのブラウザを使用してブックマークを追加する場合は、この機能をオフにしてください。" },
     "settings.search.openAction": { id: "Aksi Membuka Situs", en: "Search Open Action", ja: "検索を開くアクション" },
     "data.search.title": { id: "Data di Bar Pencarian", en: "Data in Search Bar", ja: "検索バーのデータ" },
@@ -921,10 +921,10 @@ export const i18nData = {
     "data.button.deleteHiddenData": { id: "Hapus Data Catatan & Gambar", en: "Delete Notes & Images Data", ja: "ノートと画像データを削除" },
     "data.button.deleteTodoListData": { id: "Hapus Data Daftar Tugas", en: "Delete To-do List Data", ja: "タスクリストのデータ削除" },
     "confirm.delete.user.title": { id: "Hapus Semua Data Pengguna?", en: "Delete All User Data?", ja: "すべてのユーザーデータを削除しますか？" },
-    "confirm.delete.user.text": { 
-        id: "Tindakan ini akan menghapus data-data berikut:<ul><li>Pengaturan</li><li>Username</li><li>Bookmark</li><li>Daftar Tugas</li></ul>Apakah Anda yakin?", 
-        en: "This action will delete the following data:<ul><li>Settings</li><li>Username</li><li>Bookmarks</li><li>To-do List</li></ul>Are you sure?", 
-        ja: "この操作により、以下のデータが削除されます：<ul><li>設定</li><li>ユーザー名</li><li>ブックマーク</li><li>やることリスト</li></ul>よろしいですか？" 
+    "confirm.delete.user.text": {
+        id: "Tindakan ini akan menghapus data-data berikut:<ul><li>Pengaturan</li><li>Username</li><li>Bookmark</li><li>Daftar Tugas</li></ul>Apakah Anda yakin?",
+        en: "This action will delete the following data:<ul><li>Settings</li><li>Username</li><li>Bookmarks</li><li>To-do List</li></ul>Are you sure?",
+        ja: "この操作により、以下のデータが削除されます：<ul><li>設定</li><li>ユーザー名</li><li>ブックマーク</li><li>やることリスト</li></ul>よろしいですか？"
     },
     "confirm.delete.hidden.pinLabel": { id: "Masukkan PIN untuk menghapus semua data catatan & gambar", en: "Enter PIN to delete all notes & images data", ja: "すべてのノートと画像データを削除するにはPINを入力してください" },
     "data.delete.user.success": { id: "Data pengguna berhasil dihapus! Memuat ulang halaman.", en: "User data deleted successfully! Reload the page.", ja: "ユーザーデータを正常に削除しました！ページを再読み込みしてください。" },
@@ -936,18 +936,18 @@ export const i18nData = {
     "data.button.clearHiddenCache": { id: "Hapus Cache Galeri Gambar", en: "Clear Image Gallery Cache", ja: "画像ギャラリーのキャッシュをクリアする" },
     "data.calculating": { id: "Menghitung...", en: "Calculating...", ja: "計算中..." },
     "confirm.delete.hidden.title": { id: "Hapus Semua Data Catatan & Gambar?", en: "Delete All Notes & Images Data?", ja: "すべてのノートと画像データを削除しますか？" },
-    "confirm.delete.hidden.text": { 
-        id: "Tindakan ini akan menghapus data-data berikut:<ul><li>Daftar Catatan</li><li>Galeri Gambar</li><li>PIN Keamanan</li></ul>Apakah Anda yakin?", 
-        en: "This action will delete the following data:<ul><li>Notes List</li><li>Image Gallery</li><li>Security PIN</li></ul>Are you sure?", 
-        ja: "この操作により、以下のデータが削除されます：<ul><li>ノートリスト</li><li>画像ギャラリー</li><li>セキュリティPIN</li></ul>よろしいですか？" 
+    "confirm.delete.hidden.text": {
+        id: "Tindakan ini akan menghapus data-data berikut:<ul><li>Daftar Catatan</li><li>Galeri Gambar</li><li>PIN Keamanan</li></ul>Apakah Anda yakin?",
+        en: "This action will delete the following data:<ul><li>Notes List</li><li>Image Gallery</li><li>Security PIN</li></ul>Are you sure?",
+        ja: "この操作により、以下のデータが削除されます：<ul><li>ノートリスト</li><li>画像ギャラリー</li><li>セキュリティPIN</li></ul>よろしいですか？"
     },
     "settings.hidden.notEnabled": { id: "Anda belum mengaktifkan fitur keamanan catatan.", en: "You haven't enabled the note security feature yet.", ja: "メモのセキュリティ機能がまだ有効になっていません。" },
     "settings.hidden.accessTip": { id: "Aktifkan catatan di menu \"Tampilan\" terlebih dahulu untuk mengakses fitur ini.", en: "Enable notes in the \"Display\" menu first to access this feature.", ja: "この機能にアクセスするには、「表示」メニューでメモを有効にしてください。" },
     "confirm.delete.todo.title": { id: "Hapus Semua Data Daftar Tugas?", en: "Delete All To-do Data?", ja: "すべてのタスクリストデータを削除？" },
-    "confirm.delete.todo.text": { 
-        id: "Tindakan ini akan menghapus data-data berikut:<ul><li>Daftar Tugas</li></ul>Apakah Anda yakin?", 
-        en: "This action will delete the following data:<ul><li>To-do List</li></ul>Are you sure?", 
-        ja: "この操作により、以下のデータが削除されます：<ul><li>やることリスト</li></ul>よろしいですか？" 
+    "confirm.delete.todo.text": {
+        id: "Tindakan ini akan menghapus data-data berikut:<ul><li>Daftar Tugas</li></ul>Apakah Anda yakin?",
+        en: "This action will delete the following data:<ul><li>To-do List</li></ul>Are you sure?",
+        ja: "この操作により、以下のデータが削除されます：<ul><li>やることリスト</li></ul>よろしいですか？"
     },
     "data.delete.todo.success": { id: "Data daftar tugas berhasil dihapus! Memuat ulang halaman.", en: "To-do List data deleted successfully! Reload the page.", ja: "タスクリストのデータが正常に削除されました！ページを再読み込みしてください。" },
     // Pop-up Feature
