@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/blocker.css">
     
-    <link rel="icon" href="favicon.ico">
+    <link id="favicon-link" rel="icon" href="favicon.ico">
 
 </head>
 <body class="text-gray-900">
@@ -92,6 +92,17 @@
         const tutorialModal = document.getElementById('tutorial-modal-overlay');
         const closeBtn = document.getElementById('close-tutorial-modal-btn');
         const body = document.body;
+
+        function updateBlockerFavicon() {
+            const faviconLink = document.getElementById('favicon-link');
+            if (!faviconLink) return;
+            const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            faviconLink.href = isDarkMode ? 'assets/icons/favicon_darkmode_default.ico' : 'favicon.ico';
+        }
+        updateBlockerFavicon();
+        if (window.matchMedia) {
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateBlockerFavicon);
+        }
 
         function openTutorialModal() {
             tutorialModal.classList.remove('hidden');
