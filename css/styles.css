@@ -5140,3 +5140,18 @@ button, a, input, textarea, .menu-btn, .theme-btn, .prompt-item, .advanced-promp
     user-select: none !important;
     pointer-events: auto;
 }
+
+/* ==================== SELECT AREA ==================== */
+body {
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+input, 
+textarea, 
+#advanced-prompt-viewer-modal-overlay {
+  -webkit-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}

@@ -317,3 +317,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     displayResults([]);
     searchInput.focus();
 });
+
+document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
+        const activeElement = document.activeElement;
+        
+        if (activeElement.id !== 'search-input') {
+            e.preventDefault();
+        }
+    }
+});

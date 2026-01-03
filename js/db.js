@@ -1,7 +1,7 @@
 import { log } from './utils.js';
 
 const DB_NAME = 'DashboardDB';
-const DB_VERSION = 5;
+const DB_VERSION = 6;
 const PROMPTS_STORE_NAME = 'promptsStore';
 const STORE_NAME = 'settings';
 const FAVICONS_STORE_NAME = 'faviconsStore';

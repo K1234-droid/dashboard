@@ -2315,3 +2315,15 @@ document.addEventListener('contextmenu', (e) => {
         closeHeaderMenu();
     }
 });
+
+document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
+        const activeElement = document.activeElement;
+        const isInput = ['INPUT', 'TEXTAREA'].includes(activeElement.tagName);
+        const isInsideDetailModal = activeElement.closest('#advanced-prompt-viewer-modal-overlay') !== null;
+
+        if (!isInput && !isInsideDetailModal) {
+            e.preventDefault();
+        }
+    }
+});
