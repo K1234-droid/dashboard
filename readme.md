@@ -1,3 +1,5 @@
+<img width="1920" height="1080" alt="Background Aplikasi K1234 Dashboard dengan Background Default Gelap" src="https://github.com/user-attachments/assets/1337c2b1-b5dd-4bea-ad09-f2aaa170f051" />
+
 # Browser Homepage
 This page is a homepage designed to provide a personal and enjoyable experience every time you open a new tab in your browser.
 
@@ -66,3 +68,4 @@ The light and dark themes automatically follow your browser's settings. You can 
 
 Best regards,
 **K1234**
+
