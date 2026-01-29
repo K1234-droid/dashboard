@@ -60,7 +60,7 @@ The light and dark themes automatically follow your browser's settings. You can 
 * An internet connection is required to check online status (uses `google.com`).
 * **Permission for browser history access** required for enabling the dashboard to read browser history for up to one year.
 
-**For testing, please click the following link: [https://k1234dashboard.free.nf/](https://k1234dashboard.free.nf/) (for a better experience, this page currently supports desktop and laptop versions only.).**
+**For testing, please click the following link: [https://k1234dashboard.vercel.app/](https://k1234dashboard.vercel.app/) (for a better experience, this page currently supports desktop and laptop versions only.).**
 
 ## Additional Notes
 * **sortable.js** - For drag-and-drop functionality.
@@ -68,4 +68,5 @@ The light and dark themes automatically follow your browser's settings. You can 
 
 Best regards,
 **K1234**
+
 
