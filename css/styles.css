@@ -5148,9 +5148,17 @@ body {
   user-select: none;
 }
 
+#prompt-viewer-modal-overlay h3,
+#advanced-prompt-viewer-modal-overlay h3 {
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
 input, 
 textarea, 
-#advanced-prompt-viewer-modal-overlay {
+#advanced-prompt-viewer-modal-overlay,
+#prompt-viewer-modal-overlay {
   -webkit-user-select: text;
   -ms-user-select: text;
   user-select: text;
