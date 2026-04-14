@@ -251,6 +251,13 @@ export async function renderPrompts(promptsToRender = prompts) {
                     togglePromptSelection(p.id);
                 }
                 return;
+            } else if (e.ctrlKey || e.shiftKey || e.metaKey) {
+                if (!e.target.closest('.prompt-item-menu-btn')) {
+                    e.preventDefault();
+                    toggleManageMode(true);
+                    togglePromptSelection(p.id);
+                    return;
+                }
             }
 
             if (e.target.closest('.prompt-item-menu-btn')) {
@@ -589,6 +596,13 @@ async function appendNewPromptItem(newPrompt) {
                 togglePromptSelection(newPrompt.id);
             }
             return;
+        } else if (e.ctrlKey || e.shiftKey || e.metaKey) {
+            if (!e.target.closest('.prompt-item-menu-btn')) {
+                e.preventDefault();
+                toggleManageMode(true);
+                togglePromptSelection(newPrompt.id);
+                return;
+            }
         }
         if (e.target.closest('.prompt-item-menu-btn')) { return; }
         showPromptViewer(newPrompt);
@@ -856,7 +870,12 @@ export function updateManageModeUI() {
     const selectCountFormat = i18nData["prompt.selectCount"][lang] || i18nData["prompt.selectCount"]["id"];
     promptModal.selectCount.textContent = selectCountFormat.replace('{count}', selectedPromptIds.length);
 
-    if (selectedPromptIds.length === prompts.length && prompts.length > 0) {
+    const allVisibleItems = Array.from(promptModal.grid.querySelectorAll('.prompt-item:not(.add-prompt-item)'));
+    const allVisibleIds = allVisibleItems.map(item => parseInt(item.dataset.id, 10));
+
+    const allAreSelected = allVisibleIds.length > 0 && allVisibleIds.every(id => selectedPromptIds.includes(id));
+
+    if (allAreSelected) {
         promptModal.selectAllBtn.textContent = i18nData["prompt.deselectAll"][lang] || i18nData["prompt.deselectAll"]["id"];
     } else {
         promptModal.selectAllBtn.textContent = i18nData["prompt.selectAll"][lang] || i18nData["prompt.selectAll"]["id"];
@@ -885,11 +904,16 @@ export function togglePromptSelection(promptId) {
 
 export function handleSelectAll() {
     const allPromptItems = promptModal.grid.querySelectorAll('.prompt-item:not(.add-prompt-item)');
-    if (selectedPromptIds.length === prompts.length) {
-        setSelectedPromptIds([]);
+    const allVisibleIds = Array.from(allPromptItems).map(item => parseInt(item.dataset.id, 10));
+    
+    const allAreSelected = allVisibleIds.length > 0 && allVisibleIds.every(id => selectedPromptIds.includes(id));
+
+    if (allAreSelected) {
+        setSelectedPromptIds(selectedPromptIds.filter(id => !allVisibleIds.includes(id)));
         allPromptItems.forEach(item => item.classList.remove('selected'));
     } else {
-        setSelectedPromptIds(prompts.map(p => p.id));
+        const newSelectedIds = new Set([...selectedPromptIds, ...allVisibleIds]);
+        setSelectedPromptIds(Array.from(newSelectedIds));
         allPromptItems.forEach(item => item.classList.add('selected'));
     }
     updateManageModeUI();

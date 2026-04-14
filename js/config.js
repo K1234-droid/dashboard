@@ -5,7 +5,7 @@
  */
 
 // ==================== PENGATURAN PEMBARUAN ====================
-export const CURRENT_VERSION = 'v6.1.1';
+export const CURRENT_VERSION = 'v6.2.0';
 export const GITHUB_OWNER = 'K1234-droid';
 export const GITHUB_REPO = 'dashboard';
 // ==============================================================
@@ -303,6 +303,7 @@ export const advancedPromptModal = {
     selectAllBtn: document.getElementById('advanced-prompt-select-all-btn'),
     deleteSelectedBtn: document.getElementById('advanced-prompt-delete-selected-btn'),
     moveSelectedBtn: document.getElementById('advanced-prompt-move-selected-btn'),
+    archiveSelectedBtn: document.getElementById('advanced-prompt-archive-selected-btn'),
     cancelManageBtn: document.getElementById('advanced-prompt-cancel-manage-btn'),
     searchBtn: document.getElementById('advanced-prompt-search-btn'),
     searchInput: document.getElementById('advanced-prompt-search-input'),

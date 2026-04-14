@@ -211,6 +211,12 @@ export function renderBookmarkModalGrid(bookmarksToRender = bookmarks) {
                 if (!e.target.closest('.bookmark-menu-btn')) {
                     toggleBookmarkSelection(bookmark.id);
                 }
+            } else if (e.ctrlKey || e.shiftKey || e.metaKey) {
+                if (!e.target.closest('.bookmark-menu-btn')) {
+                    e.preventDefault();
+                    toggleManageMode(true);
+                    toggleBookmarkSelection(bookmark.id);
+                }
             }
         });
 
@@ -571,7 +577,12 @@ export function updateManageModeUI() {
     const selectCountFormat = i18nData["prompt.selectCount"][lang] || i18nData["prompt.selectCount"]["id"];
     bookmarkListModal.selectCount.textContent = selectCountFormat.replace('{count}', selectedBookmarkIds.length);
 
-    if (selectedBookmarkIds.length === bookmarks.length && bookmarks.length > 0) {
+    const allVisibleItems = Array.from(bookmarkListModal.grid.querySelectorAll('.bookmark-item:not(.add-bookmark-item)'));
+    const allVisibleIds = allVisibleItems.map(item => parseInt(item.dataset.id, 10));
+
+    const allAreSelected = allVisibleIds.length > 0 && allVisibleIds.every(id => selectedBookmarkIds.includes(id));
+
+    if (allAreSelected) {
         bookmarkListModal.selectAllBtn.textContent = i18nData["prompt.deselectAll"][lang] || i18nData["prompt.deselectAll"]["id"];
     } else {
         bookmarkListModal.selectAllBtn.textContent = i18nData["prompt.selectAll"][lang] || i18nData["prompt.selectAll"]["id"];
@@ -600,12 +611,16 @@ export function toggleBookmarkSelection(bookmarkId) {
 
 export function handleSelectAll() {
     const allItems = bookmarkListModal.grid.querySelectorAll('.bookmark-item:not(.add-bookmark-item)');
-    if (selectedBookmarkIds.length === bookmarks.length) {
-        setSelectedBookmarkIds([]);
+    const allVisibleIds = Array.from(allItems).map(item => parseInt(item.dataset.id, 10));
+    
+    const allAreSelected = allVisibleIds.length > 0 && allVisibleIds.every(id => selectedBookmarkIds.includes(id));
+
+    if (allAreSelected) {
+        setSelectedBookmarkIds(selectedBookmarkIds.filter(id => !allVisibleIds.includes(id)));
         allItems.forEach(item => item.classList.remove('selected'));
     } else {
-        const renderedIds = Array.from(allItems).map(item => parseInt(item.dataset.id, 10));
-        setSelectedBookmarkIds(renderedIds);
+        const newSelectedIds = new Set([...selectedBookmarkIds, ...allVisibleIds]);
+        setSelectedBookmarkIds(Array.from(newSelectedIds));
         allItems.forEach(item => item.classList.add('selected'));
     }
     updateManageModeUI();

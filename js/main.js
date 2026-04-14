@@ -25,13 +25,15 @@ import {
 } from './config.js';
 
 import { debounce, getBrowserLanguage, showToast, formatBytes, log } from './utils.js';
-import { loadSettings, saveSetting, getAllPromptMetadata, clearUserData, calculateCacheSize, clearCache, calculateStoreSize,
-    clearHiddenData, clearTemporaryCacheOnLoad, saveWallpaperToCache, getWallpaperFromCache, clearWallpaperCache } from './storage.js';
+import {
+    loadSettings, saveSetting, getAllPromptMetadata, clearUserData, calculateCacheSize, clearCache, calculateStoreSize,
+    clearHiddenData, clearTemporaryCacheOnLoad, saveWallpaperToCache, getWallpaperFromCache, clearWallpaperCache
+} from './storage.js';
 import { translateUI, updateClock, updateInfrequentElements, animationLoop, handleVisibilityChange, updateOfflineStatus, checkForUpdates } from './core.js';
 import {
     toggleMenu, closeMenuOnClickOutside, openModal, closeModal, closeThemeModal, showInfoModal,
-    handleSaveUsername, applyTheme, updateMainPageSwitchesState, adjustSeparatorWidth, applyShowGreeting, applyShowUsername, 
-    applyShowDescription, applyShowDate, applyShowTime, applyShowSeconds,updateClockSwitchesState, updateSeparatorVisibility,
+    handleSaveUsername, applyTheme, updateMainPageSwitchesState, adjustSeparatorWidth, applyShowGreeting, applyShowUsername,
+    applyShowDescription, applyShowDate, applyShowTime, applyShowSeconds, updateClockSwitchesState, updateSeparatorVisibility,
     applyMenuBlur, applyFooterBlur, updateUsernameDisplay, updateSecurityFeaturesUI, applyEnableAnimation, applyShowContent,
     applyShowBookmark, applyBookmarkBlur, applyShowSearchBar, updateBookmarkDropdownState, updateLanguageControlsState,
     updateSearchEngineDisplay, applyColorScheme, applyCustomBackground, removeCustomBackground, applyThemeOverrides,
@@ -62,8 +64,8 @@ import {
     savePromptImage, navigateImageViewer, closeImageViewer
 } from './promptManager.js';
 import {
-    renderAdvancedPrompts, toggleAdvancedManageMode, handleAdvancedSelectAll, 
-    handleAdvancedDeleteSelected, toggleAdvancedSearchMode, handleAdvancedSearchInput, 
+    renderAdvancedPrompts, toggleAdvancedManageMode, handleAdvancedSelectAll,
+    handleAdvancedDeleteSelected, toggleAdvancedSearchMode, handleAdvancedSearchInput,
     updateAdvancedManageModeUI, handleOpenAddAdvancedPromptModal, handleSaveAdvancedPrompt,
     copyAdvancedPromptText, handleDeleteAdvancedPrompt, handleEditAdvancedPrompt,
     copyAdvancedPromptTextFromViewer, confirmAdvancedDelete, handleCharacterSearchInput,
@@ -73,15 +75,15 @@ import {
     initFolderDropdownListener, confirmDeleteFolder, toggleFolderManageMode, toggleFolderSearchMode,
     handleFolderSearchInput, handleFolderSelectAll, handleFolderDeleteSelected, closeSidebarContextMenu,
     openAdvancedPromptManager, handleArchiveAdvancedPrompt, handleOpenMoveFolderModal, handleMovePrompts,
-    updateMoveFolderDropdownDisplay, handleAdvancedMoveSelected
+    updateMoveFolderDropdownDisplay, handleAdvancedMoveSelected, handleAdvancedArchiveSelected
 } from './promptBuilder.js';
 import {
     exportUserData, exportHiddenData, importUserData, importHiddenData,
     handleMerge, handleReplace, handleBookmarkMerge, handleBookmarkReplace
 } from './importExport.js';
 
-let updateBookmarkActionDropdownDisplay = () => {};
-let updateSearchActionDropdownDisplay = () => {};
+let updateBookmarkActionDropdownDisplay = () => { };
+let updateSearchActionDropdownDisplay = () => { };
 
 // ===================================================================
 // D. INISIALISASI & EVENT LISTENERS
@@ -99,7 +101,7 @@ function handleSettingsTabSwitch(activeTab) {
 
     const tabs = [otherSettingsModal.generalTab, otherSettingsModal.displayTab, otherSettingsModal.dataTab, otherSettingsModal.otherTab];
     const panels = [otherSettingsModal.generalPanel, otherSettingsModal.displayPanel, otherSettingsModal.dataPanel, otherSettingsModal.otherPanel];
-    
+
     tabs.forEach(tab => tab.classList.remove('active'));
     panels.forEach(panel => panel.classList.remove('active'));
 
@@ -187,7 +189,7 @@ function initializeDragAndDrop() {
             preventOnFilter: true,
             delay: 200,
             delayOnTouchOnly: true,
-            onStart: function() {
+            onStart: function () {
                 closeAllPromptMenus();
                 closeHeaderMenu();
             },
@@ -218,14 +220,14 @@ function initializeDragAndDrop() {
             delay: 200,
             delayOnTouchOnly: true,
             fallbackOnBody: true,
-            onStart: function() {
+            onStart: function () {
                 closeAllPromptMenus();
                 closeHeaderMenu();
             },
             onMove: function (evt) {
                 return !evt.related.classList.contains('add-prompt-item');
             },
-            onEnd: async function(evt) {
+            onEnd: async function (evt) {
                 const newAdvancedPrompts = [...advancedPrompts];
                 const movedItem = newAdvancedPrompts.splice(evt.oldIndex, 1)[0];
                 newAdvancedPrompts.splice(evt.newIndex, 0, movedItem);
@@ -244,14 +246,14 @@ function initializeDragAndDrop() {
             preventOnFilter: true,
             delay: 200,
             delayOnTouchOnly: true,
-            onStart: function() {
+            onStart: function () {
                 closeAllBookmarkMenus_bookmark();
                 closeHeaderMenu();
             },
             onMove: function (evt) {
                 return !evt.related.classList.contains('add-bookmark-item');
             },
-            onEnd: async function(evt) {
+            onEnd: async function (evt) {
                 const newBookmarks = [...bookmarks];
                 const movedItem = newBookmarks.splice(evt.oldIndex, 1)[0];
                 newBookmarks.splice(evt.newIndex, 0, movedItem);
@@ -272,7 +274,7 @@ function initializeDragAndDrop() {
             preventOnFilter: true,
             delay: 200,
             delayOnTouchOnly: true,
-            onStart: function() {
+            onStart: function () {
                 closeAllTodoMenus();
                 setIsDraggingTodo(true);
                 closeHeaderMenu();
@@ -283,7 +285,7 @@ function initializeDragAndDrop() {
                 const isHeader = evt.related.classList.contains('todo-completed-header');
                 return !isAddButton && !isRelatedCompleted && !isHeader;
             },
-            onEnd: async function(evt) {
+            onEnd: async function (evt) {
                 const incompleteTodos = todoList.filter(t => !t.completed);
                 const completedTodos = todoList.filter(t => t.completed);
                 const movedItem = incompleteTodos.splice(evt.oldIndex, 1)[0];
@@ -308,20 +310,20 @@ function initializeDragAndDrop() {
             preventOnFilter: true,
             delay: 200,
             delayOnTouchOnly: true,
-            onStart: function() {
+            onStart: function () {
                 closeAllPromptMenus();
                 closeHeaderMenu();
             },
             onMove: function (evt) {
                 return !evt.related.classList.contains('add-bookmark-item');
             },
-            onEnd: async function(evt) {
+            onEnd: async function (evt) {
                 const newFolders = [...promptFolders];
                 const movedItem = newFolders.splice(evt.oldIndex, 1)[0];
                 newFolders.splice(evt.newIndex, 0, movedItem);
                 setPromptFolders(newFolders);
                 await saveSetting('promptFolders', newFolders);
-                renderFolderTabs(); 
+                renderFolderTabs();
             },
         });
         setFolderSortableInstance(folderSortable);
@@ -430,7 +432,7 @@ function setupDropdown(type) {
 function handleAvatarDoubleClick() {
     if (!userPIN) return;
     if (themeModal.previewCheckbox && themeModal.previewCheckbox.checked) {
-      return;
+        return;
     }
     menu.container.classList.remove("show-menu");
     openAdvancedPromptManager();
@@ -466,10 +468,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         Object.keys(newSettings).forEach(key => { if (key !== 'applyToAll') newSettings[key] = browserLang; });
         setLanguageSettings(newSettings);
     }
-    
+
     await clearTemporaryCacheOnLoad();
     await clearCache('image-viewer-context-menu-cache');
-    
+
     initFooterSearch();
     const shouldShowContent = settings.showContent !== false;
     settingSwitches.showContent.checked = shouldShowContent;
@@ -479,7 +481,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (appVersionElement) {
         appVersionElement.textContent = CURRENT_VERSION;
     }
-    
+
     setCurrentUser(settings.username || "K1234");
     setUserPIN(settings.userPIN || null);
     setAdvancedPrompts(settings.advancedPrompts || []);
@@ -487,7 +489,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     setBookmarks(settings.bookmarks || []);
     setTodoList(settings.todoList || []);
     setColorScheme(settings.colorScheme || 'default');
-    
+
     if (settings.languageSettings) {
         setLanguageSettings({ ...languageSettings, ...settings.languageSettings });
     } else {
@@ -498,7 +500,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     if (settings.customBackground === true) {
-        const wallpaperBlob = await getWallpaperFromCache(); 
+        const wallpaperBlob = await getWallpaperFromCache();
         if (wallpaperBlob) {
             await applyCustomBackground(wallpaperBlob);
         } else {
@@ -525,8 +527,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                 return;
             }
             try {
-                await saveWallpaperToCache(file); 
-                await saveSetting('customBackground', true); 
+                await saveWallpaperToCache(file);
+                await saveSetting('customBackground', true);
                 applyCustomBackground(file);
                 showToast("toast.wallpaperApplied");
             } catch (error) {
@@ -552,12 +554,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     const shouldShowDate = settings.showDate !== false; settingSwitches.showDate.checked = shouldShowDate;
     const shouldShowTime = settings.showTime !== false; settingSwitches.showTime.checked = shouldShowTime;
     const shouldShowSeconds = settings.showSeconds !== false; settingSwitches.showSeconds.checked = shouldShowSeconds;
-    
+
     const shouldShowUsername = settings.showUsername !== false;
     if (settingSwitches.showUsername) {
         settingSwitches.showUsername.checked = shouldShowUsername;
     }
-    
+
     const shouldUseMenuBlur = settings.menuBlur !== false; settingSwitches.menuBlur.checked = shouldUseMenuBlur;
     const shouldUseBookmarkBlur = settings.bookmarkBlur !== false; settingSwitches.bookmarkBlur.checked = shouldUseBookmarkBlur;
     const shouldShowBookmark = settings.showBookmark !== false; settingSwitches.showBookmark.checked = shouldShowBookmark;
@@ -613,7 +615,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     function setupBookmarkActionDropdown() {
         const trigger = document.getElementById('bookmark-open-action-select');
         if (!trigger) return;
-        
+
         const optionsContainer = trigger.nextElementSibling;
         const selectedTextSpan = trigger.querySelector('span:first-child');
 
@@ -663,9 +665,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     function setupSearchActionDropdown() {
         const trigger = document.getElementById('search-open-action-select');
         if (!trigger) return;
-        
+
         const optionsContainer = trigger.nextElementSibling;
-        
+
         const updateDisplay = () => {
             const selectedTextSpan = trigger.querySelector('span:first-child');
             const selectedOption = optionsContainer.querySelector(`[data-value="${searchOpenAction}"]`);
@@ -673,7 +675,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const i18nKey = selectedOption.getAttribute('data-i18n-key');
                 const lang = languageSettings.ui;
                 const translatedText = i18nData[i18nKey]?.[lang] || selectedOption.textContent;
-                
+
                 selectedTextSpan.textContent = translatedText;
                 optionsContainer.querySelectorAll('.custom-option').forEach(opt => opt.classList.remove('selected'));
                 selectedOption.classList.add('selected');
@@ -709,7 +711,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         updateDisplay();
     }
-    
+
     setupBookmarkActionDropdown();
     setupSearchActionDropdown();
     setupSearchEngineDropdown();
@@ -767,7 +769,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
 
         window.addEventListener('click', () => {
-            if (contextMenu && contextMenu.style.display === 'flex') { 
+            if (contextMenu && contextMenu.style.display === 'flex') {
                 contextMenu.style.display = 'none';
             }
         });
@@ -901,7 +903,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     updateOfflineStatus();
     updateClock();
     updateInfrequentElements();
-    
+
     setAnimationFrameId(requestAnimationFrame(animationLoop));
 
     const infoSection = document.querySelector('.info-section');
@@ -910,56 +912,56 @@ document.addEventListener("DOMContentLoaded", async () => {
             infoSection.classList.add('visible');
             document.querySelector('.footer').classList.add('footer-visible');
             document.getElementById('bottom-search-bar').classList.add('footer-visible');
-        }, );
+        },);
     }
 
     function handleImageFileSelection(file) {
         if (!file) return;
-    
+
         if (!file.type.startsWith('image/')) {
             showInfoModal("info.attention.title", "prompt.dnd.notImage");
             addEditPromptModal.imageFileInput.value = '';
             return;
         }
-    
+
         if (file.size === 0) {
             showInfoModal("info.longPath.title", "info.longPath.text");
             addEditPromptModal.imageFileInput.value = '';
             return;
         }
-    
+
         const isAdding = currentPromptId === null;
         const targetImage = isAdding ? addEditPromptModal.imagePreviewSingle : addEditPromptModal.imagePreviewNew;
         const targetContainer = isAdding ? targetImage.parentElement : addEditPromptModal.previewsContainer;
-    
+
         addEditPromptModal.previewsContainer.classList.toggle('hidden', isAdding);
         addEditPromptModal.imagePreviewSingle.parentElement.classList.toggle('hidden', !isAdding);
         targetContainer.classList.add('is-loading');
-    
+
         targetImage.onload = () => {
             targetContainer.classList.remove('is-loading');
             targetImage.classList.remove('hidden');
         };
-        
+
         targetImage.onerror = () => {
             targetContainer.classList.remove('is-loading');
             log('error', 'log.error.loadPreviewFailed');
             showInfoModal("info.attention.title", "prompt.save.fileError");
         };
-    
+
         const reader = new FileReader();
         reader.onerror = (error) => {
             log('error', 'log.error.fileReader', {}, error);
             targetContainer.classList.remove('is-loading');
             showInfoModal("info.attention.title", "prompt.save.fileError");
         };
-        
+
         reader.onload = (e) => {
             targetImage.src = e.target.result;
         };
-    
+
         reader.readAsDataURL(file);
-    
+
         const dataTransfer = new DataTransfer();
         dataTransfer.items.add(file);
         addEditPromptModal.imageFileInput.files = dataTransfer.files;
@@ -1048,7 +1050,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 }
 
                 showFullImage(id, source);
-            } 
+            }
             if (action === 'copy') copyPromptTextFromItem(id);
             if (action === 'save-image') savePromptImage(id);
             if (action === 'edit') handleEditPrompt(id);
@@ -1124,21 +1126,21 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const targetElement = mutation.target;
                 const isNowVisible = !targetElement.classList.contains('hidden');
                 const wasPreviouslyHidden = mutation.oldValue && mutation.oldValue.includes('hidden');
-    
+
                 if (isNowVisible && wasPreviouslyHidden) {
                     const modalContent = advancedPromptModal.content;
-                    
-                    if (isAdvancedModalSmallMode()) { 
+
+                    if (isAdvancedModalSmallMode()) {
                         modalContent.classList.remove('sidebar-open');
-                    } 
-                    else { 
+                    }
+                    else {
                         if (!isAdvancedManageModeActive && !isAdvancedSearchModeActive) {
                             modalContent.classList.add('sidebar-open');
                         } else {
                             modalContent.classList.remove('sidebar-open');
                         }
                     }
-    
+
                     renderFolderTabs();
                     filterAndRenderAdvancedPrompts();
                     adjustVisibleIcons();
@@ -1218,7 +1220,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             openModal(confirmationModal.overlay);
         });
     }
-    
+
     if (dataDeletion.clearHiddenCacheBtn) {
         dataDeletion.clearHiddenCacheBtn.addEventListener('click', async () => {
             await clearCache('prompt-blob-cache');
@@ -1234,11 +1236,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         updateThemeOverrideButtons();
         await saveSetting('customThemeOverrides', newOverrides);
     }
-    
+
     if (themeModal.infoSectionThemeDefaultBtn) themeModal.infoSectionThemeDefaultBtn.addEventListener('click', () => handleOverrideChange('infoSection', 'default'));
     if (themeModal.infoSectionThemeLightBtn) themeModal.infoSectionThemeLightBtn.addEventListener('click', () => handleOverrideChange('infoSection', 'light'));
     if (themeModal.infoSectionThemeDarkBtn) themeModal.infoSectionThemeDarkBtn.addEventListener('click', () => handleOverrideChange('infoSection', 'dark'));
-    
+
     if (themeModal.footerThemeDefaultBtn) themeModal.footerThemeDefaultBtn.addEventListener('click', () => handleOverrideChange('footer', 'default'));
     if (themeModal.footerThemeLightBtn) themeModal.footerThemeLightBtn.addEventListener('click', () => handleOverrideChange('footer', 'light'));
     if (themeModal.footerThemeDarkBtn) themeModal.footerThemeDarkBtn.addEventListener('click', () => handleOverrideChange('footer', 'dark'));
@@ -1256,17 +1258,17 @@ document.addEventListener("DOMContentLoaded", async () => {
                 pointerId: 1,
                 isPrimary: true
             });
-    
+
             window.dispatchEvent(pointerUpEvent);
             document.dispatchEvent(pointerUpEvent);
             document.body.dispatchEvent(pointerUpEvent);
-    
+
             const mouseUpEvent = new MouseEvent('mouseup', {
                 view: window,
                 bubbles: true,
                 cancelable: true
             });
-            
+
             window.dispatchEvent(mouseUpEvent);
             document.dispatchEvent(mouseUpEvent);
             document.body.dispatchEvent(mouseUpEvent);
@@ -1280,7 +1282,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
-    // Tombol "Lainnya" (untuk membuka modal manajemen folder)
     const moreFoldersBtn = document.getElementById('advanced-prompt-more-folders-btn');
     if (moreFoldersBtn) {
         moreFoldersBtn.addEventListener('click', () => {
@@ -1373,11 +1374,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         advancedPromptModal.content.addEventListener('click', (e) => {
             const isSmallModeActive = isAdvancedModalSmallMode();
             const modalContent = advancedPromptModal.content;
-    
+
             if (e.target.closest('#advanced-prompt-toggle-sidebar-btn')) {
-                return; 
+                return;
             }
-    
+
             if (isSmallModeActive && modalContent.classList.contains('sidebar-open')) {
                 if (e.target.closest('#advanced-prompt-folder-bar') === null) {
                     modalContent.classList.remove('sidebar-open');
@@ -1395,8 +1396,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         window.advancedModalObserverAttached = true;
     }
 
-    if (advancedPromptModal.moveSelectedBtn) { 
+    if (advancedPromptModal.moveSelectedBtn) {
         advancedPromptModal.moveSelectedBtn.addEventListener('click', handleAdvancedMoveSelected);
+    }
+    if (advancedPromptModal.archiveSelectedBtn) {
+        advancedPromptModal.archiveSelectedBtn.addEventListener('click', handleAdvancedArchiveSelected);
     }
 
     function setupModalHeaderMenu(modal) {
@@ -1405,7 +1409,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 e.stopPropagation();
                 toggleHeaderMenu(modal.headerMenu, modal.moreBtn);
             });
-    
+
             modal.headerMenu.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const option = e.target.closest('.prompt-menu-option');
@@ -1416,7 +1420,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             });
         }
     }
-    
+
     setupModalHeaderMenu(promptModal);
     setupModalHeaderMenu(advancedPromptModal);
     setupModalHeaderMenu(bookmarkListModal);
@@ -1482,7 +1486,7 @@ window.addEventListener("resize", () => {
             }
         }
     }
-    
+
     const newIsMobileResolution = window.innerWidth <= 600;
     if (isMobileResolution && !newIsMobileResolution) {
         if (activeHeaderMenu) {
@@ -1493,8 +1497,8 @@ window.addEventListener("resize", () => {
 });
 
 window.addEventListener("keydown", (event) => {
-    const isImageViewerOpen = activeModalStack.length > 0 && 
-                              activeModalStack[activeModalStack.length - 1] === imageViewerModal.overlay;
+    const isImageViewerOpen = activeModalStack.length > 0 &&
+        activeModalStack[activeModalStack.length - 1] === imageViewerModal.overlay;
 
     if (event.key === "Escape") {
         const sidebarContextMenu = document.getElementById('folder-sidebar-context-menu');
@@ -1524,7 +1528,7 @@ window.addEventListener("keydown", (event) => {
                 return;
             }
         }
-        
+
         const contextMenu = document.getElementById('image-viewer-context-menu');
 
         if (contextMenu && contextMenu.style.display === 'flex') {
@@ -1532,9 +1536,9 @@ window.addEventListener("keydown", (event) => {
             return;
         }
 
-        if (activeBookmarkMenu) { 
-            closeAllBookmarkMenus_bookmark(); 
-            return; 
+        if (activeBookmarkMenu) {
+            closeAllBookmarkMenus_bookmark();
+            return;
         }
 
         if (activeTodoMenu) {
@@ -1554,10 +1558,10 @@ window.addEventListener("keydown", (event) => {
             return;
         }
 
-        if (activePromptMenu) { 
+        if (activePromptMenu) {
             closeSidebarContextMenu();
-            closeAllPromptMenus(); 
-            return; 
+            closeAllPromptMenus();
+            return;
         }
         if (menu.container.classList.contains('show-menu')) { menu.container.classList.remove('show-menu'); return; }
         const openSelects = document.querySelectorAll('.custom-select-options.show');
@@ -1581,15 +1585,15 @@ window.addEventListener("keydown", (event) => {
                 pinSettings.input.value = '';
                 event.preventDefault();
                 return;
-            } 
+            }
             else {
                 pinSettings.input.blur();
                 event.preventDefault();
                 if (activeModalStack.includes(pinEnterModal.overlay)) {
-                    closeModal(pinEnterModal.overlay); 
+                    closeModal(pinEnterModal.overlay);
                 }
                 else {
-                    document.body.focus({ preventScroll: true }); 
+                    document.body.focus({ preventScroll: true });
                 }
                 return;
             }
@@ -1597,7 +1601,7 @@ window.addEventListener("keydown", (event) => {
 
         const isBookmarkInput = activeEl === bookmarkModal.nameInput || activeEl === bookmarkModal.urlInput;
         if (isBookmarkInput && !bookmarkModal.overlay.classList.contains('hidden')) {
-            activeEl.blur(); 
+            activeEl.blur();
             event.preventDefault();
         }
 
@@ -1614,7 +1618,7 @@ window.addEventListener("keydown", (event) => {
                     return;
                 }
             }
-            
+
             if (lastModal === advancedPromptModal.overlay) {
                 if (isAdvancedSearchModeActive) {
                     toggleAdvancedSearchMode(false);
@@ -1687,23 +1691,89 @@ window.addEventListener("keydown", (event) => {
         const isInputFocused = activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA';
         const isSearchBarEnabled = settingSwitches.enableSearchBar && settingSwitches.enableSearchBar.checked;
 
+        if (activeModalStack.length > 0) {
+            const topModal = activeModalStack[activeModalStack.length - 1];
+            if (topModal === confirmationModal.overlay && !confirmationModal.confirmBtn.disabled) {
+                event.preventDefault();
+                confirmationModal.confirmBtn.click();
+                return;
+            }
+        }
+
         if (activeModalStack.length === 0 && !isInputFocused && isSearchBarEnabled) {
             event.preventDefault();
             footerSearch.input.focus();
         }
+    } else if (event.key === "Delete") {
+        const activeEl = document.activeElement;
+        const isInputFocused = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA');
+
+        if (activeModalStack.length > 0 && !isBlockingModalActive && !isInputFocused) {
+            const topModal = activeModalStack[activeModalStack.length - 1];
+            if (topModal === promptModal.overlay && isManageModeActive && !promptModal.deleteSelectedBtn.disabled) {
+                event.preventDefault();
+                promptModal.deleteSelectedBtn.click();
+            } else if (topModal === advancedPromptModal.overlay && isAdvancedManageModeActive && !advancedPromptModal.deleteSelectedBtn.disabled) {
+                event.preventDefault();
+                advancedPromptModal.deleteSelectedBtn.click();
+            } else if (topModal === bookmarkListModal.overlay && isBookmarkManageModeActive && !bookmarkListModal.deleteSelectedBtn.disabled) {
+                event.preventDefault();
+                bookmarkListModal.deleteSelectedBtn.click();
+            } else if (topModal === todoListModal.overlay && isTodoManageModeActive && !todoListModal.deleteSelectedBtn.disabled) {
+                event.preventDefault();
+                todoListModal.deleteSelectedBtn.click();
+            } else if (topModal === promptFolderModal.overlay && isFolderManageModeActive && !promptFolderModal.deleteSelectedBtn.disabled) {
+                event.preventDefault();
+                promptFolderModal.deleteSelectedBtn.click();
+            }
+        }
     }
+
     const isControlOrCommand = event.ctrlKey || event.metaKey;
+    const isAKey = event.key === 'a' || event.key === 'A';
+
+    if (isControlOrCommand && isAKey) {
+        if (activeModalStack.length > 0 && !isBlockingModalActive) {
+            const topModal = activeModalStack[activeModalStack.length - 1];
+            const activeEl = document.activeElement;
+            const isInputFocused = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA');
+            if (!isInputFocused) {
+                if (topModal === promptModal.overlay) {
+                    event.preventDefault();
+                    if (!isManageModeActive) togglePromptManageMode(true);
+                    promptModal.selectAllBtn.click();
+                } else if (topModal === advancedPromptModal.overlay) {
+                    event.preventDefault();
+                    if (!isAdvancedManageModeActive) toggleAdvancedManageMode(true);
+                    advancedPromptModal.selectAllBtn.click();
+                } else if (topModal === bookmarkListModal.overlay) {
+                    event.preventDefault();
+                    if (!isBookmarkManageModeActive) toggleBookmarkManageMode(true);
+                    bookmarkListModal.selectAllBtn.click();
+                } else if (topModal === todoListModal.overlay) {
+                    event.preventDefault();
+                    if (!isTodoManageModeActive) toggleTodoManageMode(true);
+                    todoListModal.selectAllBtn.click();
+                } else if (topModal === promptFolderModal.overlay) {
+                    event.preventDefault();
+                    if (!isFolderManageModeActive) toggleFolderManageMode(true);
+                    promptFolderModal.selectAllBtn.click();
+                }
+            }
+        }
+    }
+
     const isHKey = event.key === 'h' || event.key === 'H';
     if (isControlOrCommand && event.shiftKey && isHKey && activeModalStack.length === 0) {
-        if (!userPIN) return; 
+        if (!userPIN) return;
         event.preventDefault();
         closeSearch();
-        handleAvatarDoubleClick(); 
+        handleAvatarDoubleClick();
         return;
     }
     const isDKey = event.key === 'd' || event.key === 'D';
     if (isControlOrCommand && isDKey) {
-        const isBookmarkVisible = settingSwitches.showBookmark ? settingSwitches.showBookmark.checked : false;   
+        const isBookmarkVisible = settingSwitches.showBookmark ? settingSwitches.showBookmark.checked : false;
         if (isShortcutCtrlDEnabled && activeModalStack.length === 0 && isBookmarkVisible) {
             event.preventDefault();
             closeSearch();
@@ -1726,9 +1796,9 @@ window.addEventListener("keydown", (event) => {
 });
 
 function handleModalSearchShortcut(event) {
-    const isControlOrCommand = event.ctrlKey || event.metaKey; 
+    const isControlOrCommand = event.ctrlKey || event.metaKey;
     const isFKey = event.key === 'f' || event.key === 'F';
-    
+
     if (isControlOrCommand && isFKey) {
         const topModal = activeModalStack[activeModalStack.length - 1];
 
@@ -1825,7 +1895,7 @@ const handleUpdatePinClick = () => {
 };
 
 if (pinSettings.updateBtn) pinSettings.updateBtn.addEventListener('click', handleUpdatePinClick);
-if (pinSettings.input) pinSettings.input.addEventListener('keydown', (e) => { 
+if (pinSettings.input) pinSettings.input.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') handleUpdatePinClick();
 });
 
@@ -1846,7 +1916,7 @@ if (pinEnterModal.closeBtn) pinEnterModal.closeBtn.addEventListener("click", () 
     } else if (currentPurpose === 'confirmDisablePopupFinder') {
         settingSwitches.enablePopupFinder.checked = true;
     } else if (currentPurpose === 'confirmEnablePromptSearch') {
-        settingSwitches.enablePromptSearch.checked = false; 
+        settingSwitches.enablePromptSearch.checked = false;
     } else if (currentPurpose === 'confirmDisablePromptSearch') {
         settingSwitches.enablePromptSearch.checked = true;
     }
@@ -1855,12 +1925,12 @@ if (pinEnterModal.closeBtn) pinEnterModal.closeBtn.addEventListener("click", () 
 
 if (pinEnterModal.submitBtn) pinEnterModal.submitBtn.addEventListener("click", handlePinSubmit);
 
-if (pinEnterModal.input) pinEnterModal.input.addEventListener("keydown", (e) => { 
+if (pinEnterModal.input) pinEnterModal.input.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
         e.preventDefault();
         e.stopPropagation();
-        handlePinSubmit(); 
-    } 
+        handlePinSubmit();
+    }
 });
 
 if (promptModal.closeBtn) promptModal.closeBtn.addEventListener("click", () => {
@@ -1891,7 +1961,7 @@ if (advancedPromptModal.closeBtn) advancedPromptModal.closeBtn.addEventListener(
     }
     const promptGrid = document.getElementById('advanced-prompt-grid');
     if (promptGrid) {
-        promptGrid.parentElement.scrollTop = 0; 
+        promptGrid.parentElement.scrollTop = 0;
     }
     closeModal(advancedPromptModal.overlay);
 });
@@ -1914,26 +1984,26 @@ if (promptViewerModal.copyBtn) promptViewerModal.copyBtn.addEventListener("click
 if (promptViewerModal.deleteBtn) promptViewerModal.deleteBtn.addEventListener("click", () => handleDeletePrompt(currentPromptId));
 if (promptViewerModal.editBtn) promptViewerModal.editBtn.addEventListener("click", () => { closeModal(promptViewerModal.overlay); handleEditPrompt(currentPromptId); });
 
-if (advancedPromptViewerModal.closeBtn) advancedPromptViewerModal.closeBtn.addEventListener("click", () => { 
+if (advancedPromptViewerModal.closeBtn) advancedPromptViewerModal.closeBtn.addEventListener("click", () => {
     advancedPromptViewerModal.body.querySelectorAll('.viewer-character-thumbnail').forEach(img => {
         if (img.src.startsWith('blob:')) {
             URL.revokeObjectURL(img.src);
         }
     });
-    closeModal(advancedPromptViewerModal.overlay); 
+    closeModal(advancedPromptViewerModal.overlay);
 });
 
 if (advancedPromptViewerModal.copyBtn) advancedPromptViewerModal.copyBtn.addEventListener("click", () => copyAdvancedPromptTextFromViewer(currentAdvancedPromptId));
 if (advancedPromptViewerModal.deleteBtn) advancedPromptViewerModal.deleteBtn.addEventListener("click", () => handleDeleteAdvancedPrompt(currentAdvancedPromptId));
 if (advancedPromptViewerModal.editBtn) advancedPromptViewerModal.editBtn.addEventListener("click", () => { closeModal(advancedPromptViewerModal.overlay); handleEditAdvancedPrompt(currentAdvancedPromptId); });
 
-if (addEditPromptModal.closeBtn) addEditPromptModal.closeBtn.addEventListener("click", () => { 
+if (addEditPromptModal.closeBtn) addEditPromptModal.closeBtn.addEventListener("click", () => {
     [addEditPromptModal.imagePreviewSingle, addEditPromptModal.imagePreviewOld, addEditPromptModal.imagePreviewNew].forEach(img => {
-        if(img && img.src.startsWith('blob:')) {
+        if (img && img.src.startsWith('blob:')) {
             URL.revokeObjectURL(img.src);
         }
     });
-    closeModal(addEditPromptModal.overlay); 
+    closeModal(addEditPromptModal.overlay);
 });
 
 if (addEditPromptModal.saveBtn) addEditPromptModal.saveBtn.addEventListener("click", handleSavePrompt);
@@ -1991,7 +2061,7 @@ if (howItWorksModal.closeBtn) howItWorksModal.closeBtn.addEventListener("click",
 
 if (imageViewerModal.closeBtn) { imageViewerModal.closeBtn.addEventListener("click", closeImageViewer); }
 if (imageViewerModal.overlay) {
-    imageViewerModal.overlay.addEventListener("click", (e) => { 
+    imageViewerModal.overlay.addEventListener("click", (e) => {
         if (e.target === imageViewerModal.overlay) {
             closeImageViewer();
         }
@@ -2057,24 +2127,24 @@ if (settingSwitches.showContent) {
     });
 }
 
-if (settingSwitches.showGreeting) { 
-    settingSwitches.showGreeting.addEventListener("change", async (e) => { 
-        applyShowGreeting(e.target.checked); 
-        updateSeparatorVisibility(); 
-        updateLanguageControlsState(); 
+if (settingSwitches.showGreeting) {
+    settingSwitches.showGreeting.addEventListener("change", async (e) => {
+        applyShowGreeting(e.target.checked);
+        updateSeparatorVisibility();
+        updateLanguageControlsState();
         updateMainPageSwitchesState();
         if (settingSwitches.showUsername) {
             applyShowUsername(settingSwitches.showUsername.checked);
         }
-        await saveSetting("showGreeting", e.target.checked); 
-    }); 
+        await saveSetting("showGreeting", e.target.checked);
+    });
 }
 
-if (settingSwitches.showUsername) { 
-    settingSwitches.showUsername.addEventListener("change", async (e) => { 
-        applyShowUsername(e.target.checked); 
-        await saveSetting("showUsername", e.target.checked); 
-    }); 
+if (settingSwitches.showUsername) {
+    settingSwitches.showUsername.addEventListener("change", async (e) => {
+        applyShowUsername(e.target.checked);
+        await saveSetting("showUsername", e.target.checked);
+    });
 }
 
 if (settingSwitches.showDescription) { settingSwitches.showDescription.addEventListener("change", async (e) => { applyShowDescription(e.target.checked); updateSeparatorVisibility(); updateLanguageControlsState(); await saveSetting("showDescription", e.target.checked); }); }
@@ -2114,10 +2184,10 @@ if (settingSwitches.showBookmark) {
     });
 }
 if (settingSwitches.bookmarkBlur) {
-    settingSwitches.bookmarkBlur.addEventListener("change", async (e) => { 
-        applyBookmarkBlur(e.target.checked); 
-        await saveSetting("bookmarkBlur", e.target.checked); 
-    }); 
+    settingSwitches.bookmarkBlur.addEventListener("change", async (e) => {
+        applyBookmarkBlur(e.target.checked);
+        await saveSetting("bookmarkBlur", e.target.checked);
+    });
 }
 
 if (settingSwitches.showTodoList) {
@@ -2179,22 +2249,22 @@ if (settingSwitches.enableHistorySearch) {
     });
 }
 
-if (settingSwitches.enableSearchBar) { 
-    settingSwitches.enableSearchBar.addEventListener("change", async (e) => { 
+if (settingSwitches.enableSearchBar) {
+    settingSwitches.enableSearchBar.addEventListener("change", async (e) => {
         const isChecked = e.target.checked;
         applyShowSearchBar(isChecked);
         updateMainPageSwitchesState();
         await saveSetting("enableSearchBar", isChecked);
-        reinitializeSearchData(); 
-    }); 
+        reinitializeSearchData();
+    });
 }
 
-if (settingSwitches.enableBookmarkSearch) { 
-    settingSwitches.enableBookmarkSearch.addEventListener("change", async (e) => { 
+if (settingSwitches.enableBookmarkSearch) {
+    settingSwitches.enableBookmarkSearch.addEventListener("change", async (e) => {
         const isChecked = e.target.checked;
         await saveSetting("enableBookmarkSearch", isChecked);
         reinitializeSearchData();
-    }); 
+    });
 }
 
 if (settingSwitches.enableBookmarkPopupFinder) {
@@ -2231,13 +2301,13 @@ if (settingSwitches.enablePopupFinder) {
         const targetState = e.target.checked;
         const purpose = targetState ? 'confirmEnablePopupFinder' : 'confirmDisablePopupFinder';
         setPinModalPurpose(purpose);
-        
+
         const lang = languageSettings.ui;
-        
+
         pinEnterModal.title.textContent = i18nData["pin.enter.confirmFeatureTitle"][lang];
         pinEnterModal.label.textContent = i18nData["pin.enter.confirmFeatureLabel"][lang];
         pinEnterModal.input.value = '';
-        
+
         openModal(pinEnterModal.overlay);
         pinEnterModal.input.focus();
     });
@@ -2292,26 +2362,26 @@ async function updateStorageUsage() {
 }
 
 document.addEventListener('click', (e) => {
-    if (e.target.closest('.prompt-item-menu-btn') || 
-        e.target.closest('.bookmark-menu-btn') || 
-        e.target.closest('.bookmark-menu-btn-main') || 
+    if (e.target.closest('.prompt-item-menu-btn') ||
+        e.target.closest('.bookmark-menu-btn') ||
+        e.target.closest('.bookmark-menu-btn-main') ||
         e.target.closest('.todo-menu-btn') ||
         e.target.closest('.folder-item-menu-btn') ||
         e.target.closest('.image-viewer-nav-btn')) {
-        
+
         closeHeaderMenu();
     }
 });
 
 document.addEventListener('contextmenu', (e) => {
-    if (e.target.closest('.prompt-item') || 
-        e.target.closest('.advanced-prompt-item') || 
-        e.target.closest('.bookmark-item') || 
+    if (e.target.closest('.prompt-item') ||
+        e.target.closest('.advanced-prompt-item') ||
+        e.target.closest('.bookmark-item') ||
         e.target.closest('.bookmark-item-main') ||
         e.target.closest('.todo-item') ||
         e.target.closest('.folder-item') ||
         e.target.closest('#full-image-viewer')) {
-        
+
         closeHeaderMenu();
     }
 });

@@ -253,6 +253,13 @@ function createTodoModalItem(item, lang) {
                 toggleTodoSelection(item.id);
             }
             return;
+        } else if (e.ctrlKey || e.shiftKey || e.metaKey) {
+            if (e.target.type !== 'checkbox' && !e.target.closest('.todo-menu-btn')) {
+                e.preventDefault();
+                toggleManageMode(true);
+                toggleTodoSelection(item.id);
+                return;
+            }
         }
         if (e.target.type !== 'checkbox' && !e.target.closest('.todo-menu-btn')) {
             handleOpenEditTodoModal(item.id);
