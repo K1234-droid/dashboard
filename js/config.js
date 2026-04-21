@@ -5,7 +5,7 @@
  */
 
 // ==================== PENGATURAN PEMBARUAN ====================
-export const CURRENT_VERSION = 'v6.2.0';
+export const CURRENT_VERSION = 'v6.3.0';
 export const GITHUB_OWNER = 'K1234-droid';
 export const GITHUB_REPO = 'dashboard';
 // ==============================================================
@@ -44,6 +44,7 @@ export const menu = {
     container: document.getElementById("avatar-menu-container"),
     button: document.getElementById("avatar-logo-btn"),
     popup: document.getElementById("menu-popup"),
+    notesBtn: document.getElementById("open-notes-menu-btn"),
 };
 
 // Elemen terkait Modal Ubah Username.
@@ -719,6 +720,7 @@ export const i18nData = {
     "pin.enter.title": { id: "Masukkan PIN", en: "Enter PIN", ja: "PINを入力" },
     "pin.enter.label": { id: "PIN 4 Digit", en: "4-Digit PIN", ja: "4桁のPIN" },
     "pin.enter.submit": { id: "Masuk", en: "Enter", ja: "入力" },
+    "popup.featureDisabled.text": { id: "Fitur catatan dinonaktifkan. Silakan aktifkan melalui \"Pengaturan\" di menu tampilan.", en: "The notes feature is disabled. Please enable it via \"Settings\" in the display menu.", ja: "ノート機能は無効になっています。ディスプレイメニューの「設定」から有効にしてください。" },
     "prompt.delete.inUseError": { id: "Gambar ini tidak dapat dihapus karena digunakan di dalam Catatan. Mohon hapus dari Catatan terlebih dahulu.", en: "This image cannot be deleted because it is used in a Note. Please remove it from the Note first.", ja: "この画像はノートで使用されているため削除できません。まずノートから削除してください。" },
     "prompt.delete.cancel": { id: "Batal", en: "Cancel", ja: "キャンセル" },
     "prompt.delete.confirm": { id: "Ya, Hapus", en: "Yes, Delete", ja: "はい、削除します" },

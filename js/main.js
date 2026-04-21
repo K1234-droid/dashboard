@@ -1854,6 +1854,17 @@ if (usernameModal.closeBtn) usernameModal.closeBtn.addEventListener("click", () 
 if (usernameModal.saveBtn) usernameModal.saveBtn.addEventListener("click", handleSaveUsername);
 if (usernameModal.input) usernameModal.input.addEventListener("keydown", (event) => { if (event.key === "Enter") handleSaveUsername(); });
 
+if (menu.notesBtn) {
+    menu.notesBtn.addEventListener("click", () => {
+        menu.container.classList.remove("show-menu");
+        if (settingSwitches.hiddenFeature && !settingSwitches.hiddenFeature.checked) {
+            showInfoModal("popup.featureDisabled.title", "popup.featureDisabled.text");
+        } else {
+            handleAvatarDoubleClick();
+        }
+    });
+}
+
 if (themeModal.openBtn) themeModal.openBtn.addEventListener("click", () => {
     menu.container.classList.remove("show-menu");
     openModal(themeModal.overlay);
