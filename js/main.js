@@ -61,7 +61,7 @@ import {
     updateManageModeUI as updatePromptManageModeUI,
     toggleSearchMode as togglePromptSearchMode,
     handleSearchInput as handlePromptSearchInput,
-    savePromptImage, navigateImageViewer, closeImageViewer
+    savePromptImage, navigateImageViewer, closeImageViewer, showPromptViewer
 } from './promptManager.js';
 import {
     renderAdvancedPrompts, toggleAdvancedManageMode, handleAdvancedSelectAll,
@@ -735,6 +735,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             if (source === 'grid') {
                 menuItems = [
+                    { action: 'view-prompt-details', key: 'prompt.detailTitle' },
                     { action: 'copy', key: 'prompt.image.copy' },
                     { action: 'save-image', key: 'prompt.menu.saveImage' },
                     { action: 'edit', key: 'prompt.menu.edit' },
@@ -783,6 +784,12 @@ document.addEventListener("DOMContentLoaded", async () => {
             const promptId = currentImageViewerId;
 
             switch (action) {
+                case 'view-prompt-details':
+                    const prompt = prompts.find(p => p.id === promptId);
+                    if (prompt) {
+                        showPromptViewer(prompt);
+                    }
+                    break;
                 case 'copy':
                     copyPromptTextFromItem(promptId);
                     break;
@@ -1050,6 +1057,12 @@ document.addEventListener("DOMContentLoaded", async () => {
                 }
 
                 showFullImage(id, source);
+            }
+            if (action === 'view-prompt-details') {
+                const prompt = prompts.find(p => p.id === id);
+                if (prompt) {
+                    showPromptViewer(prompt);
+                }
             }
             if (action === 'copy') copyPromptTextFromItem(id);
             if (action === 'save-image') savePromptImage(id);
@@ -1993,7 +2006,13 @@ if (advancedPromptModal.searchInput) advancedPromptModal.searchInput.addEventLis
 if (promptViewerModal.closeBtn) promptViewerModal.closeBtn.addEventListener("click", () => { closeModal(promptViewerModal.overlay); });
 if (promptViewerModal.copyBtn) promptViewerModal.copyBtn.addEventListener("click", copyPromptTextFromViewer);
 if (promptViewerModal.deleteBtn) promptViewerModal.deleteBtn.addEventListener("click", () => handleDeletePrompt(currentPromptId));
-if (promptViewerModal.editBtn) promptViewerModal.editBtn.addEventListener("click", () => { closeModal(promptViewerModal.overlay); handleEditPrompt(currentPromptId); });
+if (promptViewerModal.editBtn) promptViewerModal.editBtn.addEventListener("click", () => {
+    closeModal(promptViewerModal.overlay);
+    if (!imageViewerModal.overlay.classList.contains('hidden')) {
+        closeModal(imageViewerModal.overlay);
+    }
+    handleEditPrompt(currentPromptId);
+});
 
 if (advancedPromptViewerModal.closeBtn) advancedPromptViewerModal.closeBtn.addEventListener("click", () => {
     advancedPromptViewerModal.body.querySelectorAll('.viewer-character-thumbnail').forEach(img => {

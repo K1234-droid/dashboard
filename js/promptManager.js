@@ -7,7 +7,7 @@ import {
     isSearchModeActive, setIsSearchModeActive, setCurrentImageViewerId, setImageViewerSource,
     uiHideTimeout, setUiHideTimeout, imageViewerSource, currentImageViewerId, currentImageNavList,
     setCharacterDataStale, cachedIconDataUrls, setCachedIconDataUrls, cachedThumbnailDataUrls,
-    setCachedThumbnailDataUrls, isPromptGridStale, setIsPromptGridStale
+    setCachedThumbnailDataUrls, isPromptGridStale, setIsPromptGridStale, setCurrentImageNavList
 } from './config.js';
 import { openModal, closeModal, showInfoModal, showLoadingModal, hideLoadingModal } from './ui.js';
 import { showToast, resizeImage, blobToDataURL, log } from './utils.js';
@@ -235,7 +235,7 @@ export async function renderPrompts(promptsToRender = prompts) {
         menuContainer.className = 'prompt-item-menu';
         menuContainer.dataset.id = p.id;
         menuContainer.innerHTML = `
-            <button class="prompt-menu-option" type="button" data-action="view-image">${i18nData["prompt.menu.view"][lang] || i18nData["prompt.menu.view"]["id"]}</button>
+            <button class="prompt-menu-option" type="button" data-action="view-prompt-details">${i18nData["prompt.detailTitle"][lang] || i18nData["prompt.detailTitle"]["id"]}</button>
             <button class="prompt-menu-option" type="button" data-action="copy">${i18nData["prompt.image.copy"][lang] || i18nData["prompt.image.copy"]["id"]}</button>
             <button class="prompt-menu-option" type="button" data-action="save-image">${i18nData["prompt.menu.saveImage"][lang] || i18nData["prompt.menu.saveImage"]["id"]}</button>
             <button class="prompt-menu-option" type="button" data-action="edit">${i18nData["prompt.menu.edit"][lang] || i18nData["prompt.menu.edit"]["id"]}</button>
@@ -263,7 +263,11 @@ export async function renderPrompts(promptsToRender = prompts) {
             if (e.target.closest('.prompt-item-menu-btn')) {
                 return;
             }
-            showPromptViewer(p);
+            const allPromptIds = Array.from(promptModal.grid.querySelectorAll('.prompt-item:not(.add-prompt-item)'))
+                .map(el => parseInt(el.dataset.id, 10))
+                .filter(id => !isNaN(id));
+            setCurrentImageNavList(allPromptIds);
+            showFullImage(p.id, 'grid');
         });
 
         item.addEventListener('contextmenu', (e) => {
@@ -581,7 +585,7 @@ async function appendNewPromptItem(newPrompt) {
     menuContainer.className = 'prompt-item-menu';
     menuContainer.dataset.id = newPrompt.id;
     menuContainer.innerHTML = `
-        <button class="prompt-menu-option" data-action="view-image">${i18nData["prompt.menu.view"][lang]}</button>
+        <button class="prompt-menu-option" data-action="view-prompt-details">${i18nData["prompt.detailTitle"][lang] || i18nData["prompt.detailTitle"]["id"]}</button>
         <button class="prompt-menu-option" data-action="copy">${i18nData["prompt.image.copy"][lang]}</button>
         <button class="prompt-menu-option" data-action="save-image">${i18nData["prompt.menu.saveImage"][lang]}</button>
         <button class="prompt-menu-option" data-action="edit">${i18nData["prompt.menu.edit"][lang]}</button>
@@ -605,7 +609,11 @@ async function appendNewPromptItem(newPrompt) {
             }
         }
         if (e.target.closest('.prompt-item-menu-btn')) { return; }
-        showPromptViewer(newPrompt);
+        const allPromptIds = Array.from(promptModal.grid.querySelectorAll('.prompt-item:not(.add-prompt-item)'))
+            .map(el => parseInt(el.dataset.id, 10))
+            .filter(id => !isNaN(id));
+        setCurrentImageNavList(allPromptIds);
+        showFullImage(newPrompt.id, 'grid');
     });
 
     item.addEventListener('contextmenu', (e) => {
